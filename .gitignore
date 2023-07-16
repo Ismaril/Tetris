@@ -1,0 +1,7 @@
+"# Tetris"
+
+.vs
+App.config
+bin/
+obj/
+Properties/
