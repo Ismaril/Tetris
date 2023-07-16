@@ -48,16 +48,16 @@ namespace Tetris
         {
             if (e.KeyCode == Keys.Right)
             {
-                this.logic.MoveRight();
+                this.logic.tetromino.MoveRight();
             }
             else if (e.KeyCode == Keys.Left)
             {
-                this.logic.MoveLeft();
+                this.logic.tetromino.MoveLeft();
             }
-            else if ( e.KeyCode == Keys.Down)
-            {
-                this.logic.MoveDown();
-            }
+            //else if ( e.KeyCode == Keys.Down)
+            //{
+           //     this.logic.tetromino.MoveDown();
+           // }
         }
 
     }

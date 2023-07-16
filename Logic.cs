@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Tetris
 {
-    public class Logic: Constants
+    public class Logic
     {
 
         public int[] matrix;
@@ -24,8 +24,9 @@ namespace Tetris
 
         public Logic(Action<int[]> redraw, Action<int[]> redrawBack)
         {
-            this.matrix =  new int[WIDTH_OF_GRID * HEIGHT_OF_GRID];
-            this.tetromino = new Tetromino(tetrominoType: I_type);
+
+            this.matrix =  new int[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
+            this.tetromino = new Tetromino(redraw, redrawBack);
             this.currentRow = 0;
             this.nrOfSessionRows = 0;
             this.roundEnded = false;
@@ -65,7 +66,7 @@ namespace Tetris
             string matrixForPrint = String.Empty;
             for (int j = 0; j < this.matrix.Length; j++)
             {
-                if (j % ROW_JUMP == 0) matrixForPrint += "\n";
+                if (j % Constants.ROW_JUMP == 0) matrixForPrint += "\n";
                 matrixForPrint += matrix[j];
             }
             Console.Write($"\r{matrixForPrint}");
@@ -78,18 +79,20 @@ namespace Tetris
         /// If yes, current tetromino has to stop on current row.
         /// </summary>
         /// <returns></returns>
+        
+        /*
         private object CheckObstacleAtNextRow()
         {
-            int rot = this.tetromino.GetPositionOfRotation();
+            int rot = this.tetromino.GetPositionOfRotation;
 
-            switch (this.tetromino.GetType_())
+            switch (this.tetromino.GetType_)
             {
-                case I_type:
+                case Constants.I_type:
                     if (rot == 0)
                     {
-                        foreach(int index in this.tetromino.GetIndexes())
+                        foreach(int index in this.tetromino.GetIndexes)
                         {
-                            if (this.matrix[index + ROW_JUMP] == 1)
+                            if (this.matrix[index + Constants.ROW_JUMP] == 1)
                             {
                                 return true;
                             }
@@ -101,22 +104,9 @@ namespace Tetris
             return "Incorrect exit";
 
         }
+        */
 
-
-        private void UserInput()
-        {
-            var keyInfo = Console.ReadKey();
-            switch (keyInfo.Key)
-            {
-                case ConsoleKey.UpArrow: Console.WriteLine("UP"); break;
-                case ConsoleKey.DownArrow: Console.WriteLine("Down"); break;
-                case ConsoleKey.LeftArrow: Console.WriteLine("Left"); break;
-                case ConsoleKey.RightArrow: Console.WriteLine("Right"); break;
-
-            }
-            //Thread.Sleep(100);
-        }
-        
+         
         public void StartSendingPieces()
         {
             if (this.nrOfSessionRows == 0)
@@ -125,69 +115,25 @@ namespace Tetris
             }
         }
 
-        public void MoveLeft()
-        {
-            switch (this.tetromino.GetType_())
-            {
-                case I_type:
-                    for (int i = 0; i < 4; i++)
-                    {
-                        this.tetromino.GetIndexes()[i]--;
-                    }
-                    break;
-            }
-            this.redraw(this.tetromino.GetIndexes());
-            this.redrawBack(this.tetromino.GetPreviousIndexes());
-        }
-
-        public void MoveRight()
-        {
-            switch (this.tetromino.GetType_())
-            {
-                case I_type:
-                    for (int i = 0; i < 4; i++)
-                    {
-                        this.tetromino.GetIndexes()[i]++;
-                    }
-                    break;
-            }
-            this.redraw(this.tetromino.GetIndexes());
-            this.redrawBack(this.tetromino.GetPreviousIndexes());
-        }
-
-        public void MoveDown()
-        {
-            switch (this.tetromino.GetType_())
-            {
-                case I_type:
-                    for (int i = 0; i < 4; i++)
-                    {
-                        this.tetromino.GetIndexes()[i] += ROW_JUMP;
-                    }
-                    break;
-            }
-            this.redraw(this.tetromino.GetIndexes());
-            this.redrawBack(this.tetromino.GetPreviousIndexes());
-        }
-
 
         public void Main__()
         {
 
             if (this.nrOfSessionRows == 0)
             {
+                this.tetromino.ChoseNewType();
                 this.tetromino.SendNewFromTop();
             }
 
             // Change the state of the indexes at a current row from empty to having a tetromino.
-            this.PutTetrominoOnGrid(this.tetromino.GetIndexes());
-            this.redraw(this.tetromino.GetIndexes());
+            this.PutTetrominoOnGrid(this.tetromino.GetIndexes);
+            this.redraw(this.tetromino.GetIndexes);
 
             
             if (this.currentRow > 0)
             {
-                this.tetromino.SubtractToPreviousIndexes();
-                redrawBack(this.tetromino.GetPreviousIndexes());
+                //this.tetromino.SubtractToPreviousIndexes();
+                redrawBack(this.tetromino.GetPreviousIndexes);
 
             }
             
@@ -201,6 +147,7 @@ namespace Tetris
 
             // Check if there is some tetromino at next row.
             
+            /*
             if ((bool)CheckObstacleAtNextRow())
             {
                 // Check if there is some tetromino at the top rows.
@@ -215,15 +162,15 @@ namespace Tetris
                 this.tetromino.SendNewFromTop();
                 this.currentRow = 0;
             }
-            
+            */
             
             // If this condition is True, tetromino can freely fall at next row.
 
             //PRIDAT ELSE IF!
-            else if (this.currentRow < LAST_ROW - 1)
+            if (this.currentRow < Constants.LAST_ROW - 1)
             {
                 // Change the state of current indexes which have tetromino back to empty. This change will be visible in next iteration.
-                this.RemoveTetrominoFromGrid(this.tetromino.GetIndexes());
+                this.RemoveTetrominoFromGrid(this.tetromino.GetIndexes);
                 
 
                 // Move the index and next row.
@@ -235,9 +182,10 @@ namespace Tetris
             }
 
             // Check if a tetromino is at the bottom row.
-            else if (this.currentRow == LAST_ROW - 1)
+            else if (this.currentRow == Constants.LAST_ROW - 1)
             {
                 // Reset index and therefore send next piece.
+                this.tetromino.ChoseNewType();
                 this.tetromino.SendNewFromTop();
                 this.currentRow = 0;
             };

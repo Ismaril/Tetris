@@ -7,6 +7,8 @@ namespace Tetris
 {
     partial class Form1
     {
+        private System.Windows.Forms.PictureBox pictureBox;
+
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -52,7 +54,6 @@ namespace Tetris
                     ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
                     counter++;
                 }
-
             }
             // 
             // Form1
@@ -67,13 +68,8 @@ namespace Tetris
             this.Load += new System.EventHandler(this.Form1_Load);
 
             this.ResumeLayout(false);
-
         }
-
-
         #endregion
-        private System.Windows.Forms.PictureBox pictureBox;
-
 
         public void Redraw(int[] tetrominoIndexes)
         {
