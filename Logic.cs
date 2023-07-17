@@ -13,14 +13,14 @@ namespace Tetris
     public class Logic
     {
 
-        public int[] matrix;
-        public Tetromino tetromino;
-        int currentRow;
-        int nrOfSessionRows;
-        public bool roundEnded;
-        public bool totalGameEnded;
-        Action<int[]> redraw;
-        Action<int[]> redrawBack;
+        private int[] matrix;
+        private int currentRow;
+        private int nrOfSessionRows;
+        private bool roundEnded;
+        private bool totalGameEnded;
+        private Tetromino tetromino;
+        private Action<int[]> redraw;
+        private Action<int[]> redrawBack;
 
         public Logic(Action<int[]> redraw, Action<int[]> redrawBack)
         {
@@ -34,6 +34,8 @@ namespace Tetris
             this.redraw = redraw;
             this.redrawBack = redrawBack;
         }
+
+        public Tetromino Tetromino { get {  return this.tetromino; } }
         
         /// <summary>
         /// Actualises the selected matrix indexes to 1 from indexes of tetromino object.
@@ -79,9 +81,7 @@ namespace Tetris
         /// If yes, current tetromino has to stop on current row.
         /// </summary>
         /// <returns></returns>
-        
-        /*
-        private object CheckObstacleAtNextRow()
+        private object TetrominoHasObstacleAtNextRow()
         {
             int rot = this.tetromino.GetPositionOfRotation;
 
@@ -102,100 +102,76 @@ namespace Tetris
                     break;
             }
             return "Incorrect exit";
-
         }
-        */
 
-         
-        public void StartSendingPieces()
+        private object TetrominoCanFall()
         {
-            if (this.nrOfSessionRows == 0)
+            return this.currentRow < Constants.LAST_ROW - 1;
+        }
+        
+        private object TetrominoIsAtBottom()
+        {
+            return this.currentRow == Constants.LAST_ROW - 1;
+        }
+
+        private object TetrominaHasObstacleAtNextColumn() { throw new NotImplementedException(); }
+      
+        public void DrawGraphics()
+        {
+            // Change the state of the grid indexes at a current row from empty to having a tetromino.
+            this.PutTetrominoOnGrid(this.tetromino.GetIndexes);
+
+            // Add tetromino at new position at the screen - Redraw GUI
+            this.redraw(this.tetromino.GetIndexes);
+
+            if (this.currentRow > 0)
             {
-                this.tetromino.SendNewFromTop();
+                // Remove tetromino at old position from screen - Redraw GUI
+                this.tetromino.SubtractToPreviousIndexes();
+                redrawBack(this.tetromino.GetPreviousIndexes);
             }
         }
 
+        /// <summary>
+        /// Notify a player that the current game round has ended. Game lost.
+        /// </summary>
+        /// <exception cref="Exception"></exception>
+        private void RoundEnded()
+        {
+            Console.WriteLine("You lost");
+            this.roundEnded = true;
+            throw new Exception("Game ended");
+        }
 
         public void Main__()
         {
+            if (this.currentRow == 0) this.tetromino.PrepareAtStartPosition();
 
-            if (this.nrOfSessionRows == 0)
-            {
-                this.tetromino.ChoseNewType();
-                this.tetromino.SendNewFromTop();
-            }
-
-            // Change the state of the indexes at a current row from empty to having a tetromino.
-            this.PutTetrominoOnGrid(this.tetromino.GetIndexes);
-            this.redraw(this.tetromino.GetIndexes);
-
+            this.DrawGraphics();
             
-            if (this.currentRow > 0)
-            {
-                //this.tetromino.SubtractToPreviousIndexes();
-                redrawBack(this.tetromino.GetPreviousIndexes);
-
-            }
-            
-
-            //UserInput();
-            //this.VisualiseMatrixInConsole(); 
-            //Thread.Sleep(SPEED_OF_PIECES_FALLING);
-
-            //Console.Clear();
-
-
-            // Check if there is some tetromino at next row.
-            
-            /*
-            if ((bool)CheckObstacleAtNextRow())
+            if ((bool)this.TetrominoHasObstacleAtNextRow())
             {
                 // Check if there is some tetromino at the top rows.
-                if (this.currentRow == 0)
-                {
-                    //Console.Clear();
-                    Console.WriteLine("You lost");
-                    this.roundEnded = true;
-                    throw new Exception("Game ended");
-                }
-                // Reset index and therefore send next piece.
-                this.tetromino.SendNewFromTop();
-                this.currentRow = 0;
-            }
-            */
-            
-            // If this condition is True, tetromino can freely fall at next row.
+                if (this.currentRow == 0) this.RoundEnded();
 
-            //PRIDAT ELSE IF!
-            if (this.currentRow < Constants.LAST_ROW - 1)
+                // Reset index and therefore send next piece.
+                this.currentRow = 0;
+            }           
+            else if ((bool)this.TetrominoCanFall())
             {
                 // Change the state of current indexes which have tetromino back to empty. This change will be visible in next iteration.
                 this.RemoveTetrominoFromGrid(this.tetromino.GetIndexes);
-                
 
-                // Move the index and next row.
+                // Move the index at next row.
                 this.tetromino.MoveDown();
-                
-
-
                 this.currentRow++;
             }
-
-            // Check if a tetromino is at the bottom row.
-            else if (this.currentRow == Constants.LAST_ROW - 1)
+            else if ((bool)this.TetrominoIsAtBottom())
             {
                 // Reset index and therefore send next piece.
-                this.tetromino.ChoseNewType();
-                this.tetromino.SendNewFromTop();
                 this.currentRow = 0;
             };
-
-
             this.nrOfSessionRows++;
-
-            //Console.ReadLine();
-
         }
-
     }
 }

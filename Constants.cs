@@ -10,7 +10,7 @@ namespace Tetris
     {
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 20;
-        public const int SPEED_OF_PIECES_FALLING = 100;
+        public const int SPEED_OF_PIECES_FALLING = 1000;
 
 
         public const string I_type = "I";

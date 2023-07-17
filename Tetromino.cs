@@ -6,8 +6,8 @@ namespace Tetris
     public class Tetromino: Constants
     {
         private string type;
-        private int[] indexes;
         private int rotationType;
+        private int[] indexes;
         private int[] previousIndexes;
         private Action<int[]> redraw;
         private Action<int[]> redrawBack;
@@ -24,16 +24,14 @@ namespace Tetris
 
         }
 
-        public int[] GetIndexes { get { return indexes; } }
-        public int[] GetPreviousIndexes { get { return previousIndexes; } }
+        public int[] GetIndexes { get { return this.indexes; } }
+        public int[] GetPreviousIndexes { get { return this.previousIndexes; } }
         public int GetPositionOfRotation { get { return this.rotationType; } }
         public string GetType_ { get { return this.type; } } 
 
-        public int[] SendNewFromTop()
-        {
-            return this.indexes;
-        }
-
+        /// <summary>
+        /// Move tetromino at next row.
+        /// </summary>
         public void MoveDown()
         {
             for (int i = 0; i < 4; i++)
@@ -41,7 +39,10 @@ namespace Tetris
                 this.indexes[i] += ROW_JUMP;
             }
         }
-
+        
+        /// <summary>
+        /// Prepare index positions of former tetromino position.
+        /// </summary>
         public void SubtractToPreviousIndexes()
         {
             this.indexes.CopyTo(this.previousIndexes, 0);
@@ -51,31 +52,89 @@ namespace Tetris
                 this.previousIndexes[i] -= ROW_JUMP;
             }
         }
+        
+        /// <summary>
+        /// Check if tetromino is at left boundary of grid.
+        /// </summary>
+        /// <returns></returns>
+        private bool AtLeftGridBoundary()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (this.indexes[i] % ROW_JUMP == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        /// <summary>
+        /// Check if tetromino is at right boundary of grid.
+        /// </summary>
+        /// <returns></returns>
+        private bool AtRightGridBoundary()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (this.indexes[i] % ROW_JUMP == 9)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    
+
+        /// <summary>
+        /// Move tetromino left.
+        /// </summary>
         public void MoveLeft()
         {
-            for (int i = 0; i < 4; i++)
+            if (!this.AtLeftGridBoundary())
             {
-                this.indexes[i]--;
+                for (int i = 0; i < 4; i++)
+                {
+                    this.indexes[i]--;
+                }
+                this.redraw(this.indexes);
+                this.redrawBack(this.previousIndexes);
             }
-            this.redraw(this.indexes);
-            this.redrawBack(this.previousIndexes);
-        }
+       }
 
+        /// <summary>
+        /// Move tetromino right.
+        /// </summary>
         public void MoveRight()
         {
-            for (int i = 0; i < 4; i++)
+            if (!this.AtRightGridBoundary())
             {
-                this.indexes[i] ++;
+                for (int i = 0; i < 4; i++)
+                {
+                    this.indexes[i]++;
+                }
+                this.redraw(this.indexes);
+                this.redrawBack(this.previousIndexes);
+
             }
-            this.redraw(this.indexes);
-            this.redrawBack(this.previousIndexes);
+
         }
 
+        /// <summary>
+        /// Rotate tetromino right.
+        /// </summary>
         public void RotateRight() { }
+
+        /// <summary>
+        /// Rotate tetromino left.
+        /// </summary>
         public void RotateLeft() { } 
 
-        public void ChoseNewType() // Sjednotit s send from top?
+        /// <summary>
+        /// Prepare one random tetromino at the starting position at the top of grid.
+        /// </summary>
+        /// <returns>int[]</returns>
+        public int[] PrepareAtStartPosition()
         {
             Random random = new Random();
             int index = random.Next(0, 0); // prepsat 0 na 6 na druhej pozici
@@ -112,6 +171,7 @@ namespace Tetris
                     break;
 
             }
+            return this.indexes;
         }
     }
 }

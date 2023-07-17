@@ -28,7 +28,7 @@ namespace Tetris
             this.KeyDown += new KeyEventHandler(Form1_KeyArrows);
 
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-            timer.Interval = (Constants.SPEED_OF_PIECES_FALLING); // 1 sec
+            timer.Interval = (Constants.SPEED_OF_PIECES_FALLING);
 
             
             timer.Tick += new EventHandler(timerTick);
@@ -48,15 +48,15 @@ namespace Tetris
         {
             if (e.KeyCode == Keys.Right)
             {
-                this.logic.tetromino.MoveRight();
+                this.logic.Tetromino.MoveRight();
             }
             else if (e.KeyCode == Keys.Left)
             {
-                this.logic.tetromino.MoveLeft();
+                this.logic.Tetromino.MoveLeft();
             }
             //else if ( e.KeyCode == Keys.Down)
             //{
-           //     this.logic.tetromino.MoveDown();
+           //     this.logic.Tetromino.MoveDown();
            // }
         }
 
