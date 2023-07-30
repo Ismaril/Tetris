@@ -7,25 +7,38 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.Globalization;
+using System.Timers;
 
 namespace Tetris
 {
     public class Logic
     {
 
-        private int[] matrix;
-        private int currentRow;
-        private int nrOfSessionRows;
+        private byte[] matrix;
+        private byte currentRow;
+        private byte nrOfSessionRows;
         private bool roundEnded;
         private bool totalGameEnded;
         private Tetromino tetromino;
-        private Action<int[]> redraw;
-        private Action<int[]> redrawBack;
+        private Action<byte[]> redraw;
+        private Action<byte[]> redrawBack;
+        private List<byte> toBeRemoved;
+        public int timer;
+        private bool canMoveDown;
+        private bool deletePrevious;
 
-        public Logic(Action<int[]> redraw, Action<int[]> redrawBack)
+        /// <summary>
+        /// 
+        /// 
+        /// </summary>
+        /// <param name="redraw"></param>
+        /// <param name="redrawBack"></param>
+        public Logic(Action<byte[]> redraw, Action<byte[]> redrawBack)
         {
 
-            this.matrix =  new int[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
+            this.matrix =  new byte[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
             this.tetromino = new Tetromino(redraw, redrawBack);
             this.currentRow = 0;
             this.nrOfSessionRows = 0;
@@ -33,6 +46,9 @@ namespace Tetris
             this.totalGameEnded = false;
             this.redraw = redraw;
             this.redrawBack = redrawBack;
+            this.timer = 0;
+            this.deletePrevious = false;
+            this.toBeRemoved = new List<byte>();
         }
 
         public Tetromino Tetromino { get {  return this.tetromino; } }
@@ -40,96 +56,84 @@ namespace Tetris
         /// <summary>
         /// Actualises the selected matrix indexes to 1 from indexes of tetromino object.
         /// </summary>
-        /// <param name="tetrominoIndexes"></param>
-        private void PutTetrominoOnGrid(int[] tetrominoIndexes)
+        /// <param name="tetrominoMatrix"></param>
+        private void PutTetrominoOnGrid(byte[] tetrominoMatrix, byte x)
         {
-
-            foreach (int i in tetrominoIndexes)
+            byte j = 0;
+            for(byte i = 0; i < tetrominoMatrix.Length; i++)
             {
-                this.matrix[i] = 1;
+                if (j % 4 == 0 && i > 0)
+                {
+                    j = 0;
+                    x += (byte)Constants.ROW_JUMP;
+                }
+                if (tetrominoMatrix[i] > 0)
+                {
+                    this.matrix[x + j] = tetrominoMatrix[i];
+                    this.toBeRemoved.Add((byte)(x + j));
+                }
+                j++;
             }
         }
+
         /// <summary>
         /// Actualises the selected matrix indexes to 0 from indexes of tetromino object.
         /// </summary>
         /// <param name="tetrominoIndexes"></param>
-        private void RemoveTetrominoFromGrid(int[] tetrominoIndexes)
+        private void RemoveTetrominoFromGrid()
         {
-
-            foreach (int i in tetrominoIndexes)
+            foreach (int i in this.toBeRemoved)
             {
                 this.matrix[i] = 0;
             }
         }
 
-        private void VisualiseMatrixInConsole()
-        {
-            // Visualise at console.
-            string matrixForPrint = String.Empty;
-            for (int j = 0; j < this.matrix.Length; j++)
-            {
-                if (j % Constants.ROW_JUMP == 0) matrixForPrint += "\n";
-                matrixForPrint += matrix[j];
-            }
-            Console.Write($"\r{matrixForPrint}");
-        }
-
-
         /// <summary>
         /// Checks wheter there is a tetromino at next row.
-        /// Checks wheter there is the botom of matrix at next row.
         /// If yes, current tetromino has to stop on current row.
         /// </summary>
         /// <returns></returns>
         private object TetrominoHasObstacleAtNextRow()
         {
-            int rot = this.tetromino.GetPositionOfRotation;
-
-            switch (this.tetromino.GetType_)
             {
-                case Constants.I_type:
-                    if (rot == 0)
+                for(byte i = 0;i < this.toBeRemoved.Count; i++)
+                {
+                    if (this.matrix[this.toBeRemoved[i] + Constants.ROW_JUMP] > 0)
                     {
-                        foreach(int index in this.tetromino.GetIndexes)
-                        {
-                            if (this.matrix[index + Constants.ROW_JUMP] == 1)
-                            {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                    break;
+                        return true;
+                    } 
+                }
+                return false;
             }
-            return "Incorrect exit";
-        }
-
-        private object TetrominoCanFall()
-        {
-            return this.currentRow < Constants.LAST_ROW - 1;
+            throw new Exception("Incorrect exit");
         }
         
+        /// <summary>
+        /// Check if tetromino is still away from bottom of grid.
+        /// </summary>
+        /// <returns></returns>
+        private object TetrominoCanFall()
+        {
+            return this.currentRow < Constants.LAST_ROW - 3;
+        }
+        
+        /// <summary>
+        /// Check if tetromino is at bottom of the grid.
+        /// </summary>
+        /// <returns></returns>
         private object TetrominoIsAtBottom()
         {
-            return this.currentRow == Constants.LAST_ROW - 1;
+            return this.currentRow == Constants.LAST_ROW  - 3;
         }
 
         private object TetrominaHasObstacleAtNextColumn() { throw new NotImplementedException(); }
       
         public void DrawGraphics()
         {
-            // Change the state of the grid indexes at a current row from empty to having a tetromino.
-            this.PutTetrominoOnGrid(this.tetromino.GetIndexes);
+            this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.X);
 
             // Add tetromino at new position at the screen - Redraw GUI
-            this.redraw(this.tetromino.GetIndexes);
-
-            if (this.currentRow > 0)
-            {
-                // Remove tetromino at old position from screen - Redraw GUI
-                this.tetromino.SubtractToPreviousIndexes();
-                redrawBack(this.tetromino.GetPreviousIndexes);
-            }
+            this.redraw(this.matrix);
         }
 
         /// <summary>
@@ -145,33 +149,48 @@ namespace Tetris
 
         public void Main__()
         {
-            if (this.currentRow == 0) this.tetromino.PrepareAtStartPosition();
-
-            this.DrawGraphics();
-            
-            if ((bool)this.TetrominoHasObstacleAtNextRow())
+            if (this.tetromino.MovedRight || this.tetromino.MovedLeft)
             {
-                // Check if there is some tetromino at the top rows.
-                if (this.currentRow == 0) this.RoundEnded();
-
-                // Reset index and therefore send next piece.
-                this.currentRow = 0;
-            }           
-            else if ((bool)this.TetrominoCanFall())
-            {
-                // Change the state of current indexes which have tetromino back to empty. This change will be visible in next iteration.
-                this.RemoveTetrominoFromGrid(this.tetromino.GetIndexes);
-
-                // Move the index at next row.
-                this.tetromino.MoveDown();
-                this.currentRow++;
+                RemoveTetrominoFromGrid();
+                this.redrawBack(this.matrix);
+                this.DrawGraphics();
+                this.tetromino.MovedLeft = false;
+                this.tetromino.MovedRight = false;
             }
-            else if ((bool)this.TetrominoIsAtBottom())
+
+            if (this.timer > Constants.SPEED_OF_PIECES_FALLING)
             {
-                // Reset index and therefore send next piece.
-                this.currentRow = 0;
-            };
-            this.nrOfSessionRows++;
+                //if ((bool)this.TetrominoHasObstacleAtNextRow())
+                //{
+                //    if (this.currentRow == 0) this.RoundEnded();
+                //    this.currentRow = 0;
+                //    this.deletePrevious = false;
+                //    this.toBeRemoved.Clear();
+
+                //}
+                //else
+                if ((bool)this.TetrominoIsAtBottom())
+                {
+                    this.currentRow = 0;
+                    this.deletePrevious = false;
+                    this.toBeRemoved.Clear();
+                }
+
+                else if ((bool)this.TetrominoCanFall())
+                {
+                    RemoveTetrominoFromGrid();
+                    this.redrawBack(this.matrix);
+                    this.toBeRemoved.Clear();
+                    this.tetromino.MoveDown();
+                    this.currentRow++;
+                }
+
+                if (this.currentRow == 0){this.tetromino.PrepareAtStartPosition();}
+
+                this.DrawGraphics();
+                this.nrOfSessionRows++;
+                this.timer = 0;
+            }
         }
     }
 }

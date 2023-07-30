@@ -6,51 +6,42 @@ namespace Tetris
     public class Tetromino: Constants
     {
         private string type;
-        private int rotationType;
-        private int[] indexes;
-        private int[] previousIndexes;
-        private Action<int[]> redraw;
-        private Action<int[]> redrawBack;
+        private byte rotationType;
+        private byte[] indexes;
+        private byte[] previousIndexes;
+        private Action<byte[]> redraw;
+        private Action<byte[]> redrawBack;
+        private bool movedRight = false;
+        private bool movedLeft = false;
+        private byte x;
         
 
-        public Tetromino(Action<int[]> redraw, Action<int[]> redrawBack)
+        public Tetromino(Action<byte[]> redraw, Action<byte[]> redrawBack)
         {
             this.type = String.Empty;
-            this.previousIndexes = new int[4];
-            this.indexes = new int[4];
+            this.previousIndexes = new byte[4];
+            this.indexes = new byte[16];
             this.rotationType = 0;
             this.redraw = redraw;
-            this.redrawBack = redrawBack;   
-
+            this.redrawBack = redrawBack;
         }
 
-        public int[] GetIndexes { get { return this.indexes; } }
-        public int[] GetPreviousIndexes { get { return this.previousIndexes; } }
-        public int GetPositionOfRotation { get { return this.rotationType; } }
+        public byte[] GetIndexes { get { return this.indexes; } }
+        public byte[] GetPreviousIndexes { get { return this.previousIndexes; } }
+        public byte GetPositionOfRotation { get { return this.rotationType; } }
         public string GetType_ { get { return this.type; } } 
+        public byte X { get { return this.x; } set { this.x = value; } }
+
+        public bool MovedRight { get { return this.movedRight; } set { this.movedRight = value; } }
+
+        public bool MovedLeft { get {  return this.movedLeft; } set { this.movedLeft = value; } }
 
         /// <summary>
         /// Move tetromino at next row.
         /// </summary>
         public void MoveDown()
         {
-            for (int i = 0; i < 4; i++)
-            {
-                this.indexes[i] += ROW_JUMP;
-            }
-        }
-        
-        /// <summary>
-        /// Prepare index positions of former tetromino position.
-        /// </summary>
-        public void SubtractToPreviousIndexes()
-        {
-            this.indexes.CopyTo(this.previousIndexes, 0);
-
-            for (int i = 0; i < 4; i++)
-            {
-                this.previousIndexes[i] -= ROW_JUMP;
-            }
+            this.x += ROW_JUMP;
         }
         
         /// <summary>
@@ -91,33 +82,17 @@ namespace Tetris
         /// </summary>
         public void MoveLeft()
         {
-            if (!this.AtLeftGridBoundary())
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    this.indexes[i]--;
-                }
-                this.redraw(this.indexes);
-                this.redrawBack(this.previousIndexes);
-            }
-       }
+            this.x--;
+            this.movedLeft = true;
+        }
 
         /// <summary>
         /// Move tetromino right.
         /// </summary>
         public void MoveRight()
         {
-            if (!this.AtRightGridBoundary())
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    this.indexes[i]++;
-                }
-                this.redraw(this.indexes);
-                this.redrawBack(this.previousIndexes);
-
-            }
-
+            this.x++;
+            this.movedRight = true;
         }
 
         /// <summary>
@@ -134,11 +109,11 @@ namespace Tetris
         /// Prepare one random tetromino at the starting position at the top of grid.
         /// </summary>
         /// <returns>int[]</returns>
-        public int[] PrepareAtStartPosition()
+        public byte[] PrepareAtStartPosition()
         {
             Random random = new Random();
-            int index = random.Next(0, 0); // prepsat 0 na 6 na druhej pozici
-
+            int index = random.Next(1, 6); // prepsat 0 na 6 na druhej pozici
+            //int index = 0;
             switch (index)
             {
                 case 0:
@@ -169,8 +144,8 @@ namespace Tetris
                     this.type = L_type;
                     L_Default.CopyTo(this.indexes, 0);
                     break;
-
             }
+            this.x = 3;
             return this.indexes;
         }
     }

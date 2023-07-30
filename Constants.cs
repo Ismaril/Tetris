@@ -10,7 +10,8 @@ namespace Tetris
     {
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 20;
-        public const int SPEED_OF_PIECES_FALLING = 1000;
+        public const int SPEED_OF_PIECES_FALLING = 100;
+        public const int SPEED_GUI = 30;
 
 
         public const string I_type = "I";
@@ -41,37 +42,78 @@ namespace Tetris
 
         //  ____________ 
         // /__/__/__/__/ 
-        public static readonly int[] I_Default = { POS_0, POS_1, POS_2, POS_3 };
+        public static readonly byte[] I_Default =
+        {
+            0, 0, 0, 0,
+            1, 1, 1, 1,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+        };
 
         //   ______
         //  /__/__/
         // /__/__/ 
-        public static readonly int[] O_Default = {POS_1, POS_2, POS_1 + WIDTH_OF_GRID, POS_2 + WIDTH_OF_GRID };
+        public static readonly byte[] O_Default =
+        {
+            0, 0, 0, 0,
+            0, 1, 1, 0,
+            0, 1, 1, 0,
+            0, 0, 0, 0,
+        };
 
         //   _________
         //  /__/__/__/
         //    /__/ 
-        public static readonly int[] T_Default = { POS_1, POS_2, POS_2 + WIDTH_OF_GRID, POS_3 };
+        public static readonly byte[] T_Default =
+        {
+            0, 0, 0, 0,
+            0, 1, 1, 1,
+            0, 0, 1, 0,
+            0, 0, 0, 0,
+        };
 
         //      ______
         //  ___/__/__/
         // /__/__/ 
-        public static readonly int[] S_Default = {POS_1 + WIDTH_OF_GRID, POS_2 + WIDTH_OF_GRID, POS_2, POS_3 };
+        public static readonly byte[] S_Default =
+        {
+            0, 0, 0, 0,
+            0, 0, 1, 1,
+            0, 1, 1, 0,
+            0, 0, 0, 0,
+        };
 
         //   ______
         //  /__/__/__
         //    /__/__/ 
-        public static readonly int[] Z_Default = {POS_1, POS_2, POS_2 + WIDTH_OF_GRID, POS_3 + WIDTH_OF_GRID};
+        public static readonly byte[] Z_Default =
+        {
+            0, 0, 0, 0,
+            0, 1, 1, 0,
+            0, 0, 1, 1,
+            0, 0, 0, 0,
+        };
 
         //   _________
         //  /__/__/__/
         //       /__/ 
-        public static readonly int[] J_Default = { POS_1, POS_2, POS_3, POS_3 + WIDTH_OF_GRID };
+        public static readonly byte[] J_Default =
+        {
+            0, 0, 0, 0,
+            0, 1, 1, 1,
+            0, 0, 0, 1,
+            0, 0, 0, 0,
+        };
 
         //    _________
         //   /__/__/__/
         //  /__/ 
-        public static readonly int[] L_Default = {POS_1 + WIDTH_OF_GRID, POS_1, POS_2, POS_3 };
-        
+        public static readonly byte[] L_Default =
+        {
+            0, 0, 0, 0,
+            0, 1, 1, 1,
+            0, 1, 0, 0,
+            0, 0, 0, 0,
+        };
     }
 }
