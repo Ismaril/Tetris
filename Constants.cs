@@ -9,9 +9,9 @@ namespace Tetris
     public class Constants
     {
         public const int WIDTH_OF_GRID = 10;
-        public const int HEIGHT_OF_GRID = 20;
-        public const int SPEED_OF_PIECES_FALLING = 100;
-        public const int SPEED_GUI = 30;
+        public const int HEIGHT_OF_GRID = 22;
+        public const int SPEED_OF_PIECES_FALLING = 200;
+        public const int SPEED_GUI = 50;
 
 
         public const string I_type = "I";
@@ -23,22 +23,9 @@ namespace Tetris
         public const string L_type = "L";
 
 
-        public const int ROW_JUMP = WIDTH_OF_GRID;
+        public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
+        public const int ROW_JUMP_TETROMINO = 4;
         public const int LAST_ROW = HEIGHT_OF_GRID - 1;
-
-
-
-        // ----------------------------------------------------------------------------------
-        // INDEX POSITIONS OF TETROMINOS WHEN THEY APPEAR AS A FRESH PIECE AT THE TOP OF GRID
-        // ----------------------------------------------------------------------------------
-
-        // Adjustable index positions based on width of grid
-        public const int POS_0 = WIDTH_OF_GRID / 2 - 2;
-        public const int POS_1 = POS_0 + 1;
-        public const int POS_2 = POS_0 + 2;
-        public const int POS_3 = POS_0 + 3;
-
-
 
         //  ____________ 
         // /__/__/__/__/ 

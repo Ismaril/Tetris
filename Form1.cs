@@ -36,10 +36,8 @@ namespace Tetris
         private void TimerTick(object sender, EventArgs e)
         {
             this.logic.Main__() ;
-            this.logic.timer += Constants.SPEED_GUI;
+            this.logic.Timer += Constants.SPEED_GUI;
         }
-
-        private void pictureBox_Click(object sender, EventArgs e) {}
 
         private void Form1_KeyArrows(object sender, KeyEventArgs e)
         {

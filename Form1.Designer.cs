@@ -35,6 +35,7 @@ namespace Tetris
         /// </summary>
         private void InitializeComponent()
         {
+            // Create 2D matrix at GUI.
             int counter = 0;
             for (int i = 0; i < Constants.HEIGHT_OF_GRID; i++)
             {
@@ -49,14 +50,13 @@ namespace Tetris
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
                     this.pictureBox.TabIndex = 0;
                     this.pictureBox.TabStop = false;
-                    this.pictureBox.Click += new System.EventHandler(this.pictureBox_Click);
                     this.Controls.Add(this.pictureBox);
                     ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
                     counter++;
                 }
             }
             // 
-            // Form1
+            // Form1 (Main frame)
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -72,14 +72,14 @@ namespace Tetris
         #endregion
 
         /// <summary>
-        /// Redraw GUI based on inputed matrix. This is used when tetromino is either moving down or sideways.
+        /// Redraw GUI based on inputed matrix. This function must be used when tetromino is either moving down or sideways.
         /// </summary>
-        /// <param name="tetrominoIndexes"></param>
-        public void Redraw(byte[] tetrominoIndexes)
+        /// <param name="matrix"></param>
+        public void Redraw(byte[] matrix)
         {
-            for(int i = 0; i < tetrominoIndexes.Length; i++)
+            for(int i = 0; i < matrix.Length; i++)
             {
-                if (tetrominoIndexes[i] != 0)
+                if (matrix[i] != 0)
                 {
                 this.Controls[i].BackColor = System.Drawing.Color.Green;
                 }
@@ -87,14 +87,14 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Redraw GUI based on inputed matrix. This is used when you want to redraw GUI back previous positions of tetromino back to empty.
+        /// Redraw GUI based on inputed matrix. This function must be used when you want to redraw GUI back -> previous positions of tetromino back to empty.
         /// </summary>
-        /// <param name="tetrominoIndexes"></param>
-        public void RedrawBack(byte[] tetrominoIndexes)
+        /// <param name="matrix"></param>
+        public void RedrawBack(byte[] matrix)
         {
-            for (int i = 0; i < tetrominoIndexes.Length; i++)
+            for (int i = 0; i < matrix.Length; i++)
             {
-                if (tetrominoIndexes[i] == 0)
+                if (matrix[i] == 0)
                 {
                     this.Controls[i].BackColor = System.Drawing.Color.Red;
                 }

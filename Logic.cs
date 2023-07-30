@@ -1,33 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.Globalization;
-using System.Timers;
 
 namespace Tetris
 {
     public class Logic
     {
-
-        private byte[] matrix;
-        private byte currentRow;
-        private byte nrOfSessionRows;
-        private bool roundEnded;
-        private bool totalGameEnded;
-        private Tetromino tetromino;
+        private byte[] matrix = new byte[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
+        private byte currentRow = 0;
+        private byte nrOfSessionRows = 0;
+        private bool roundEnded = false;
+        private bool totalGameEnded = false;
+        private Tetromino tetromino = new Tetromino();
         private Action<byte[]> redraw;
         private Action<byte[]> redrawBack;
-        private List<byte> toBeRemoved;
-        public int timer;
-        private bool canMoveDown;
-        private bool deletePrevious;
+        private List<byte> toBeRemoved = new List<byte>();
+        private int timer = 0;
+        List<byte> collisionDetectionDown = new List<byte>();
+        public bool gameStarted = false;
+
 
         /// <summary>
         /// 
@@ -37,47 +28,38 @@ namespace Tetris
         /// <param name="redrawBack"></param>
         public Logic(Action<byte[]> redraw, Action<byte[]> redrawBack)
         {
-
-            this.matrix =  new byte[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
-            this.tetromino = new Tetromino(redraw, redrawBack);
-            this.currentRow = 0;
-            this.nrOfSessionRows = 0;
-            this.roundEnded = false;
-            this.totalGameEnded = false;
             this.redraw = redraw;
             this.redrawBack = redrawBack;
-            this.timer = 0;
-            this.deletePrevious = false;
-            this.toBeRemoved = new List<byte>();
         }
 
         public Tetromino Tetromino { get {  return this.tetromino; } }
+        public int Timer { get { return this.timer; } set { timer = value; } }
         
         /// <summary>
         /// Actualises the selected matrix indexes to 1 from indexes of tetromino object.
         /// </summary>
         /// <param name="tetrominoMatrix"></param>
-        private void PutTetrominoOnGrid(byte[] tetrominoMatrix, byte x)
+        private void PutTetrominoOnGrid(byte[] tetrominoMatrix, byte offset)
         {
-            byte j = 0;
+            byte columnRelative = 0;
             for(byte i = 0; i < tetrominoMatrix.Length; i++)
             {
-                if (j % 4 == 0 && i > 0)
+                if (columnRelative % 4 == 0 && i > 0)
                 {
-                    j = 0;
-                    x += (byte)Constants.ROW_JUMP;
+                    columnRelative = 0;
+                    offset += (byte)Constants.ROW_JUMP_GRID;
                 }
                 if (tetrominoMatrix[i] > 0)
                 {
-                    this.matrix[x + j] = tetrominoMatrix[i];
-                    this.toBeRemoved.Add((byte)(x + j));
+                    this.matrix[offset + columnRelative] = tetrominoMatrix[i];
+                    this.toBeRemoved.Add((byte)(offset + columnRelative));
                 }
-                j++;
+                columnRelative++;
             }
         }
 
         /// <summary>
-        /// Actualises the selected matrix indexes to 0 from indexes of tetromino object.
+        /// Actualises the selected matrix indexes to 0.
         /// </summary>
         /// <param name="tetrominoIndexes"></param>
         private void RemoveTetrominoFromGrid()
@@ -96,13 +78,23 @@ namespace Tetris
         private object TetrominoHasObstacleAtNextRow()
         {
             {
-                for(byte i = 0;i < this.toBeRemoved.Count; i++)
+                for (byte i = 0; i < 4; i++)
                 {
-                    if (this.matrix[this.toBeRemoved[i] + Constants.ROW_JUMP] > 0)
+                    if (!(this.toBeRemoved.Contains((byte)(this.toBeRemoved[i] + (byte)Constants.ROW_JUMP_GRID))))
                     {
+                        this.collisionDetectionDown.Add(this.toBeRemoved[i]);
+                    }
+                }
+
+                for (byte i = 0; i < this.collisionDetectionDown.Count; i++)
+                {
+                    if ((this.matrix[collisionDetectionDown[i] + Constants.ROW_JUMP_GRID] > 0))
+                    {
+                        this.collisionDetectionDown.Clear();
                         return true;
                     } 
                 }
+                this.collisionDetectionDown.Clear();
                 return false;
             }
             throw new Exception("Incorrect exit");
@@ -112,25 +104,33 @@ namespace Tetris
         /// Check if tetromino is still away from bottom of grid.
         /// </summary>
         /// <returns></returns>
-        private object TetrominoCanFall()
+        private bool TetrominoCanFall()
         {
-            return this.currentRow < Constants.LAST_ROW - 3;
+            return !(bool)TetrominoIsAtBottom();
         }
         
         /// <summary>
         /// Check if tetromino is at bottom of the grid.
         /// </summary>
         /// <returns></returns>
-        private object TetrominoIsAtBottom()
+        private bool TetrominoIsAtBottom()
         {
-            return this.currentRow == Constants.LAST_ROW  - 3;
+            if (this.tetromino.GetType_ == Constants.I_type)
+            {
+                return this.currentRow == Constants.LAST_ROW - 3;
+            }
+            else
+            {
+                return this.currentRow == Constants.LAST_ROW - 4;
+            }
+
         }
 
         private object TetrominaHasObstacleAtNextColumn() { throw new NotImplementedException(); }
       
         public void DrawGraphics()
         {
-            this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.X);
+            this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.Offset);
 
             // Add tetromino at new position at the screen - Redraw GUI
             this.redraw(this.matrix);
@@ -149,47 +149,61 @@ namespace Tetris
 
         public void Main__()
         {
-            if (this.tetromino.MovedRight || this.tetromino.MovedLeft)
+            if (!gameStarted)
             {
-                RemoveTetrominoFromGrid();
-                this.redrawBack(this.matrix);
+                gameStarted = true;
+                this.tetromino.PrepareAtStartPosition();
                 this.DrawGraphics();
-                this.tetromino.MovedLeft = false;
-                this.tetromino.MovedRight = false;
             }
 
-            if (this.timer > Constants.SPEED_OF_PIECES_FALLING)
+            else if (roundEnded) { }
+
+            else if (totalGameEnded) { }
+
+            else
             {
-                //if ((bool)this.TetrominoHasObstacleAtNextRow())
-                //{
-                //    if (this.currentRow == 0) this.RoundEnded();
-                //    this.currentRow = 0;
-                //    this.deletePrevious = false;
-                //    this.toBeRemoved.Clear();
-
-                //}
-                //else
-                if ((bool)this.TetrominoIsAtBottom())
+                if (this.tetromino.MovedRight || this.tetromino.MovedLeft)
                 {
-                    this.currentRow = 0;
-                    this.deletePrevious = false;
-                    this.toBeRemoved.Clear();
-                }
-
-                else if ((bool)this.TetrominoCanFall())
-                {
-                    RemoveTetrominoFromGrid();
+                    this.RemoveTetrominoFromGrid();
                     this.redrawBack(this.matrix);
-                    this.toBeRemoved.Clear();
-                    this.tetromino.MoveDown();
-                    this.currentRow++;
+                    this.DrawGraphics();
+                    this.tetromino.MovedLeft = false;
+                    this.tetromino.MovedRight = false;
                 }
 
-                if (this.currentRow == 0){this.tetromino.PrepareAtStartPosition();}
+                if (this.timer >= Constants.SPEED_OF_PIECES_FALLING)
+                {
+                    if ((bool)this.TetrominoHasObstacleAtNextRow())
+                    {
+                        if (this.currentRow == 0) this.RoundEnded();
+                        this.currentRow = 0;
+                        this.toBeRemoved.Clear();
+                    }
+                    
+                    else if (this.TetrominoIsAtBottom())
+                    {
+                        this.currentRow = 0;
+                        this.toBeRemoved.Clear();
+                    }
+                    else if (this.TetrominoCanFall())
+                    {
+                        this.RemoveTetrominoFromGrid();
+                        this.redrawBack(this.matrix);
+                        this.toBeRemoved.Clear();
+                        this.tetromino.MoveDown();
+                        this.currentRow++;
+                    }
 
-                this.DrawGraphics();
-                this.nrOfSessionRows++;
-                this.timer = 0;
+                    if (this.currentRow == 0) { this.tetromino.PrepareAtStartPosition(); }
+
+                    this.DrawGraphics();
+                    this.nrOfSessionRows++;
+                    this.timer = 0;
+
+                }
+                
+
+
             }
         }
     }

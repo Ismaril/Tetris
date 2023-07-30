@@ -8,29 +8,22 @@ namespace Tetris
         private string type;
         private byte rotationType;
         private byte[] indexes;
-        private byte[] previousIndexes;
-        private Action<byte[]> redraw;
-        private Action<byte[]> redrawBack;
         private bool movedRight = false;
         private bool movedLeft = false;
-        private byte x;
+        private byte offset;
         
 
-        public Tetromino(Action<byte[]> redraw, Action<byte[]> redrawBack)
+        public Tetromino()
         {
             this.type = String.Empty;
-            this.previousIndexes = new byte[4];
             this.indexes = new byte[16];
             this.rotationType = 0;
-            this.redraw = redraw;
-            this.redrawBack = redrawBack;
         }
 
         public byte[] GetIndexes { get { return this.indexes; } }
-        public byte[] GetPreviousIndexes { get { return this.previousIndexes; } }
         public byte GetPositionOfRotation { get { return this.rotationType; } }
         public string GetType_ { get { return this.type; } } 
-        public byte X { get { return this.x; } set { this.x = value; } }
+        public byte Offset { get { return this.offset; } set { this.offset = value; } }
 
         public bool MovedRight { get { return this.movedRight; } set { this.movedRight = value; } }
 
@@ -41,7 +34,7 @@ namespace Tetris
         /// </summary>
         public void MoveDown()
         {
-            this.x += ROW_JUMP;
+            this.offset += ROW_JUMP_GRID;
         }
         
         /// <summary>
@@ -52,7 +45,7 @@ namespace Tetris
         {
             for (int i = 0; i < 4; i++)
             {
-                if (this.indexes[i] % ROW_JUMP == 0)
+                if (this.indexes[i] % ROW_JUMP_GRID == 0)
                 {
                     return true;
                 }
@@ -68,7 +61,7 @@ namespace Tetris
         {
             for (int i = 0; i < 4; i++)
             {
-                if (this.indexes[i] % ROW_JUMP == 9)
+                if (this.indexes[i] % ROW_JUMP_GRID == 9)
                 {
                     return true;
                 }
@@ -82,7 +75,7 @@ namespace Tetris
         /// </summary>
         public void MoveLeft()
         {
-            this.x--;
+            this.offset--;
             this.movedLeft = true;
         }
 
@@ -91,7 +84,7 @@ namespace Tetris
         /// </summary>
         public void MoveRight()
         {
-            this.x++;
+            this.offset++;
             this.movedRight = true;
         }
 
@@ -108,12 +101,11 @@ namespace Tetris
         /// <summary>
         /// Prepare one random tetromino at the starting position at the top of grid.
         /// </summary>
-        /// <returns>int[]</returns>
+        /// <returns>byte[]</returns>
         public byte[] PrepareAtStartPosition()
         {
             Random random = new Random();
-            int index = random.Next(1, 6); // prepsat 0 na 6 na druhej pozici
-            //int index = 0;
+            int index = random.Next(0, 6); 
             switch (index)
             {
                 case 0:
@@ -145,7 +137,7 @@ namespace Tetris
                     L_Default.CopyTo(this.indexes, 0);
                     break;
             }
-            this.x = 3;
+            this.offset = 3;
             return this.indexes;
         }
     }
