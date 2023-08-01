@@ -45,7 +45,7 @@ namespace Tetris
         {
             for (int i = 0; i < 4; i++)
             {
-                if (this.indexes[i] % ROW_JUMP_GRID == 0)
+                if (this.offset % ROW_JUMP_GRID == 0)
                 {
                     return true;
                 }
@@ -61,7 +61,7 @@ namespace Tetris
         {
             for (int i = 0; i < 4; i++)
             {
-                if (this.indexes[i] % ROW_JUMP_GRID == 9)
+                if (this.offset % ROW_JUMP_GRID == 9)
                 {
                     return true;
                 }
@@ -75,8 +75,12 @@ namespace Tetris
         /// </summary>
         public void MoveLeft()
         {
-            this.offset--;
-            this.movedLeft = true;
+            //if (!AtLeftGridBoundary())
+            //{
+                this.offset--;
+                this.movedLeft = true;
+            //}
+            
         }
 
         /// <summary>
@@ -84,8 +88,12 @@ namespace Tetris
         /// </summary>
         public void MoveRight()
         {
-            this.offset++;
-            this.movedRight = true;
+            //if(!AtRightGridBoundary())
+            //{
+                this.offset++;
+                this.movedRight = true;
+            //}
+
         }
 
         /// <summary>

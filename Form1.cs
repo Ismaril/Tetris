@@ -20,13 +20,13 @@ namespace Tetris
         public Form1()
         {
             InitializeComponent();
-            this.logic = new Logic(this.Redraw, this.RedrawBack);
+            this.logic = new Logic(this.Redraw);
             this.timer = new System.Windows.Forms.Timer();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.timer.Interval = (int)(Constants.SPEED_GUI);
+            this.timer.Interval = (int)(Constants.GUI_TICK);
             this.timer.Tick += new EventHandler(TimerTick);
             this.KeyDown += new KeyEventHandler(Form1_KeyArrows);
             this.KeyPreview = true;
@@ -36,7 +36,7 @@ namespace Tetris
         private void TimerTick(object sender, EventArgs e)
         {
             this.logic.Main__() ;
-            this.logic.Timer += Constants.SPEED_GUI;
+            this.logic.Timer += Constants.GUI_TICK;
         }
 
         private void Form1_KeyArrows(object sender, KeyEventArgs e)

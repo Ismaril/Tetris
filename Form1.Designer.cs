@@ -83,18 +83,7 @@ namespace Tetris
                 {
                 this.Controls[i].BackColor = System.Drawing.Color.Green;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Redraw GUI based on inputed matrix. This function must be used when you want to redraw GUI back -> previous positions of tetromino back to empty.
-        /// </summary>
-        /// <param name="matrix"></param>
-        public void RedrawBack(byte[] matrix)
-        {
-            for (int i = 0; i < matrix.Length; i++)
-            {
-                if (matrix[i] == 0)
+                else if (matrix[i] == 0)
                 {
                     this.Controls[i].BackColor = System.Drawing.Color.Red;
                 }

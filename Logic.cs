@@ -13,7 +13,6 @@ namespace Tetris
         private bool totalGameEnded = false;
         private Tetromino tetromino = new Tetromino();
         private Action<byte[]> redraw;
-        private Action<byte[]> redrawBack;
         private List<byte> toBeRemoved = new List<byte>();
         private int timer = 0;
         List<byte> collisionDetectionDown = new List<byte>();
@@ -26,10 +25,9 @@ namespace Tetris
         /// </summary>
         /// <param name="redraw"></param>
         /// <param name="redrawBack"></param>
-        public Logic(Action<byte[]> redraw, Action<byte[]> redrawBack)
+        public Logic(Action<byte[]> redraw)
         {
             this.redraw = redraw;
-            this.redrawBack = redrawBack;
         }
 
         public Tetromino Tetromino { get {  return this.tetromino; } }
@@ -75,7 +73,7 @@ namespace Tetris
         /// If yes, current tetromino has to stop on current row.
         /// </summary>
         /// <returns></returns>
-        private object TetrominoHasObstacleAtNextRow()
+        private bool TetrominoHasObstacleAtNextRow()
         {
             {
                 for (byte i = 0; i < 4; i++)
@@ -99,16 +97,7 @@ namespace Tetris
             }
             throw new Exception("Incorrect exit");
         }
-        
-        /// <summary>
-        /// Check if tetromino is still away from bottom of grid.
-        /// </summary>
-        /// <returns></returns>
-        private bool TetrominoCanFall()
-        {
-            return !(bool)TetrominoIsAtBottom();
-        }
-        
+                
         /// <summary>
         /// Check if tetromino is at bottom of the grid.
         /// </summary>
@@ -128,83 +117,97 @@ namespace Tetris
 
         private object TetrominaHasObstacleAtNextColumn() { throw new NotImplementedException(); }
       
-        public void DrawGraphics()
-        {
-            this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.Offset);
-
-            // Add tetromino at new position at the screen - Redraw GUI
-            this.redraw(this.matrix);
-        }
-
         /// <summary>
         /// Notify a player that the current game round has ended. Game lost.
         /// </summary>
         /// <exception cref="Exception"></exception>
         private void RoundEnded()
         {
-            Console.WriteLine("You lost");
-            this.roundEnded = true;
-            throw new Exception("Game ended");
+            if (roundEnded)
+            {
+                Console.WriteLine("You lost");
+                this.roundEnded = true;
+                throw new Exception("Game ended");
+            }
+
         }
 
-        public void Main__()
+        private void ArrowKeysMoveToSides_UserEvent()
+        {
+            if (this.tetromino.MovedRight || this.tetromino.MovedLeft)
+            {
+                this.RemoveTetrominoFromGrid();
+                this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.Offset);
+                this.redraw(this.matrix);
+                this.tetromino.MovedLeft = false;
+                this.tetromino.MovedRight = false;
+            }
+        }
+
+        private void ArrowKeysMoveDownFaster_UserEvent() { }
+
+        private void ArrowKeysRotate_UserEvent() { }
+
+        private void GameStarted()
         {
             if (!gameStarted)
             {
                 gameStarted = true;
                 this.tetromino.PrepareAtStartPosition();
-                this.DrawGraphics();
+                this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.Offset);
+                this.redraw(this.matrix);
             }
+        }
 
-            else if (roundEnded) { }
-
-            else if (totalGameEnded) { }
-
-            else
+        private void AutomaticShitgoingdownrenamethis(int tick)
+        {
+            if (this.timer >= tick)
             {
-                if (this.tetromino.MovedRight || this.tetromino.MovedLeft)
+                if (this.TetrominoHasObstacleAtNextRow() || this.TetrominoIsAtBottom())
+                {
+                    if (this.currentRow == 0) this.roundEnded = true;
+                    this.currentRow = 0;
+                    this.toBeRemoved.Clear();
+                }
+                else
                 {
                     this.RemoveTetrominoFromGrid();
-                    this.redrawBack(this.matrix);
-                    this.DrawGraphics();
-                    this.tetromino.MovedLeft = false;
-                    this.tetromino.MovedRight = false;
+                    this.redraw(this.matrix);
+                    this.toBeRemoved.Clear();
+                    this.tetromino.MoveDown();
+                    this.currentRow++;
                 }
 
-                if (this.timer >= Constants.SPEED_OF_PIECES_FALLING)
-                {
-                    if ((bool)this.TetrominoHasObstacleAtNextRow())
-                    {
-                        if (this.currentRow == 0) this.RoundEnded();
-                        this.currentRow = 0;
-                        this.toBeRemoved.Clear();
-                    }
-                    
-                    else if (this.TetrominoIsAtBottom())
-                    {
-                        this.currentRow = 0;
-                        this.toBeRemoved.Clear();
-                    }
-                    else if (this.TetrominoCanFall())
-                    {
-                        this.RemoveTetrominoFromGrid();
-                        this.redrawBack(this.matrix);
-                        this.toBeRemoved.Clear();
-                        this.tetromino.MoveDown();
-                        this.currentRow++;
-                    }
+                if (this.currentRow == 0) { this.tetromino.PrepareAtStartPosition(); }
 
-                    if (this.currentRow == 0) { this.tetromino.PrepareAtStartPosition(); }
-
-                    this.DrawGraphics();
-                    this.nrOfSessionRows++;
-                    this.timer = 0;
-
-                }
-                
-
+                this.PutTetrominoOnGrid(this.tetromino.GetIndexes, this.tetromino.Offset);
+                this.redraw(this.matrix);
+                this.nrOfSessionRows++;
+                this.timer = 0;
 
             }
+        }
+
+        private void TotalGameEnded()
+        {
+            if (totalGameEnded) { }
+        }
+        public void Main__()
+        {
+            // State of game
+            GameStarted();
+            RoundEnded();
+            TotalGameEnded();
+
+            // User events
+            ArrowKeysMoveToSides_UserEvent();
+            ArrowKeysMoveDownFaster_UserEvent();
+            ArrowKeysRotate_UserEvent();
+
+            // Tetromino just fualling
+            AutomaticShitgoingdownrenamethis(tick: Constants.MOVEVEMENT_TICK);
+
+
         }
     }
 }
