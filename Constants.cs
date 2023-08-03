@@ -11,7 +11,7 @@ namespace Tetris
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 22;
         public const int MOVEVEMENT_TICK = 200;
-        public const int GUI_TICK = 20;
+        public const int GUI_TICK = 10;
 
 
         public const string I_type = "I";
@@ -29,18 +29,25 @@ namespace Tetris
 
         //  ____________ 
         // /__/__/__/__/ 
-        public static readonly byte[] I_Default =
+        public static readonly byte[] I_0 =
         {
+            0, 0, 0, 0,
             0, 0, 0, 0,
             1, 1, 1, 1,
             0, 0, 0, 0,
-            0, 0, 0, 0,
+        };
+        public static readonly byte[] I_1 =
+{
+            0, 0, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 1, 0,
         };
 
         //   ______
         //  /__/__/
         // /__/__/ 
-        public static readonly byte[] O_Default =
+        public static readonly byte[] O_0 =
         {
             0, 0, 0, 0,
             0, 1, 1, 0,
@@ -51,10 +58,31 @@ namespace Tetris
         //   _________
         //  /__/__/__/
         //    /__/ 
-        public static readonly byte[] T_Default =
+        public static readonly byte[] T_0 =
         {
             0, 0, 0, 0,
             0, 1, 1, 1,
+            0, 0, 1, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] T_1 =
+{
+            0, 0, 1, 0,
+            0, 1, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] T_2 =
+{
+            0, 0, 1, 0,
+            0, 1, 1, 1,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] T_3 =
+{
+            0, 0, 1, 0,
+            0, 0, 1, 1,
             0, 0, 1, 0,
             0, 0, 0, 0,
         };
@@ -62,41 +90,96 @@ namespace Tetris
         //      ______
         //  ___/__/__/
         // /__/__/ 
-        public static readonly byte[] S_Default =
+        public static readonly byte[] S_0 =
         {
             0, 0, 0, 0,
             0, 0, 1, 1,
             0, 1, 1, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] S_1 =
+{
+            0, 0, 1, 0,
+            0, 0, 1, 1,
+            0, 0, 0, 1,
             0, 0, 0, 0,
         };
 
         //   ______
         //  /__/__/__
         //    /__/__/ 
-        public static readonly byte[] Z_Default =
+        public static readonly byte[] Z_0 =
         {
             0, 0, 0, 0,
             0, 1, 1, 0,
             0, 0, 1, 1,
             0, 0, 0, 0,
         };
-
+        public static readonly byte[] Z_1 =
+{
+            0, 0, 0, 1,
+            0, 0, 1, 1,
+            0, 0, 1, 0,
+            0, 0, 0, 0,
+        };
         //   _________
         //  /__/__/__/
         //       /__/ 
-        public static readonly byte[] J_Default =
+        public static readonly byte[] J_0 =
         {
             0, 0, 0, 0,
             0, 1, 1, 1,
             0, 0, 0, 1,
             0, 0, 0, 0,
         };
+        public static readonly byte[] J_1 =
+        {
+            0, 0, 1, 0,
+            0, 0, 1, 0,
+            0, 1, 1, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] J_2 =
+        {
+            0, 1, 0, 0,
+            0, 1, 1, 1,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] J_3 =
+        {
+            0, 0, 1, 1,
+            0, 0, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 0,
+        };
 
         //    _________
         //   /__/__/__/
         //  /__/ 
-        public static readonly byte[] L_Default =
+        public static readonly byte[] L_0 =
         {
+            0, 0, 0, 0,
+            0, 1, 1, 1,
+            0, 1, 0, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] L_1 =
+{
+            0, 0, 0, 0,
+            0, 1, 1, 1,
+            0, 1, 0, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] L_2 =
+{
+            0, 0, 0, 0,
+            0, 1, 1, 1,
+            0, 1, 0, 0,
+            0, 0, 0, 0,
+        };
+        public static readonly byte[] L_3 =
+{
             0, 0, 0, 0,
             0, 1, 1, 1,
             0, 1, 0, 0,

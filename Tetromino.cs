@@ -1,33 +1,46 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace Tetris
 {
     public class Tetromino: Constants
     {
         private string type;
-        private byte rotationType;
+        private sbyte rotationType;
         private byte[] indexes;
         private bool movedRight = false;
         private bool movedLeft = false;
+        private bool rotatedRight = false;
+        private bool rotatedLeft = false;   
+        private bool moveDownFaster = false;
         private byte offset;
-        
+        private List<byte[]> rotations;
 
-        public Tetromino()
+        public Tetromino() { }
+
+        public Tetromino(byte[] rotation0, byte[] rotation1, byte[] rotation2, byte[] rotation3, string type)
         {
+            this.rotations = new List<byte[]> { rotation0, rotation1, rotation2, rotation3};
             this.type = String.Empty;
-            this.indexes = new byte[16];
+            this.indexes = rotation0;
             this.rotationType = 0;
         }
 
         public byte[] GetIndexes { get { return this.indexes; } }
-        public byte GetPositionOfRotation { get { return this.rotationType; } }
+        public sbyte GetPositionOfRotation { get { return this.rotationType; } }
         public string GetType_ { get { return this.type; } } 
         public byte Offset { get { return this.offset; } set { this.offset = value; } }
 
         public bool MovedRight { get { return this.movedRight; } set { this.movedRight = value; } }
 
         public bool MovedLeft { get {  return this.movedLeft; } set { this.movedLeft = value; } }
+
+        public bool RotatedRight { get { return this.rotatedRight; } set { this.rotatedRight = value; } }
+
+        public bool RotatedLeft { get { return this.rotatedLeft; } set { this.rotatedLeft = value; } }
+
+        public bool MoveDownFasterP { get { return this.moveDownFaster; } set { this.moveDownFaster = value; } }
 
         /// <summary>
         /// Move tetromino at next row.
@@ -36,7 +49,12 @@ namespace Tetris
         {
             this.offset += ROW_JUMP_GRID;
         }
-        
+
+        public void MoveDownFaster()
+        {
+            this.moveDownFaster = true;
+        }
+
         /// <summary>
         /// Check if tetromino is at left boundary of grid.
         /// </summary>
@@ -99,54 +117,23 @@ namespace Tetris
         /// <summary>
         /// Rotate tetromino right.
         /// </summary>
-        public void RotateRight() { }
+        public void RotateRight()
+        {
+            this.rotationType--;
+            if (this.rotationType == -1) this.rotationType = 3;
+            this.indexes = this.rotations[this.rotationType];
+            this.rotatedRight = true;
+        }
 
         /// <summary>
         /// Rotate tetromino left.
         /// </summary>
-        public void RotateLeft() { } 
-
-        /// <summary>
-        /// Prepare one random tetromino at the starting position at the top of grid.
-        /// </summary>
-        /// <returns>byte[]</returns>
-        public byte[] PrepareAtStartPosition()
+        public void RotateLeft()
         {
-            Random random = new Random();
-            int index = random.Next(0, 6); 
-            switch (index)
-            {
-                case 0:
-                    this.type = I_type;
-                    I_Default.CopyTo(this.indexes, 0);
-                    break;
-                case 1:
-                    this.type = O_type;
-                    O_Default.CopyTo(this.indexes, 0);
-                    break;
-                case 2:
-                    this.type = T_type;
-                    T_Default.CopyTo(this.indexes, 0);
-                    break;
-                case 3:
-                    this.type = S_type;
-                    S_Default.CopyTo(this.indexes, 0);
-                    break;
-                case 4:
-                    this.type = Z_type;
-                    Z_Default.CopyTo(this.indexes, 0);
-                    break;
-                case 5:
-                    this.type = J_type;
-                    J_Default.CopyTo(this.indexes, 0);
-                    break;
-                case 6:
-                    this.type = L_type;
-                    L_Default.CopyTo(this.indexes, 0);
-                    break;
-            }
-            this.offset = 3;
-            return this.indexes;
+            this.rotationType++;
+            if (this.rotationType == 4) this.rotationType = 0;
+            this.indexes = this.rotations[this.rotationType];
+            this.rotatedLeft = true;
         }
     }
 }

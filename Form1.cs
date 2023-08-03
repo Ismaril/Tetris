@@ -41,19 +41,24 @@ namespace Tetris
 
         private void Form1_KeyArrows(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Right)
+            switch(e.KeyCode)
             {
-                this.logic.Tetromino.MoveRight();
+                case Keys.Right:
+                    this.logic.Tetromino.MoveRight();
+                    break;
+                case Keys.Left:
+                    this.logic.Tetromino.MoveLeft();
+                    break;
+                case Keys.Down:
+                    this.logic.Tetromino.MoveDownFaster();
+                    break;
+                case Keys.Z:
+                    this.logic.Tetromino.RotateRight();
+                    break;
+                case Keys.X:
+                    this.logic.Tetromino.RotateLeft();
+                    break;
             }
-            else if (e.KeyCode == Keys.Left)
-            {
-                this.logic.Tetromino.MoveLeft();
-            }
-            //else if ( e.KeyCode == Keys.Down)
-            //{
-           //     this.logic.Tetromino.MoveDown();
-           // }
         }
-
     }
 }
