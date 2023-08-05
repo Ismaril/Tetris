@@ -44,7 +44,14 @@ namespace Tetris
                     this.pictureBox = new System.Windows.Forms.PictureBox();
                     ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
                     this.SuspendLayout();
-                    this.pictureBox.BackColor = System.Drawing.Color.Red;
+                    if((j+i) < Constants.WIDTH_OF_GRID *2)
+                    {
+                        this.pictureBox.BackColor = System.Drawing.Color.Black;
+                    }
+                    else
+                    {
+                        this.pictureBox.BackColor = System.Drawing.Color.Red;
+                    }
                     this.pictureBox.Location = new System.Drawing.Point(j * 44, i * 44);
                     this.pictureBox.Name = $"pictureBox{counter}";
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
@@ -60,7 +67,7 @@ namespace Tetris
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(500, 1000);
+            this.ClientSize = new System.Drawing.Size(800, 1200);
 
             this.Name = "Form1";
             this.Text = "Form1";
@@ -85,7 +92,15 @@ namespace Tetris
                 }
                 else if (matrix[i] == 0)
                 {
-                    this.Controls[i].BackColor = System.Drawing.Color.Red;
+                    if (i < 20 || i >= 220 )
+                    {
+                        this.Controls[i].BackColor = System.Drawing.Color.Black;
+                    }
+                    else
+                    {
+                        this.Controls[i].BackColor = System.Drawing.Color.Red;
+                    }
+                    
                 }
             }
         }

@@ -16,49 +16,105 @@ namespace Tetris
     {
         Logic logic;
         System.Windows.Forms.Timer timer;
+        bool alreadyPressedRotate = false;
+        bool moveDwnalreadypressed = false;
+        bool alreadyPressed = false;
 
         public Form1()
         {
             InitializeComponent();
-            this.logic = new Logic(this.Redraw);
-            this.timer = new System.Windows.Forms.Timer();
+            logic = new Logic(this.Redraw);
+            timer = new System.Windows.Forms.Timer();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.timer.Interval = (int)(Constants.GUI_TICK);
-            this.timer.Tick += new EventHandler(TimerTick);
-            this.KeyDown += new KeyEventHandler(Form1_KeyArrows);
-            this.KeyPreview = true;
-            this.timer.Start();
+            timer.Interval = (int)(Constants.GUI_TICK);
+            timer.Tick += new EventHandler(TimerTick);
+            KeyDown += new KeyEventHandler(Form1_KeyArrowsDown);
+            //KeyDown += new KeyEventHandler(Form1_RotateInput);
+
+            KeyUp += new KeyEventHandler(Form1_KeyArrowsUp);
+            KeyPreview = true;
+            timer.Start();
         }
 
         private void TimerTick(object sender, EventArgs e)
         {
-            this.logic.Main__() ;
-            this.logic.Timer += Constants.GUI_TICK;
+            logic.Main__();
+            logic.Timer += Constants.GUI_TICK;
+            if (logic.currentRow == 0 && moveDwnalreadypressed)
+            {
+                moveDwnalreadypressed = true;
+                alreadyPressed = false;
+
+            }
+            else moveDwnalreadypressed = false;
+
+            if (logic.Timer >= Constants.GUI_TICK*5) alreadyPressed = false;
+            
+        }
+        private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
+        {
+            alreadyPressedRotate = false;
         }
 
-        private void Form1_KeyArrows(object sender, KeyEventArgs e)
+        private void Form1_RotateInput(object sender, KeyEventArgs e)
         {
-            switch(e.KeyCode)
+            switch (e.KeyCode)
+            {
+
+            }
+        }
+
+        private void Form1_KeyArrowsDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
             {
                 case Keys.Right:
-                    this.logic.Tetromino.MoveRight();
+                    if (!alreadyPressed)
+                    {
+                        Console.WriteLine("Right");
+                        logic.moveRight = true;
+                        alreadyPressed = true;
+                    }
                     break;
+
                 case Keys.Left:
-                    this.logic.Tetromino.MoveLeft();
+                    if (!alreadyPressed)
+                    {
+                        logic.moveLeft = true;
+                        alreadyPressed = true;
+                    }
                     break;
+
                 case Keys.Down:
-                    this.logic.Tetromino.MoveDownFaster();
+                    if (!moveDwnalreadypressed)
+                    {
+                        logic.moveDownFast = true;
+                        moveDwnalreadypressed = true;
+                    }
                     break;
+
                 case Keys.Z:
-                    this.logic.Tetromino.RotateRight();
+                    if (!alreadyPressedRotate)
+                    {
+                        Console.WriteLine("Rotate");
+                        logic.rotateRight = true;
+                        alreadyPressedRotate = true;
+                    }
                     break;
+
                 case Keys.X:
-                    this.logic.Tetromino.RotateLeft();
+                    if (!alreadyPressedRotate)
+                    {
+                        logic.rotateLeft = true;
+                        alreadyPressedRotate = true;
+                    }
                     break;
             }
+
+
         }
     }
 }

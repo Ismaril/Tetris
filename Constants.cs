@@ -9,10 +9,15 @@ namespace Tetris
     public class Constants
     {
         public const int WIDTH_OF_GRID = 10;
-        public const int HEIGHT_OF_GRID = 22;
-        public const int MOVEVEMENT_TICK = 200;
-        public const int GUI_TICK = 10;
-
+        public const int HEIGHT_OF_GRID = 24;
+        public const int MOVEVEMENT_TICK = 400;
+        public const int GUI_TICK = 25;
+        public const byte PICTURE_BOX_SIZE = 10;
+        public const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
+        //public static readonly object COLOR_BACKGROUND = System.Drawing.Color.Black;
+        //public static readonly object COLOR_TETROMINO = System.Drawing.Color.DimGray;
+        public const int FORM_HEIGHT = 200;
+        public const int FORM_WIDTH = 100;
 
         public const string I_type = "I";
         public const string O_type = "O";
@@ -25,7 +30,8 @@ namespace Tetris
 
         public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
         public const int ROW_JUMP_TETROMINO = 4;
-        public const int LAST_ROW = HEIGHT_OF_GRID - 1;
+        public const int LAST_ROW = HEIGHT_OF_GRID - 5;
+
 
         //  ____________ 
         // /__/__/__/__/ 
@@ -44,6 +50,7 @@ namespace Tetris
             0, 0, 1, 0,
         };
 
+
         //   ______
         //  /__/__/
         // /__/__/ 
@@ -54,6 +61,7 @@ namespace Tetris
             0, 1, 1, 0,
             0, 0, 0, 0,
         };
+
 
         //   _________
         //  /__/__/__/
@@ -87,6 +95,7 @@ namespace Tetris
             0, 0, 0, 0,
         };
 
+
         //      ______
         //  ___/__/__/
         // /__/__/ 
@@ -105,6 +114,7 @@ namespace Tetris
             0, 0, 0, 0,
         };
 
+
         //   ______
         //  /__/__/__
         //    /__/__/ 
@@ -122,6 +132,8 @@ namespace Tetris
             0, 0, 1, 0,
             0, 0, 0, 0,
         };
+
+
         //   _________
         //  /__/__/__/
         //       /__/ 
@@ -154,6 +166,7 @@ namespace Tetris
             0, 0, 0, 0,
         };
 
+
         //    _________
         //   /__/__/__/
         //  /__/ 
@@ -166,23 +179,23 @@ namespace Tetris
         };
         public static readonly byte[] L_1 =
 {
-            0, 0, 0, 0,
-            0, 1, 1, 1,
-            0, 1, 0, 0,
+            0, 1, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 1, 0,
             0, 0, 0, 0,
         };
         public static readonly byte[] L_2 =
 {
-            0, 0, 0, 0,
+            0, 0, 0, 1,
             0, 1, 1, 1,
-            0, 1, 0, 0,
+            0, 0, 0, 0,
             0, 0, 0, 0,
         };
         public static readonly byte[] L_3 =
 {
-            0, 0, 0, 0,
-            0, 1, 1, 1,
-            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 1, 1,
             0, 0, 0, 0,
         };
     }
