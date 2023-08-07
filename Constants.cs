@@ -10,8 +10,8 @@ namespace Tetris
     {
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 24;
-        public const int MOVEVEMENT_TICK = 400;
-        public const int GUI_TICK = 25;
+        public const int MOVEVEMENT_TICK = 500;
+        public const int GUI_TICK = 16;
         public const byte PICTURE_BOX_SIZE = 10;
         public const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
         //public static readonly object COLOR_BACKGROUND = System.Drawing.Color.Black;
