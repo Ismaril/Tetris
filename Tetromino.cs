@@ -9,11 +9,6 @@ namespace Tetris
         private string type;
         public sbyte rotationType;
         private byte[] indexes;
-        //private bool movedRight = false;
-        //private bool movedLeft = false;
-        //private bool rotatedRight = false;
-        //private bool rotatedLeft = false;
-        //private bool moveDownFaster = false;
         private byte offset;
         private List<byte[]> rotations;
         public byte[] baseRotation;
@@ -34,16 +29,6 @@ namespace Tetris
         public string GetType_ { get { return this.type; } }
         public byte Offset { get { return this.offset; } set { this.offset = value; } }
 
-        //public bool MovedRight { get { return this.movedRight; } set { this.movedRight = value; } }
-
-        //public bool MovedLeft { get { return this.movedLeft; } set { this.movedLeft = value; } }
-
-        //public bool RotatedRight { get { return this.rotatedRight; } set { this.rotatedRight = value; } }
-
-        //public bool RotatedLeft { get { return this.rotatedLeft; } set { this.rotatedLeft = value; } }
-
-        //public bool MoveDownFasterP { get { return this.moveDownFaster; } set { this.moveDownFaster = value; } }
-
         /// <summary>
         /// Move tetromino at next row.
         /// </summary>
@@ -52,69 +37,15 @@ namespace Tetris
             this.offset += ROW_JUMP_GRID;
         }
 
-        public void MoveDownFaster()
-        {
-            //this.moveDownFaster = true;
-        }
-
-        /// <summary>
-        /// Check if tetromino is at left boundary of grid.
-        /// </summary>
-        /// <returns></returns>
-        private bool AtLeftGridBoundary()
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                if (this.offset % ROW_JUMP_GRID == 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Check if tetromino is at right boundary of grid.
-        /// </summary>
-        /// <returns></returns>
-        private bool AtRightGridBoundary()
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                if (this.offset % ROW_JUMP_GRID == 9)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
         /// <summary>
         /// Move tetromino left.
         /// </summary>
-        public void MoveLeft()
-        {
-            //if (!AtLeftGridBoundary())
-            //{
-            this.offset--;
-            //this.movedLeft = true;
-            //}
-
-        }
+        public void MoveLeft(){ this.offset--; }
 
         /// <summary>
         /// Move tetromino right.
         /// </summary>
-        public void MoveRight()
-        {
-            //if(!AtRightGridBoundary())
-            //{
-            this.offset++;
-            //this.movedRight = true;
-            //}
-
-        }
+        public void MoveRight(){ this.offset++; }
 
         /// <summary>
         /// Rotate tetromino right.

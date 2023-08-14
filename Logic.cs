@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting;
+using System.Security.Cryptography;
 
 namespace Tetris
 {
     public class Logic
     {
-        private byte[] matrix = new byte[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
+        //private byte[] matrix = new byte[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
+        private List<byte> matrix = new List<byte>();
+        
         public int speed = Constants.MOVEVEMENT_TICK;
 
         public bool moveRight = false;
@@ -43,7 +46,7 @@ namespace Tetris
         private Tetromino J_tetromino = new Tetromino(Constants.J_0, Constants.J_1, Constants.J_2, Constants.J_3, Constants.J_type);
         private Tetromino L_tetromino = new Tetromino(Constants.L_0, Constants.L_1, Constants.L_2, Constants.L_3, Constants.L_type);
         private List<Tetromino> tetrominos;
-        private Action<byte[]> redraw;
+        private Action<List<byte>> redraw;
         private List<byte> toBeRemoved = new List<byte>();
         private List<byte> collisionDetection = new List<byte>();
 
@@ -56,10 +59,15 @@ namespace Tetris
         /// </summary>
         /// <param name="redraw"></param>
         /// <param name="redrawBack"></param>
-        public Logic(Action<byte[]> redraw)
+        public Logic(Action<List<byte>> redraw)
         {
             this.redraw = redraw;
             this.tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
+
+            for(int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++)
+            {
+                matrix.Add(0);
+            }
         }
 
         public Tetromino Tetromino { get { return this.tetromino; } }
@@ -143,6 +151,36 @@ namespace Tetris
         public bool TetrominaHasObstacleAtNextColumn(bool checkRightside)
         {
 
+            sbyte operator_;
+            if (checkRightside) operator_ = 1;
+            else operator_ = -1;
+
+            if (toBeRemoved.Count > 0)
+            {
+                for (byte i = 0; i < 4; i++)
+                {
+                    if (!(this.toBeRemoved.Contains((byte)(this.toBeRemoved[i] + operator_))))
+                    {
+                        this.collisionDetection.Add((byte)this.toBeRemoved[i]);
+                    }
+                }
+
+                for (byte i = 0; i < this.collisionDetection.Count; i++)
+                {
+                    if ((this.matrix[collisionDetection[i] + operator_] > 0))
+                    {
+                        this.collisionDetection.Clear();
+                        return true;
+                    }
+
+                }
+                this.collisionDetection.Clear();
+            }
+            return false;
+        }
+
+        public bool TetrominaHasObstacleAtNextRotation(bool checkRightside)
+        {
 
             sbyte operator_;
             if (checkRightside) operator_ = 1;
@@ -235,6 +273,8 @@ namespace Tetris
             }
         }
 
+
+
         private void MoveDownFaster_UserEvent(bool activate)
         {
             if (!activate) return;
@@ -245,19 +285,33 @@ namespace Tetris
 
         }
 
-        private void Rotate_UserEvent(bool canRotateRight, bool canRotateLeft, bool desiredRight, bool desiredLeft)
+        public void RotateLeft_UserEvent(bool canRotateLeft, bool desiredRotationLeft)
         {
-            if (canRotateRight && desiredRight)
-            {
-                this.tetromino.RotateRight();
-            }
-            else if (canRotateLeft && desiredLeft)
+            //for (int i = 0; i < toBeRemoved.Count; i++)
+            //{
+            //    //Console.WriteLine(toBeRemoved[i] - 1 % Constants.ROW_JUMP_GRID);
+            //    if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 0) return;
+            //}
+
+            if (canRotateLeft && desiredRotationLeft)
             {
                 this.tetromino.RotateLeft();
+
             }
-            else
+        }
+
+        public void RotateRight_UserEvent(bool canRotateRight, bool desiredRotationRight)
+        {
+            //for (int i = 0; i < toBeRemoved.Count; i++)
+            //{
+            //    //Console.WriteLine(toBeRemoved[i] - 1 % Constants.ROW_JUMP_GRID);
+            //    if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 0) return;
+            //}
+
+            if (canRotateRight && desiredRotationRight)
             {
-                return;
+                this.tetromino.RotateRight();
+
             }
         }
 
@@ -324,19 +378,27 @@ namespace Tetris
                 sendNextPiece = false;
             }
         }
-        private bool IsAtMatrixBoundaries()
+
+        public void RemoveCompleteRows()
         {
-            if (Convert.ToString(tetromino.Offset).EndsWith("9"))
-            {
+            List<byte> indexesOfCompletedRows = new List<byte> { };
+            byte[] rows = new byte[10];
 
-                return true;
-            }
-            else if (Convert.ToString(tetromino.Offset).EndsWith("6"))
+            for (byte i = 0; i < Constants.HEIGHT_OF_GRID; i++)
             {
-
-                return true;
+                Array.Copy(matrix.ToArray(), i * 10, rows, 0, 10);
+                if (rows.All(x => x > 0)) indexesOfCompletedRows.Add(i);
+                
             }
-            return false;
+            foreach (byte row in indexesOfCompletedRows)
+            {
+                matrix.RemoveRange(row*10, 10);
+                matrix.InsertRange(0, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+                
+            }
+            //matrix.ToArray();
+            //for (byte i = 0; i < indexesOfCompletedRows.Count * 10; i++) matrix.Prepend<byte>(0);
+
         }
 
         public void Main__()
@@ -348,12 +410,12 @@ namespace Tetris
 
             ChoseNextTetromino();
 
-            atGridBoundary = IsAtMatrixBoundaries();
             cannotMoveRight = TetrominaHasObstacleAtNextColumn(checkRightside: true);
             cannotMoveLeft = TetrominaHasObstacleAtNextColumn(checkRightside: false);
             cannotMoveDown = TetrominoHasObstacleAtNextRow();
 
-            Rotate_UserEvent(true, true, rotateRight, rotateLeft);
+            RotateLeft_UserEvent(true, rotateLeft);
+            RotateRight_UserEvent(true, rotateRight);
             MoveRight_UserEvent(!cannotMoveRight, moveRight);
             MoveLeft_UserEvent(!cannotMoveLeft, moveLeft);
             MoveDownFaster_UserEvent(activate: moveDownFast);
@@ -363,10 +425,12 @@ namespace Tetris
 
             DefaultTetrominoMovement();
 
-            redraw(this.matrix);
+            
+            redraw(matrix);
 
             RemoveTetrominoFromGrid(activate: removeTetromino);
 
+            RemoveCompleteRows();
 
 
             this.moveRight = false;

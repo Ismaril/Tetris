@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Windows.Forms;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Tetris
 {
@@ -44,15 +45,7 @@ namespace Tetris
                     this.pictureBox = new System.Windows.Forms.PictureBox();
                     ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
                     this.SuspendLayout();
-                    if((j+i) < Constants.WIDTH_OF_GRID *2)
-                    {
-                        this.pictureBox.BackColor = System.Drawing.Color.Black;
-                    }
-                    else
-                    {
-                        this.pictureBox.BackColor = System.Drawing.Color.Red;
-                    }
-                    this.pictureBox.Location = new System.Drawing.Point(j * 44, i * 44);
+                    this.pictureBox.Location = new System.Drawing.Point(725 + j * 44, i * 44);
                     this.pictureBox.Name = $"pictureBox{counter}";
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
                     this.pictureBox.TabIndex = 0;
@@ -67,7 +60,7 @@ namespace Tetris
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 1200);
+            this.ClientSize = new System.Drawing.Size(1920, 1080);
 
             this.Name = "Form1";
             this.Text = "Form1";
@@ -82,23 +75,23 @@ namespace Tetris
         /// Redraw GUI based on inputed matrix. This function must be used when tetromino is either moving down or sideways.
         /// </summary>
         /// <param name="matrix"></param>
-        public void Redraw(byte[] matrix)
+        public void Redraw(List<byte> matrix)
         {
-            for(int i = 0; i < matrix.Length; i++)
+            for(byte i = 0; i < matrix.Count; i++)
             {
                 if (matrix[i] != 0)
                 {
-                this.Controls[i].BackColor = System.Drawing.Color.Green;
+                this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_TETROMINO;
                 }
                 else if (matrix[i] == 0)
                 {
                     if (i < 20 || i >= 220 )
                     {
-                        this.Controls[i].BackColor = System.Drawing.Color.Black;
+                        this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
                     }
                     else
                     {
-                        this.Controls[i].BackColor = System.Drawing.Color.Red;
+                        this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_GRID;
                     }
                     
                 }

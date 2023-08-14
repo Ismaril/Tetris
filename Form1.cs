@@ -37,8 +37,6 @@ namespace Tetris
             timer.Interval = (int)(Constants.GUI_TICK);
             timer.Tick += new EventHandler(TimerTick);
             KeyDown += new KeyEventHandler(Form1_KeyArrowsDown);
-            //KeyDown += new KeyEventHandler(Form1_RotateInput);
-
             KeyUp += new KeyEventHandler(Form1_KeyArrowsUp);
             KeyPreview = true;
             timer.Start();
@@ -48,56 +46,35 @@ namespace Tetris
         {
             logic.Main__();
             logic.Timer += Constants.GUI_TICK;
-            keyTimer += Constants.GUI_TICK;
+            keyTimer += 1;
 
             if (logic.currentRow < 1)
             {
                 moveDwnalreadypressed = true;
-
             }
 
-            else if(keyTimer % 32 == 0 ) moveDwnalreadypressed = false;
+            else if(keyTimer % 2 == 0 ) moveDwnalreadypressed = false;
 
-            if (keyTimer % 144 == 0 )
+            if (keyTimer % 5 == 0)
             {
                 alreadyPressed = false;
-                processedIt = false;
-                //alreadyPressedRotate = false;
                 keyTimer = 0;
             }
 
-            // Check for specific key combinations
-            //if (pressedKeys.Contains(Keys.Right) && pressedKeys.Contains(Keys.X) && !processedIt)
-            //{
-            //    logic.moveRight = true;
-            //    logic.rotateLeft = true;
-            //    processedIt = true;
-            //}
-            if (pressedKeys.Contains(Keys.Right) && !processedIt) { logic.moveRight = true; processedIt = true; }
-            else if (pressedKeys.Contains(Keys.Left) && !processedIt) { logic.moveLeft = true; processedIt = true; }
+            if (pressedKeys.Contains(Keys.Right) && !alreadyPressed) { logic.moveRight = true; alreadyPressed = true; keyTimer = 0; }
+            else if (pressedKeys.Contains(Keys.Left) && !alreadyPressed) { logic.moveLeft = true; alreadyPressed = true; keyTimer = 0; }
 
             if (pressedKeys.Contains(Keys.Down) && !moveDwnalreadypressed) { logic.moveDownFast = true; moveDwnalreadypressed = true; }
-            
-            if (rotateLeft) { logic.rotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
-            else if (rotateRight) { logic.rotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
+ 
+            if (rotateLeft && !alreadyPressedRotate) { logic.rotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
+            else if (rotateRight && !alreadyPressedRotate) { logic.rotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
         }
         private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
-        //{
-        //    alreadyPressedRotate = false;
-        //}
         {
             if (e.KeyCode == Keys.X || e.KeyCode == Keys.Z) { alreadyPressedRotate = false; return; }
-
+            
             if (pressedKeys.Contains(e.KeyCode))
                 pressedKeys.Remove(e.KeyCode);
-        }
-
-        private void Form1_RotateInput(object sender, KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-
-            }
         }
 
         private void Form1_KeyArrowsDown(object sender, KeyEventArgs e)
@@ -110,62 +87,10 @@ namespace Tetris
 
             { alreadyPressedRotate = true; rotateLeft = true; return; }
 
-
-
             else if(!pressedKeys.Contains(e.KeyCode))
             {
-                //alreadyPressed = true;
                 pressedKeys.Add(e.KeyCode);
-                //alreadyPressedRotate = true;
-                //moveDwnalreadypressed = true;
-            }
-                
+            } 
         }
-        //{
-        //    switch (e.KeyCode)
-        //    {
-        //        case Keys.Right:
-        //            if (!alreadyPressed)
-        //            {
-        //                Console.WriteLine("Right");
-        //                logic.moveRight = true;
-        //                alreadyPressed = true;
-        //            }
-        //            break;
-
-        //        case Keys.Left:
-        //            if (!alreadyPressed)
-        //            {
-        //                logic.moveLeft = true;
-        //                alreadyPressed = true;
-        //            }
-        //            break;
-
-        //        case Keys.Down:
-        //            if (!moveDwnalreadypressed)
-        //            {
-        //                logic.moveDownFast = true;
-        //                moveDwnalreadypressed = true;
-        //            }
-        //            break;
-
-        //        case Keys.Z:
-        //            if (!alreadyPressedRotate)
-        //            {
-        //                Console.WriteLine("Rotate");
-        //                logic.rotateRight = true;
-        //                alreadyPressedRotate = true;
-        //            }
-        //            break;
-
-        //        case Keys.X:
-        //            if (!alreadyPressedRotate)
-        //            {
-        //                logic.rotateLeft = true;
-        //                alreadyPressedRotate = true;
-        //            }
-        //            break;
-        //    }
-        //}
     }
 }
