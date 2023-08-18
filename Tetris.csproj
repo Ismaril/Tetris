@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{ED31043E-215C-49B6-BA05-C86F7B17F63D}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Tetris</RootNamespace>
     <AssemblyName>Tetris</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>

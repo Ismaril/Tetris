@@ -24,7 +24,9 @@ namespace Tetris
         public bool cannotMoveRight = false;
         public bool cannotMoveLeft = false;
         public bool cannotMoveDown = false;
-        
+        public bool cannotRotateRight = false;
+        public bool cannotRotateLeft = false;
+
         public bool sendNextPiece = true;
         public bool removeTetromino = false;
         public bool startRemoving = false;
@@ -47,9 +49,10 @@ namespace Tetris
         private Tetromino L_tetromino = new Tetromino(Constants.L_0, Constants.L_1, Constants.L_2, Constants.L_3, Constants.L_type);
         private List<Tetromino> tetrominos;
         private Action<List<byte>> redraw;
-        private List<byte> toBeRemoved = new List<byte>();
-        private List<byte> collisionDetection = new List<byte>();
+        public List<byte> toBeRemoved = new List<byte>();
+        public List<byte> collisionDetection = new List<byte>();
 
+        public byte mrdat;
 
 
 
@@ -179,34 +182,55 @@ namespace Tetris
             return false;
         }
 
-        public bool TetrominaHasObstacleAtNextRotation(bool checkRightside)
+        public bool TetrominaHasObstacleAtNextRotation(bool checkRightRotation, byte offset)
         {
 
             sbyte operator_;
-            if (checkRightside) operator_ = 1;
-            else operator_ = -1;
+
+            if (checkRightRotation)
+            {
+                operator_ = 1;
+
+            }
+            else
+            {
+                operator_ = -1;
+            }
+            
 
             if (toBeRemoved.Count > 0)
             {
-                for (byte i = 0; i < 4; i++)
-                {
-                    if (!(this.toBeRemoved.Contains((byte)(this.toBeRemoved[i] + operator_))))
-                    {
-                        this.collisionDetection.Add((byte)this.toBeRemoved[i]);
-                    }
-                }
+                sbyte rotationType = (sbyte)(tetromino.GetPositionOfRotation + operator_);
+                if (rotationType == -1) rotationType = 3;
+                else if (rotationType == 4) rotationType = 0;
+                byte[] tetrominoMatrix = tetromino.Rotations[rotationType];
+                byte columnRelative = 0;
 
-                for (byte i = 0; i < this.collisionDetection.Count; i++)
+
+                for (byte i = 0; i < tetrominoMatrix.Length; i++)
                 {
-                    if ((this.matrix[collisionDetection[i] + operator_] > 0))
+                    if (columnRelative % 4 == 0 && i > 0)
                     {
+                        columnRelative = 0;
+                        offset += (byte)Constants.ROW_JUMP_GRID;
+                    }
+
+                    byte gridIndexOffseted = (byte)((offset + columnRelative));
+                    if ((tetrominoMatrix[i] > 0 && matrix[gridIndexOffseted] > 0)
+                        || (offset % 10 == 8 || offset % 10 == 7)
+                        || (tetromino.GetType_ == Constants.I_type && offset % 10 == 9))
+                    {
+                        Console.WriteLine(true);
                         this.collisionDetection.Clear();
+
                         return true;
                     }
-
+                    columnRelative++;
                 }
-                this.collisionDetection.Clear();
+                
             }
+
+            this.collisionDetection.Clear();
             return false;
         }
 
@@ -235,7 +259,7 @@ namespace Tetris
             if (roundEnded)
             {
                 //Console.WriteLine("You lost");
-                this.roundEnded = true;
+                this.roundEnded = false;
                 throw new Exception("Game ended");
             }
 
@@ -287,12 +311,6 @@ namespace Tetris
 
         public void RotateLeft_UserEvent(bool canRotateLeft, bool desiredRotationLeft)
         {
-            //for (int i = 0; i < toBeRemoved.Count; i++)
-            //{
-            //    //Console.WriteLine(toBeRemoved[i] - 1 % Constants.ROW_JUMP_GRID);
-            //    if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 0) return;
-            //}
-
             if (canRotateLeft && desiredRotationLeft)
             {
                 this.tetromino.RotateLeft();
@@ -302,12 +320,6 @@ namespace Tetris
 
         public void RotateRight_UserEvent(bool canRotateRight, bool desiredRotationRight)
         {
-            //for (int i = 0; i < toBeRemoved.Count; i++)
-            //{
-            //    //Console.WriteLine(toBeRemoved[i] - 1 % Constants.ROW_JUMP_GRID);
-            //    if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 0) return;
-            //}
-
             if (canRotateRight && desiredRotationRight)
             {
                 this.tetromino.RotateRight();
@@ -364,7 +376,7 @@ namespace Tetris
             if (sendNextPiece)
             {
                 Random random = new Random();
-                this.tetromino = this.tetrominos[random.Next(0, 6)];
+                this.tetromino = this.tetrominos[random.Next(Constants.MIN_NR_OF_TETROMINOS, Constants.MAX_NR_OF_TETROMINOS)];
                 if (this.tetromino.GetType_ == Constants.I_type)
                 {
                     this.tetromino.Offset = 3;
@@ -405,21 +417,27 @@ namespace Tetris
         {
 
             //GameStarted();
-            //RoundEnded();
+            RoundEnded();
             //TotalGameEnded();
 
-            ChoseNextTetromino();
+
 
             cannotMoveRight = TetrominaHasObstacleAtNextColumn(checkRightside: true);
             cannotMoveLeft = TetrominaHasObstacleAtNextColumn(checkRightside: false);
+            cannotRotateRight = TetrominaHasObstacleAtNextRotation(true, tetromino.Offset);
+            cannotRotateLeft = TetrominaHasObstacleAtNextRotation(false, tetromino.Offset);
             cannotMoveDown = TetrominoHasObstacleAtNextRow();
 
-            RotateLeft_UserEvent(true, rotateLeft);
-            RotateRight_UserEvent(true, rotateRight);
+            RotateRight_UserEvent(!cannotRotateRight, rotateRight);
+            RotateLeft_UserEvent(!cannotRotateLeft, rotateLeft);
             MoveRight_UserEvent(!cannotMoveRight, moveRight);
             MoveLeft_UserEvent(!cannotMoveLeft, moveLeft);
             MoveDownFaster_UserEvent(activate: moveDownFast);
             toBeRemoved.Clear();
+
+
+
+            ChoseNextTetromino();
 
             PutTetrominoOnGrid(this.tetromino.Indexes, this.tetromino.Offset, putTetrominoOnGrid);
 

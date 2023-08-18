@@ -81,11 +81,11 @@ namespace Tetris
         {
             if (e.KeyCode == Keys.Z)
             
-            { alreadyPressedRotate = true; rotateRight = true; return; }
+            { alreadyPressedRotate = true; rotateLeft = true; return; }
 
             else if (e.KeyCode == Keys.X)
 
-            { alreadyPressedRotate = true; rotateLeft = true; return; }
+            { alreadyPressedRotate = true; rotateRight = true; return; }
 
             else if(!pressedKeys.Contains(e.KeyCode))
             {

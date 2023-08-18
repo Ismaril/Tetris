@@ -45,7 +45,7 @@ namespace Tetris
                     this.pictureBox = new System.Windows.Forms.PictureBox();
                     ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
                     this.SuspendLayout();
-                    this.pictureBox.Location = new System.Drawing.Point(725 + j * 44, i * 44);
+                    this.pictureBox.Location = new System.Drawing.Point(725 + j * 44, i * 44);  // 725
                     this.pictureBox.Name = $"pictureBox{counter}";
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
                     this.pictureBox.TabIndex = 0;
@@ -64,7 +64,7 @@ namespace Tetris
 
             this.Name = "Form1";
             this.Text = "Form1";
-            this.BackColor = System.Drawing.Color.Black;
+            this.BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
             this.Load += new System.EventHandler(this.Form1_Load);
 
             this.ResumeLayout(false);
@@ -79,9 +79,33 @@ namespace Tetris
         {
             for(byte i = 0; i < matrix.Count; i++)
             {
-                if (matrix[i] != 0)
+                if (matrix[i] == 1)
                 {
-                this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_TETROMINO;
+                this.Controls[i].BackColor = System.Drawing.Color.Blue;
+                }
+                else if (matrix[i] == 2)
+                {
+                    this.Controls[i].BackColor = System.Drawing.Color.Red;
+                }
+                else if (matrix[i] == 3)
+                {
+                    this.Controls[i].BackColor = System.Drawing.Color.Yellow;
+                }
+                else if (matrix[i] == 4)
+                {
+                    this.Controls[i].BackColor = System.Drawing.Color.Green;
+                }
+                else if (matrix[i] == 5)
+                {
+                    this.Controls[i].BackColor = System.Drawing.Color.Purple;
+                }
+                else if (matrix[i] == 6)
+                {
+                    this.Controls[i].BackColor = System.Drawing.Color.White;
+                }
+                else if (matrix[i] == 7)
+                {
+                    this.Controls[i].BackColor = System.Drawing.Color.Orange;
                 }
                 else if (matrix[i] == 0)
                 {

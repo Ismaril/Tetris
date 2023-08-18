@@ -29,6 +29,8 @@ namespace Tetris
         public string GetType_ { get { return this.type; } }
         public byte Offset { get { return this.offset; } set { this.offset = value; } }
 
+        public List<byte[]> Rotations { get {  return this.rotations; } }
+
         /// <summary>
         /// Move tetromino at next row.
         /// </summary>
@@ -52,8 +54,8 @@ namespace Tetris
         /// </summary>
         public void RotateRight()
         {
-            this.rotationType--;
-            if (this.rotationType == -1) this.rotationType = 3;
+            this.rotationType++;
+            if (this.rotationType == 4) this.rotationType = 0;
             this.indexes = this.rotations[this.rotationType];
             //this.rotatedRight = true;
         }
@@ -63,8 +65,8 @@ namespace Tetris
         /// </summary>
         public void RotateLeft()
         {
-            this.rotationType++;
-            if (this.rotationType == 4) this.rotationType = 0;
+            this.rotationType--;
+            if (this.rotationType == -1) this.rotationType = 3;
             this.indexes = this.rotations[this.rotationType];
             //this.rotatedLeft = true;
         }
