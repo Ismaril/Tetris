@@ -14,16 +14,17 @@ namespace Tetris
 {
     public partial class Form1 : Form
     {
-        Logic logic;
-        System.Windows.Forms.Timer timer;
+        readonly Logic logic;
+        readonly System.Windows.Forms.Timer timer;
+        List<Keys> pressedKeys = new List<Keys>();
+
+        bool moveDownalreadypressed = false;
         bool alreadyPressedRotate = false;
-        bool moveDwnalreadypressed = false;
         bool alreadyPressed = false;
-        private List<Keys> pressedKeys = new List<Keys>();
-        bool processedIt = false;
-        int keyTimer = 0;
         bool rotateRight = false;
         bool rotateLeft = false;
+
+        int keyTimer = 0;
 
         public Form1()
         {
@@ -48,12 +49,8 @@ namespace Tetris
             logic.Timer += Constants.GUI_TICK;
             keyTimer += 1;
 
-            if (logic.currentRow < 1)
-            {
-                moveDwnalreadypressed = true;
-            }
-
-            else if(keyTimer % 2 == 0 ) moveDwnalreadypressed = false;
+            if (logic.currentRow < 1) moveDownalreadypressed = true;
+            else if(keyTimer % 2 == 0 ) moveDownalreadypressed = false;
 
             if (keyTimer % 5 == 0)
             {
@@ -61,13 +58,13 @@ namespace Tetris
                 keyTimer = 0;
             }
 
-            if (pressedKeys.Contains(Keys.Right) && !alreadyPressed) { logic.moveRight = true; alreadyPressed = true; keyTimer = 0; }
-            else if (pressedKeys.Contains(Keys.Left) && !alreadyPressed) { logic.moveLeft = true; alreadyPressed = true; keyTimer = 0; }
+            if (pressedKeys.Contains(Keys.Right) && !alreadyPressed) { logic.MoveRight = true; alreadyPressed = true; keyTimer = 0; }
+            else if (pressedKeys.Contains(Keys.Left) && !alreadyPressed) { logic.MoveLeft = true; alreadyPressed = true; keyTimer = 0; }
 
-            if (pressedKeys.Contains(Keys.Down) && !moveDwnalreadypressed) { logic.moveDownFast = true; moveDwnalreadypressed = true; }
+            if (pressedKeys.Contains(Keys.Down) && !moveDownalreadypressed) { logic.MoveDownFast = true; moveDownalreadypressed = true; }
  
-            if (rotateLeft && !alreadyPressedRotate) { logic.rotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
-            else if (rotateRight && !alreadyPressedRotate) { logic.rotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
+            if (rotateLeft && !alreadyPressedRotate) { logic.RotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
+            else if (rotateRight && !alreadyPressedRotate) { logic.RotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
         }
         private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
         {

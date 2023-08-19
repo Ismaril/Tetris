@@ -8,53 +8,49 @@ namespace Tetris
 {
     public class Logic
     {
-        //private byte[] matrix = new byte[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID];
         private List<byte> matrix = new List<byte>();
         
         public int speed = Constants.MOVEVEMENT_TICK;
 
-        public bool moveRight = false;
-        public bool moveLeft = false;
-        public bool moveDownFast = false;
-        public bool rotateRight = false;
-        public bool rotateLeft = false; 
-        public bool putTetrominoOnGrid = true; 
-        public bool atGridBoundary = false;
+        private bool moveRight = false;
+        private bool moveLeft = false;
+        private bool rotateRight = false;
+        private bool rotateLeft = false;
+        private bool moveDownFast = false;
 
-        public bool cannotMoveRight = false;
-        public bool cannotMoveLeft = false;
+
+        private bool atGridBoundary = false;
+        private bool cannotMoveRight = false;
+        private bool cannotMoveLeft = false;
         public bool cannotMoveDown = false;
-        public bool cannotRotateRight = false;
-        public bool cannotRotateLeft = false;
+        private bool cannotRotateRight = false;
+        private bool cannotRotateLeft = false;
 
         public bool sendNextPiece = true;
-        public bool removeTetromino = false;
+        public bool putTetrominoOnGrid = true; 
         public bool startRemoving = false;
+        public bool removeTetromino = false;
 
+        private int timer = 0;
         public byte currentRow = 0;
         private byte nrOfSessionRows = 0;
+
+        public bool gameStarted = false;
         private bool roundEnded = false;
         private bool totalGameEnded = false;
 
-        private int timer = 0;
-        public bool gameStarted = false;
-
         private Tetromino tetromino = new Tetromino();
-        private Tetromino I_tetromino = new Tetromino(Constants.I_0, Constants.I_1, Constants.I_0, Constants.I_1, Constants.I_type);
-        private Tetromino O_tetromino = new Tetromino(Constants.O_0, Constants.O_0, Constants.O_0, Constants.O_0, Constants.O_type);
-        private Tetromino T_tetromino = new Tetromino(Constants.T_0, Constants.T_1, Constants.T_2, Constants.T_3, Constants.T_type);
-        private Tetromino S_tetromino = new Tetromino(Constants.S_0, Constants.S_1, Constants.S_0, Constants.S_1, Constants.S_type);
-        private Tetromino Z_tetromino = new Tetromino(Constants.Z_0, Constants.Z_1, Constants.Z_0, Constants.Z_1, Constants.Z_type);
-        private Tetromino J_tetromino = new Tetromino(Constants.J_0, Constants.J_1, Constants.J_2, Constants.J_3, Constants.J_type);
-        private Tetromino L_tetromino = new Tetromino(Constants.L_0, Constants.L_1, Constants.L_2, Constants.L_3, Constants.L_type);
+        private Tetromino I_tetromino = new Tetromino(Constants.I_0, Constants.I_1, Constants.I_0, Constants.I_1, (byte)Constants.TetrominoType.I_type);
+        private Tetromino O_tetromino = new Tetromino(Constants.O_0, Constants.O_0, Constants.O_0, Constants.O_0, (byte)Constants.TetrominoType.O_type);
+        private Tetromino T_tetromino = new Tetromino(Constants.T_0, Constants.T_1, Constants.T_2, Constants.T_3, (byte)Constants.TetrominoType.T_type);
+        private Tetromino S_tetromino = new Tetromino(Constants.S_0, Constants.S_1, Constants.S_0, Constants.S_1, (byte)Constants.TetrominoType.S_type);
+        private Tetromino Z_tetromino = new Tetromino(Constants.Z_0, Constants.Z_1, Constants.Z_0, Constants.Z_1, (byte)Constants.TetrominoType.Z_type);
+        private Tetromino J_tetromino = new Tetromino(Constants.J_0, Constants.J_1, Constants.J_2, Constants.J_3, (byte)Constants.TetrominoType.J_type);
+        private Tetromino L_tetromino = new Tetromino(Constants.L_0, Constants.L_1, Constants.L_2, Constants.L_3, (byte)Constants.TetrominoType.L_type);
         private List<Tetromino> tetrominos;
         private Action<List<byte>> redraw;
         public List<byte> toBeRemoved = new List<byte>();
         public List<byte> collisionDetection = new List<byte>();
-
-        public byte mrdat;
-
-
 
         /// <summary>
         /// 
@@ -65,7 +61,7 @@ namespace Tetris
         public Logic(Action<List<byte>> redraw)
         {
             this.redraw = redraw;
-            this.tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
+            tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
 
             for(int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++)
             {
@@ -73,8 +69,13 @@ namespace Tetris
             }
         }
 
-        public Tetromino Tetromino { get { return this.tetromino; } }
-        public int Timer { get { return this.timer; } set { timer = value; } }
+        public Tetromino Tetromino { get { return tetromino; } }
+        public int Timer { get { return timer; } set { timer = value; } }
+        public bool MoveRight { get => moveRight; set => moveRight = value; }
+        public bool MoveLeft { get => moveLeft; set => moveLeft = value; }
+        public bool MoveDownFast { get => moveDownFast; set => moveDownFast = value; }
+        public bool RotateRight { get => rotateRight; set => rotateRight = value; }
+        public bool RotateLeft { get => rotateLeft; set => rotateLeft = value; }
 
         /// <summary>
         /// Actualises the selected matrix indexes to 1 from indexes of tetromino object.
@@ -96,8 +97,8 @@ namespace Tetris
 
                 if (tetrominoMatrix[i] > 0)
                 {
-                    this.matrix[gridIndexOffseted] = tetrominoMatrix[i];
-                    this.toBeRemoved.Add((byte)(gridIndexOffseted));
+                    matrix[gridIndexOffseted] = tetrominoMatrix[i];
+                    toBeRemoved.Add((byte)(gridIndexOffseted));
                 }
                 columnRelative++;
             }
@@ -110,10 +111,10 @@ namespace Tetris
         /// <param name="tetrominoIndexes"></param>
         private void RemoveTetrominoFromGrid(bool activate)
         {
-            foreach (byte i in this.toBeRemoved)
+            foreach (byte i in toBeRemoved)
             {
                 if (matrix.Contains(i)) continue;
-                this.matrix[i] = 0;
+                matrix[i] = 0;
             }
              //toBeRemoved.Clear();
              removeTetromino = false;
@@ -134,19 +135,19 @@ namespace Tetris
                 {
                     if (!(toBeRemoved.Contains((byte)(toBeRemoved[i] + (byte)Constants.ROW_JUMP_GRID))))
                     {
-                        this.collisionDetection.Add((byte)this.toBeRemoved[i]);
+                        collisionDetection.Add((byte)this.toBeRemoved[i]);
                     }
                 }
 
-                for (byte i = 0; i < this.collisionDetection.Count; i++)
+                for (byte i = 0; i < collisionDetection.Count; i++)
                 {
-                    if ((this.matrix[collisionDetection[i] + Constants.ROW_JUMP_GRID] > 0))
+                    if ((matrix[collisionDetection[i] + Constants.ROW_JUMP_GRID] > 0))
                     {
-                        this.collisionDetection.Clear();
+                        collisionDetection.Clear();
                         return true;
                     }
                 }
-                this.collisionDetection.Clear();
+                collisionDetection.Clear();
             }
             return false;
         }
@@ -162,41 +163,32 @@ namespace Tetris
             {
                 for (byte i = 0; i < 4; i++)
                 {
-                    if (!(this.toBeRemoved.Contains((byte)(this.toBeRemoved[i] + operator_))))
+                    if (!(toBeRemoved.Contains((byte)(toBeRemoved[i] + operator_))))
                     {
-                        this.collisionDetection.Add((byte)this.toBeRemoved[i]);
+                        collisionDetection.Add((byte)toBeRemoved[i]);
                     }
                 }
 
-                for (byte i = 0; i < this.collisionDetection.Count; i++)
+                for (byte i = 0; i < collisionDetection.Count; i++)
                 {
-                    if ((this.matrix[collisionDetection[i] + operator_] > 0))
+                    if ((matrix[collisionDetection[i] + operator_] > 0))
                     {
-                        this.collisionDetection.Clear();
+                        collisionDetection.Clear();
                         return true;
                     }
 
                 }
-                this.collisionDetection.Clear();
+                collisionDetection.Clear();
             }
             return false;
         }
 
         public bool TetrominaHasObstacleAtNextRotation(bool checkRightRotation, byte offset)
         {
-
             sbyte operator_;
 
-            if (checkRightRotation)
-            {
-                operator_ = 1;
-
-            }
-            else
-            {
-                operator_ = -1;
-            }
-            
+            if (checkRightRotation)operator_ = 1;
+            else operator_ = -1;
 
             if (toBeRemoved.Count > 0)
             {
@@ -205,7 +197,6 @@ namespace Tetris
                 else if (rotationType == 4) rotationType = 0;
                 byte[] tetrominoMatrix = tetromino.Rotations[rotationType];
                 byte columnRelative = 0;
-
 
                 for (byte i = 0; i < tetrominoMatrix.Length; i++)
                 {
@@ -218,19 +209,15 @@ namespace Tetris
                     byte gridIndexOffseted = (byte)((offset + columnRelative));
                     if ((tetrominoMatrix[i] > 0 && matrix[gridIndexOffseted] > 0)
                         || (offset % 10 == 8 || offset % 10 == 7)
-                        || (tetromino.GetType_ == Constants.I_type && offset % 10 == 9))
+                        || (tetromino.GetType_ == (byte)Constants.TetrominoType.I_type && offset % 10 == 9))
                     {
-                        Console.WriteLine(true);
-                        this.collisionDetection.Clear();
-
+                        collisionDetection.Clear();
                         return true;
                     }
                     columnRelative++;
                 }
-                
             }
-
-            this.collisionDetection.Clear();
+            collisionDetection.Clear();
             return false;
         }
 
@@ -240,14 +227,11 @@ namespace Tetris
         /// <returns></returns>
         private bool TetrominoIsAtBottom()
         {
-            if(tetromino.GetType_ == Constants.I_type)
+            if(tetromino.GetType_ == (byte)Constants.TetrominoType.I_type)
             {
-                return this.currentRow == Constants.LAST_ROW - tetromino.ComputeNrOfBottomPaddingRows() + 1;
+                return currentRow == Constants.LAST_ROW - tetromino.ComputeNrOfBottomPaddingRows() + 1;
             }
-
-            return this.currentRow == Constants.LAST_ROW - tetromino.ComputeNrOfBottomPaddingRows();
-
-
+            return currentRow == Constants.LAST_ROW - tetromino.ComputeNrOfBottomPaddingRows();
         }
 
         /// <summary>
@@ -259,62 +243,41 @@ namespace Tetris
             if (roundEnded)
             {
                 //Console.WriteLine("You lost");
-                this.roundEnded = false;
+                roundEnded = false;
                 throw new Exception("Game ended");
             }
-
         }
 
         public void MoveRight_UserEvent(bool canMoveRight, bool desiredRight)
         {
-            //if (this.tetromino.Offset % Constants.ROW_JUMP_GRID == 9) return;
-            
             for (int i = 0; i < toBeRemoved.Count; i++)
             {
-                //Console.WriteLine(toBeRemoved[i] + 1 % Constants.ROW_JUMP_GRID);
                 if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 9) return;
             }
-
-            if (canMoveRight && desiredRight)
-            {
-                this.tetromino.MoveRight();
-
-            }
+            if (canMoveRight && desiredRight) tetromino.MoveRight();
         }
 
         public void MoveLeft_UserEvent(bool canMoveLeft, bool desiredLeft)
         {
             for (int i = 0; i < toBeRemoved.Count; i++)
             {
-                //Console.WriteLine(toBeRemoved[i] - 1 % Constants.ROW_JUMP_GRID);
                 if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 0) return;
             }
-
-            if (canMoveLeft && desiredLeft)
-            {
-                this.tetromino.MoveLeft();
-                
-            }
+            if (canMoveLeft && desiredLeft) tetromino.MoveLeft();
         }
-
-
 
         private void MoveDownFaster_UserEvent(bool activate)
         {
             if (!activate) return;
-            //this.PutTetrominoOnGrid(this.tetromino.Indexes, this.tetromino.Offset, putTetrominoOnGrid);
-            //this.redraw(this.matrix);
-            this.timer = Constants.MOVEVEMENT_TICK;
-            moveDownFast = false;
-
+            timer = Constants.MOVEVEMENT_TICK;
+            MoveDownFast = false;
         }
 
         public void RotateLeft_UserEvent(bool canRotateLeft, bool desiredRotationLeft)
         {
             if (canRotateLeft && desiredRotationLeft)
             {
-                this.tetromino.RotateLeft();
-
+                tetromino.RotateLeft();
             }
         }
 
@@ -322,8 +285,7 @@ namespace Tetris
         {
             if (canRotateRight && desiredRotationRight)
             {
-                this.tetromino.RotateRight();
-
+                tetromino.RotateRight();
             }
         }
 
@@ -340,25 +302,25 @@ namespace Tetris
 
     private void DefaultTetrominoMovement()
         {
-            if (this.timer >= Constants.MOVEVEMENT_TICK)
+            if (timer >= Constants.MOVEVEMENT_TICK)
             {
-                if (this.TetrominoHasObstacleAtNextRow() || this.TetrominoIsAtBottom())
+                if (TetrominoHasObstacleAtNextRow() || TetrominoIsAtBottom())
                 {
-                    if (this.currentRow == 0) this.roundEnded = true;
+                    if (currentRow == 0) roundEnded = true;
                     sendNextPiece = true;
-                    this.currentRow = 0;
-                    this.toBeRemoved.Clear();
+                    currentRow = 0;
+                    toBeRemoved.Clear();
                     removeTetromino = false;
                 }
                 else
                 {
                     removeTetromino = true;
-                    this.tetromino.MoveDown();
-                    this.currentRow++;
+                    tetromino.MoveDown();
+                    currentRow++;
                     nrOfSessionRows++;
                     putTetrominoOnGrid = true;
                 }
-                this.timer = 0;
+                timer = 0;
             }
         }
 
@@ -376,14 +338,14 @@ namespace Tetris
             if (sendNextPiece)
             {
                 Random random = new Random();
-                this.tetromino = this.tetrominos[random.Next(Constants.MIN_NR_OF_TETROMINOS, Constants.MAX_NR_OF_TETROMINOS)];
-                if (this.tetromino.GetType_ == Constants.I_type)
+                tetromino = tetrominos[random.Next(Constants.MIN_NR_OF_TETROMINOS, Constants.MAX_NR_OF_TETROMINOS)];
+                if (tetromino.GetType_ == (byte)Constants.TetrominoType.I_type)
                 {
-                    this.tetromino.Offset = 3;
+                    tetromino.Offset = 3;
                 }
                 else
                 {
-                    this.tetromino.Offset = 3 + Constants.ROW_JUMP_GRID;
+                    tetromino.Offset = 3 + Constants.ROW_JUMP_GRID;
                 }
                 tetromino.Indexes = tetromino.baseRotation;
                 tetromino.rotationType = 0;
@@ -400,68 +362,52 @@ namespace Tetris
             {
                 Array.Copy(matrix.ToArray(), i * 10, rows, 0, 10);
                 if (rows.All(x => x > 0)) indexesOfCompletedRows.Add(i);
-                
             }
+
             foreach (byte row in indexesOfCompletedRows)
             {
                 matrix.RemoveRange(row*10, 10);
                 matrix.InsertRange(0, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-                
             }
-            //matrix.ToArray();
-            //for (byte i = 0; i < indexesOfCompletedRows.Count * 10; i++) matrix.Prepend<byte>(0);
+        }
 
+        private void SetAllFlagsToFalse()
+        {
+            MoveRight = false;
+            MoveLeft = false;
+            cannotMoveLeft = false;
+            cannotMoveRight = false;
+            RotateRight = false;
+            RotateLeft = false;
+            atGridBoundary = false;
         }
 
         public void Main__()
         {
-
             //GameStarted();
             RoundEnded();
             //TotalGameEnded();
 
-
-
             cannotMoveRight = TetrominaHasObstacleAtNextColumn(checkRightside: true);
             cannotMoveLeft = TetrominaHasObstacleAtNextColumn(checkRightside: false);
-            cannotRotateRight = TetrominaHasObstacleAtNextRotation(true, tetromino.Offset);
-            cannotRotateLeft = TetrominaHasObstacleAtNextRotation(false, tetromino.Offset);
-            cannotMoveDown = TetrominoHasObstacleAtNextRow();
+            cannotRotateRight = TetrominaHasObstacleAtNextRotation(checkRightRotation: true,offset: tetromino.Offset);
+            cannotRotateLeft = TetrominaHasObstacleAtNextRotation(checkRightRotation: false, offset: tetromino.Offset);
+            //cannotMoveDown = TetrominoHasObstacleAtNextRow();
 
-            RotateRight_UserEvent(!cannotRotateRight, rotateRight);
-            RotateLeft_UserEvent(!cannotRotateLeft, rotateLeft);
-            MoveRight_UserEvent(!cannotMoveRight, moveRight);
-            MoveLeft_UserEvent(!cannotMoveLeft, moveLeft);
-            MoveDownFaster_UserEvent(activate: moveDownFast);
+            RotateRight_UserEvent(!cannotRotateRight, RotateRight);
+            RotateLeft_UserEvent(!cannotRotateLeft, RotateLeft);
+            MoveRight_UserEvent(!cannotMoveRight, MoveRight);
+            MoveLeft_UserEvent(!cannotMoveLeft, MoveLeft);
+            MoveDownFaster_UserEvent(activate: MoveDownFast);
+
             toBeRemoved.Clear();
-
-
-
             ChoseNextTetromino();
-
-            PutTetrominoOnGrid(this.tetromino.Indexes, this.tetromino.Offset, putTetrominoOnGrid);
-
+            PutTetrominoOnGrid(this.tetromino.Indexes, tetromino.Offset, putTetrominoOnGrid);
             DefaultTetrominoMovement();
-
-            
             redraw(matrix);
-
             RemoveTetrominoFromGrid(activate: removeTetromino);
-
             RemoveCompleteRows();
-
-
-            this.moveRight = false;
-            this.moveLeft = false;
-            this.cannotMoveLeft = false;
-            this.cannotMoveRight = false;
-            
-            rotateRight = false;
-            rotateLeft = false;
-
-            atGridBoundary = false;
-
-
+            SetAllFlagsToFalse();
         }
     }
 }

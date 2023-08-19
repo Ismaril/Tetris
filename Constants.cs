@@ -21,14 +21,27 @@ namespace Tetris
         public const int FORM_WIDTH = 100;
         public const byte MIN_NR_OF_TETROMINOS = 0;
         public const byte MAX_NR_OF_TETROMINOS = 7;
+        public const int CENTRE_OF_SCREEN_OFFSET = 725;
 
-        public const string I_type = "I";
-        public const string O_type = "O";
-        public const string T_type = "T";
-        public const string S_type = "S";
-        public const string Z_type = "Z";
-        public const string J_type = "J";
-        public const string L_type = "L";
+
+        public enum TetrominoType
+        {
+            I_type,
+            O_type,
+            T_type,
+            S_type,
+            Z_type,
+            J_type,
+            L_type
+        }
+
+        //public const string I_type = "I";
+        //public const string O_type = "O";
+        //public const string T_type = "T";
+        //public const string S_type = "S";
+        //public const string Z_type = "Z";
+        //public const string J_type = "J";
+        //public const string L_type = "L";
 
 
         public const int ROW_JUMP_GRID = WIDTH_OF_GRID;

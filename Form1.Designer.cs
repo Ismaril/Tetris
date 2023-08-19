@@ -1,8 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Windows.Forms;
-using System.Threading;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Tetris
 {
@@ -45,7 +41,7 @@ namespace Tetris
                     this.pictureBox = new System.Windows.Forms.PictureBox();
                     ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
                     this.SuspendLayout();
-                    this.pictureBox.Location = new System.Drawing.Point(725 + j * 44, i * 44);  // 725
+                    this.pictureBox.Location = new System.Drawing.Point(Constants.CENTRE_OF_SCREEN_OFFSET + j * 44, i * 44);
                     this.pictureBox.Name = $"pictureBox{counter}";
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
                     this.pictureBox.TabIndex = 0;
@@ -62,8 +58,8 @@ namespace Tetris
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1920, 1080);
 
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "Tetris";
+            this.Text = "Tetris";
             this.BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
             this.Load += new System.EventHandler(this.Form1_Load);
 
@@ -72,52 +68,46 @@ namespace Tetris
         #endregion
 
         /// <summary>
-        /// Redraw GUI based on inputed matrix. This function must be used when tetromino is either moving down or sideways.
+        /// Redraw GUI based on numbers at game grid/matrix.
         /// </summary>
         /// <param name="matrix"></param>
         public void Redraw(List<byte> matrix)
         {
             for(byte i = 0; i < matrix.Count; i++)
             {
-                if (matrix[i] == 1)
+                switch (matrix[i])
                 {
-                this.Controls[i].BackColor = System.Drawing.Color.Blue;
-                }
-                else if (matrix[i] == 2)
-                {
-                    this.Controls[i].BackColor = System.Drawing.Color.Red;
-                }
-                else if (matrix[i] == 3)
-                {
-                    this.Controls[i].BackColor = System.Drawing.Color.Yellow;
-                }
-                else if (matrix[i] == 4)
-                {
-                    this.Controls[i].BackColor = System.Drawing.Color.Green;
-                }
-                else if (matrix[i] == 5)
-                {
-                    this.Controls[i].BackColor = System.Drawing.Color.Purple;
-                }
-                else if (matrix[i] == 6)
-                {
-                    this.Controls[i].BackColor = System.Drawing.Color.White;
-                }
-                else if (matrix[i] == 7)
-                {
-                    this.Controls[i].BackColor = System.Drawing.Color.Orange;
-                }
-                else if (matrix[i] == 0)
-                {
-                    if (i < 20 || i >= 220 )
-                    {
-                        this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
-                    }
-                    else
-                    {
-                        this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_GRID;
-                    }
-                    
+                    case 0:
+                        if (i < 20 || i >= 220)
+                        {
+                            this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
+                        }
+                        else
+                        {
+                            this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_GRID;
+                        }
+                        break;
+                    case 1:
+                        this.Controls[i].BackColor = System.Drawing.Color.Red;
+                        break;
+                    case 2:
+                        this.Controls[i].BackColor = System.Drawing.Color.Red;
+                        break;
+                    case 3:
+                        this.Controls[i].BackColor = System.Drawing.Color.DarkRed;
+                        break;
+                    case 4:
+                        this.Controls[i].BackColor = System.Drawing.Color.DarkRed;
+                        break;
+                    case 5:
+                        this.Controls[i].BackColor = System.Drawing.Color.DarkRed;
+                        break;
+                    case 6:
+                        this.Controls[i].BackColor = System.Drawing.Color.LightCoral;
+                        break;
+                    case 7:
+                        this.Controls[i].BackColor = System.Drawing.Color.LightCoral;
+                        break;
                 }
             }
         }

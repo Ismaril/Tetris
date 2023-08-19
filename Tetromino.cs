@@ -6,16 +6,16 @@ namespace Tetris
 {
     public class Tetromino : Constants
     {
-        private string type;
+        private readonly List<byte[]> rotations;
+        private readonly byte type;
+        public byte[] baseRotation;
         public sbyte rotationType;
         private byte[] indexes;
         private byte offset;
-        private List<byte[]> rotations;
-        public byte[] baseRotation;
 
         public Tetromino() { }
 
-        public Tetromino(byte[] rotation0, byte[] rotation1, byte[] rotation2, byte[] rotation3, string type)
+        public Tetromino(byte[] rotation0, byte[] rotation1, byte[] rotation2, byte[] rotation3, byte type)
         {
             this.baseRotation = rotation0;
             this.rotations = new List<byte[]> { rotation0, rotation1, rotation2, rotation3 };
@@ -26,9 +26,8 @@ namespace Tetris
 
         public byte[] Indexes { get { return this.indexes; } set { this.indexes = value; } }
         public sbyte GetPositionOfRotation { get { return this.rotationType; } }
-        public string GetType_ { get { return this.type; } }
+        public byte GetType_ { get { return type; } }
         public byte Offset { get { return this.offset; } set { this.offset = value; } }
-
         public List<byte[]> Rotations { get {  return this.rotations; } }
 
         /// <summary>
@@ -57,7 +56,6 @@ namespace Tetris
             this.rotationType++;
             if (this.rotationType == 4) this.rotationType = 0;
             this.indexes = this.rotations[this.rotationType];
-            //this.rotatedRight = true;
         }
 
         /// <summary>
@@ -68,9 +66,12 @@ namespace Tetris
             this.rotationType--;
             if (this.rotationType == -1) this.rotationType = 3;
             this.indexes = this.rotations[this.rotationType];
-            //this.rotatedLeft = true;
         }
 
+        /// <summary>
+        /// Due to the game matrix having extra two rows below the 20th line, compute how many rows earlier should the tetromino matrix stop at the bottom of game matrix.
+        /// </summary>
+        /// <returns></returns>
         public byte ComputeNrOfBottomPaddingRows()
         {
             byte result = 0;
