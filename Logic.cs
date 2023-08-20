@@ -9,9 +9,24 @@ namespace Tetris
     public class Logic
     {
         private List<byte> matrix = new List<byte>();
-        
-        public int speed = Constants.MOVEVEMENT_TICK;
-
+        public int[] movementTicksBasedOnLevel = {
+            Constants.GUI_TICK * 48,
+            Constants.GUI_TICK * 43,
+            Constants.GUI_TICK * 38,
+            Constants.GUI_TICK * 33,
+            Constants.GUI_TICK * 28,
+            Constants.GUI_TICK * 23,
+            Constants.GUI_TICK * 18,
+            Constants.GUI_TICK * 13,
+            Constants.GUI_TICK * 8,
+            Constants.GUI_TICK * 6,
+            Constants.GUI_TICK * 5,
+            Constants.GUI_TICK * 4,
+            Constants.GUI_TICK * 3,
+            Constants.GUI_TICK * 2,
+            Constants.GUI_TICK * 1,
+        };
+        public int speed;
         private bool moveRight = false;
         private bool moveLeft = false;
         private bool rotateRight = false;
@@ -38,6 +53,9 @@ namespace Tetris
         public bool gameStarted = false;
         private bool roundEnded = false;
         private bool totalGameEnded = false;
+        private int scoreIncrementor = 0;
+        private byte currentLevel = 0;
+
 
         private Tetromino tetromino = new Tetromino();
         private Tetromino I_tetromino = new Tetromino(Constants.I_0, Constants.I_1, Constants.I_0, Constants.I_1, (byte)Constants.TetrominoType.I_type);
@@ -62,11 +80,13 @@ namespace Tetris
         {
             this.redraw = redraw;
             tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
+            speed = movementTicksBasedOnLevel[currentLevel];
 
             for(int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++)
             {
                 matrix.Add(0);
             }
+
         }
 
         public Tetromino Tetromino { get { return tetromino; } }
@@ -76,6 +96,7 @@ namespace Tetris
         public bool MoveDownFast { get => moveDownFast; set => moveDownFast = value; }
         public bool RotateRight { get => rotateRight; set => rotateRight = value; }
         public bool RotateLeft { get => rotateLeft; set => rotateLeft = value; }
+        public int ScoreIncrementor { get => scoreIncrementor; set => scoreIncrementor = value; }
 
         /// <summary>
         /// Actualises the selected matrix indexes to 1 from indexes of tetromino object.
@@ -269,7 +290,7 @@ namespace Tetris
         private void MoveDownFaster_UserEvent(bool activate)
         {
             if (!activate) return;
-            timer = Constants.MOVEVEMENT_TICK;
+            timer = movementTicksBasedOnLevel[currentLevel];
             MoveDownFast = false;
         }
 
@@ -302,7 +323,7 @@ namespace Tetris
 
     private void DefaultTetrominoMovement()
         {
-            if (timer >= Constants.MOVEVEMENT_TICK)
+            if (timer >= movementTicksBasedOnLevel[currentLevel])
             {
                 if (TetrominoHasObstacleAtNextRow() || TetrominoIsAtBottom())
                 {
@@ -369,8 +390,17 @@ namespace Tetris
                 matrix.RemoveRange(row*10, 10);
                 matrix.InsertRange(0, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             }
+            ComputeScore((byte)indexesOfCompletedRows.Count);
         }
 
+        private void ComputeScore(byte numberOfFinishedRows)
+        {
+            if (numberOfFinishedRows == 0) return;
+            else if (numberOfFinishedRows == 1) ScoreIncrementor += (40 * (currentLevel + 1));
+            else if (numberOfFinishedRows == 2) ScoreIncrementor += (100 * (currentLevel + 1));
+            else if (numberOfFinishedRows == 3) ScoreIncrementor += (300 * (currentLevel + 1));
+            else if (numberOfFinishedRows == 4) ScoreIncrementor += (1200 * (currentLevel + 1));
+        }
         private void SetAllFlagsToFalse()
         {
             MoveRight = false;

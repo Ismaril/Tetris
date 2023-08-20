@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace Tetris
 {
     partial class Form1
     {
         private System.Windows.Forms.PictureBox pictureBox;
+        private System.Windows.Forms.Label labelScore;
+        private System.Windows.Forms.Label labelScoreCount;
+        private uint score;
 
         /// <summary>
         /// Required designer variable.
@@ -51,12 +55,24 @@ namespace Tetris
                     counter++;
                 }
             }
+
+            // Score
+            score = 0;
+            labelScore = new System.Windows.Forms.Label();
+            labelScore.Text = $"SCORE\n{score}";
+            labelScore.Font = new Font("Bauhaus 93", 50);
+            labelScore.Location = new System.Drawing.Point(1200, 250);
+            labelScore.Name = "textBoxScore";
+            labelScore.Size = new System.Drawing.Size(500, 500);
+            labelScore.BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
+            Controls.Add(labelScore);
+
             // 
             // Form1 (Main frame)
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1920, 1080);
+            this.ClientSize = new System.Drawing.Size(Constants.WIDTH_OF_APPLICATION_WINDOW, Constants.HEIGHT_OF_APPLICATION_WINDOW);
 
             this.Name = "Tetris";
             this.Text = "Tetris";

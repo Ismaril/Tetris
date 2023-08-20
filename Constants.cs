@@ -10,19 +10,22 @@ namespace Tetris
     {
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 24;
-        public const int MOVEVEMENT_TICK = 256;
         public const int GUI_TICK = 16;
+
         public const byte PICTURE_BOX_SIZE = 10;
         public const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
         public static readonly object COLOR_BACKGROUND = System.Drawing.Color.DimGray;
         public static readonly object COLOR_GRID = System.Drawing.Color.Black;
-        public static readonly object COLOR_TETROMINO = System.Drawing.Color.Black;
         public const int FORM_HEIGHT = 200;
         public const int FORM_WIDTH = 100;
         public const byte MIN_NR_OF_TETROMINOS = 0;
         public const byte MAX_NR_OF_TETROMINOS = 7;
         public const int CENTRE_OF_SCREEN_OFFSET = 725;
-
+        public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
+        public const int ROW_JUMP_TETROMINO = 4;
+        public const int LAST_ROW = HEIGHT_OF_GRID - 5;
+        public const int WIDTH_OF_APPLICATION_WINDOW = 1920;
+        public const int HEIGHT_OF_APPLICATION_WINDOW = 1080;
 
         public enum TetrominoType
         {
@@ -34,19 +37,6 @@ namespace Tetris
             J_type,
             L_type
         }
-
-        //public const string I_type = "I";
-        //public const string O_type = "O";
-        //public const string T_type = "T";
-        //public const string S_type = "S";
-        //public const string Z_type = "Z";
-        //public const string J_type = "J";
-        //public const string L_type = "L";
-
-
-        public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
-        public const int ROW_JUMP_TETROMINO = 4;
-        public const int LAST_ROW = HEIGHT_OF_GRID - 5;
 
 
         //  ____________ 
