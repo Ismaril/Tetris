@@ -48,7 +48,8 @@ namespace Tetris
             logic.Main__();
             logic.Timer += Constants.GUI_TICK;
             keyTimer += 1;
-            this.Controls[240].Text = $"SCORE\n{logic.ScoreIncrementor}";
+            this.Controls[256].Text = $"SCORE\n{logic.ScoreIncrementor}";
+            this.Controls[257].Text = $"LEVEL\n{logic.CurrentLevel}";
 
             if (logic.currentRow < 1) moveDownalreadypressed = true;
             else if(keyTimer % 2 == 0 ) moveDownalreadypressed = false;

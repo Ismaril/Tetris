@@ -8,7 +8,7 @@ namespace Tetris
     {
         private readonly List<byte[]> rotations;
         private readonly byte type;
-        public byte[] baseRotation;
+        private byte[] baseRotation;
         public sbyte rotationType;
         private byte[] indexes;
         private byte offset;
@@ -17,10 +17,10 @@ namespace Tetris
 
         public Tetromino(byte[] rotation0, byte[] rotation1, byte[] rotation2, byte[] rotation3, byte type)
         {
-            this.baseRotation = rotation0;
+            this.BaseRotation = rotation0;
             this.rotations = new List<byte[]> { rotation0, rotation1, rotation2, rotation3 };
             this.type = type;
-            this.indexes = baseRotation;
+            this.indexes = BaseRotation;
             this.rotationType = 0;
         }
 
@@ -30,8 +30,10 @@ namespace Tetris
         public byte Offset { get { return this.offset; } set { this.offset = value; } }
         public List<byte[]> Rotations { get {  return this.rotations; } }
 
+        public byte[] BaseRotation { get => baseRotation; set => baseRotation = value; }
+
         /// <summary>
-        /// Move tetromino at next row.
+        /// Move tetrominoCurrent at next row.
         /// </summary>
         public void MoveDown()
         {
@@ -39,17 +41,17 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Move tetromino left.
+        /// Move tetrominoCurrent left.
         /// </summary>
         public void MoveLeft(){ this.offset--; }
 
         /// <summary>
-        /// Move tetromino right.
+        /// Move tetrominoCurrent right.
         /// </summary>
         public void MoveRight(){ this.offset++; }
 
         /// <summary>
-        /// Rotate tetromino right.
+        /// Rotate tetrominoCurrent right.
         /// </summary>
         public void RotateRight()
         {
@@ -59,7 +61,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Rotate tetromino left.
+        /// Rotate tetrominoCurrent left.
         /// </summary>
         public void RotateLeft()
         {
@@ -69,7 +71,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Due to the game matrix having extra two rows below the 20th line, compute how many rows earlier should the tetromino matrix stop at the bottom of game matrix.
+        /// Due to the game matrix having extra two rows below the 20th line, compute how many rows earlier should the tetrominoCurrent matrix stop at the bottom of game matrix.
         /// </summary>
         /// <returns></returns>
         public byte ComputeNrOfBottomPaddingRows()

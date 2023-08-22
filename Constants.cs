@@ -14,8 +14,8 @@ namespace Tetris
 
         public const byte PICTURE_BOX_SIZE = 10;
         public const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
-        public static readonly object COLOR_BACKGROUND = System.Drawing.Color.DimGray;
-        public static readonly object COLOR_GRID = System.Drawing.Color.Black;
+        public static readonly object COLOR_BACKGROUND = System.Drawing.Color.Black;
+        public static readonly object COLOR_GRID = System.Drawing.Color.DarkGray;
         public const int FORM_HEIGHT = 200;
         public const int FORM_WIDTH = 100;
         public const byte MIN_NR_OF_TETROMINOS = 0;

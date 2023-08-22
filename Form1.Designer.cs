@@ -7,8 +7,9 @@ namespace Tetris
     {
         private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.Label labelScore;
-        private System.Windows.Forms.Label labelScoreCount;
+        private System.Windows.Forms.Label labelLevel;
         private uint score;
+        private uint level;
 
         /// <summary>
         /// Required designer variable.
@@ -56,16 +57,48 @@ namespace Tetris
                 }
             }
 
+            // Create a GUI matrix which will display next tetrominoCurrent.
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    this.pictureBox = new System.Windows.Forms.PictureBox();
+                    ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+                    //this.SuspendLayout();
+                    this.pictureBox.Location = new System.Drawing.Point(1200+j * 44, 150+i * 44);
+                    this.pictureBox.Name = $"pictureBox{counter}";
+                    this.pictureBox.Size = new System.Drawing.Size(40, 40);
+                    this.pictureBox.BackColor = System.Drawing.Color.White;
+                    this.pictureBox.TabIndex = 0;
+                    this.pictureBox.TabStop = false;
+                    this.Controls.Add(this.pictureBox);
+                    ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+                    counter++;
+                }
+            }
+
             // Score
             score = 0;
             labelScore = new System.Windows.Forms.Label();
             labelScore.Text = $"SCORE\n{score}";
             labelScore.Font = new Font("Bauhaus 93", 50);
-            labelScore.Location = new System.Drawing.Point(1200, 250);
+            labelScore.Location = new System.Drawing.Point(1200, 350);
             labelScore.Name = "textBoxScore";
-            labelScore.Size = new System.Drawing.Size(500, 500);
-            labelScore.BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
+            labelScore.Size = new System.Drawing.Size(233, 150);
+            labelScore.BackColor = System.Drawing.Color.AliceBlue;//(System.Drawing.Color)Constants.COLOR_BACKGROUND;
             Controls.Add(labelScore);
+
+            // Level
+            level = 0;
+            labelLevel = new System.Windows.Forms.Label();
+            labelLevel.Text = $"LEVEL\n{level}";
+            labelLevel.Font = new Font("Bauhaus 93", 50);
+            labelLevel.Location = new System.Drawing.Point(1200, 650);
+            labelLevel.Name = "textBoxScore";
+            labelLevel.Size = new System.Drawing.Size(233, 150);
+            labelLevel.BackColor = System.Drawing.Color.AliceBlue;//(System.Drawing.Color)Constants.COLOR_BACKGROUND;
+            Controls.Add(labelLevel);
+
 
             // 
             // Form1 (Main frame)
@@ -110,19 +143,48 @@ namespace Tetris
                         this.Controls[i].BackColor = System.Drawing.Color.Red;
                         break;
                     case 3:
-                        this.Controls[i].BackColor = System.Drawing.Color.DarkRed;
+                        this.Controls[i].BackColor = System.Drawing.Color.Green;
                         break;
                     case 4:
-                        this.Controls[i].BackColor = System.Drawing.Color.DarkRed;
+                        this.Controls[i].BackColor = System.Drawing.Color.Blue;
                         break;
                     case 5:
-                        this.Controls[i].BackColor = System.Drawing.Color.DarkRed;
+                        this.Controls[i].BackColor = System.Drawing.Color.Blue;
                         break;
                     case 6:
-                        this.Controls[i].BackColor = System.Drawing.Color.LightCoral;
+                        this.Controls[i].BackColor = System.Drawing.Color.Orange;
                         break;
                     case 7:
-                        this.Controls[i].BackColor = System.Drawing.Color.LightCoral;
+                        this.Controls[i].BackColor = System.Drawing.Color.Orange;
+                        break;
+                }
+            }
+
+            for (int i = 0; i < 16; i++)
+            {
+                Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = (System.Drawing.Color)(Constants.COLOR_BACKGROUND);
+                switch (logic.TetrominoNext[i])
+                {
+                    case 1:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Red;
+                        break;
+                    case 2:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Red;
+                        break;
+                    case 3:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Green;
+                        break;
+                    case 4:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Blue;
+                        break;
+                    case 5:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Blue;
+                        break;
+                    case 6:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Orange;
+                        break;
+                    case 7:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Orange;
                         break;
                 }
             }
