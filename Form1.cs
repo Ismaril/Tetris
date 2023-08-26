@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -25,6 +26,7 @@ namespace Tetris
         bool rotateLeft = false;
 
         int keyTimer = 0;
+        byte shitak = 0;
 
         public Form1()
         {
@@ -67,6 +69,8 @@ namespace Tetris
  
             if (rotateLeft && !alreadyPressedRotate) { logic.RotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
             else if (rotateRight && !alreadyPressedRotate) { logic.RotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
+
+            GameEnded();
         }
         private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
         {
@@ -91,5 +95,19 @@ namespace Tetris
                 pressedKeys.Add(e.KeyCode);
             } 
         }
+
+        private void GameEnded()
+        {
+            if (!logic.skipLogicMain || shitak == 200) return;
+
+            for (int i = 0; i < 10; i++)
+            {
+
+                this.Controls[i+20+shitak].BackgroundImage = Constants.GAME_OVER_GRID_COLOR;
+
+            }
+            shitak += 10;
+        }
+
     }
 }

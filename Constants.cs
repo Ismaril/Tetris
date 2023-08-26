@@ -29,6 +29,7 @@ namespace Tetris
         public static readonly System.Drawing.Image STYLE1_COLOR1 = System.Drawing.Image.FromFile(@"../../Sprites/style1_color1.png");
         public static readonly System.Drawing.Image STYLE1_COLOR2 = System.Drawing.Image.FromFile(@"../../Sprites/style1_color2.png");
         public static readonly System.Drawing.Image STYLE1_COLOR3 = System.Drawing.Image.FromFile(@"../../Sprites/style1_color3.png");
+        public static readonly System.Drawing.Image GAME_OVER_GRID_COLOR = System.Drawing.Image.FromFile(@"../../Sprites/style1_color4.png");
         public static readonly System.Drawing.Image GRID_COLOR = System.Drawing.Image.FromFile(@"../../Sprites/grid_color1.png");
         public static readonly System.Drawing.Image OFFGRID_COLOR = System.Drawing.Image.FromFile(@"../../Sprites/offgrid_color.png");
 
