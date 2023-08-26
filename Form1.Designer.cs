@@ -68,7 +68,7 @@ namespace Tetris
                     this.pictureBox.Location = new System.Drawing.Point(1200+j * 44, 150+i * 44);
                     this.pictureBox.Name = $"pictureBox{counter}";
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
-                    this.pictureBox.BackColor = System.Drawing.Color.White;
+                    this.pictureBox.BackgroundImage = Constants.OFFGRID_COLOR;
                     this.pictureBox.TabIndex = 0;
                     this.pictureBox.TabStop = false;
                     this.Controls.Add(this.pictureBox);
@@ -99,7 +99,6 @@ namespace Tetris
             labelLevel.BackColor = System.Drawing.Color.AliceBlue;//(System.Drawing.Color)Constants.COLOR_BACKGROUND;
             Controls.Add(labelLevel);
 
-
             // 
             // Form1 (Main frame)
             // 
@@ -113,6 +112,8 @@ namespace Tetris
             this.Load += new System.EventHandler(this.Form1_Load);
 
             this.ResumeLayout(false);
+
+
         }
         #endregion
 
@@ -129,62 +130,38 @@ namespace Tetris
                     case 0:
                         if (i < 20 || i >= 220)
                         {
-                            this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_BACKGROUND;
+                            this.Controls[i].BackgroundImage = Constants.OFFGRID_COLOR;
                         }
                         else
                         {
-                            this.Controls[i].BackColor = (System.Drawing.Color)Constants.COLOR_GRID;
+                            this.Controls[i].BackgroundImage = Constants.GRID_COLOR;
                         }
                         break;
                     case 1:
-                        this.Controls[i].BackColor = System.Drawing.Color.Red;
+                        this.Controls[i].BackgroundImage = Constants.STYLE1_COLOR1;
                         break;
                     case 2:
-                        this.Controls[i].BackColor = System.Drawing.Color.Red;
+                        this.Controls[i].BackgroundImage = Constants.STYLE1_COLOR2;
                         break;
                     case 3:
-                        this.Controls[i].BackColor = System.Drawing.Color.Green;
-                        break;
-                    case 4:
-                        this.Controls[i].BackColor = System.Drawing.Color.Blue;
-                        break;
-                    case 5:
-                        this.Controls[i].BackColor = System.Drawing.Color.Blue;
-                        break;
-                    case 6:
-                        this.Controls[i].BackColor = System.Drawing.Color.Orange;
-                        break;
-                    case 7:
-                        this.Controls[i].BackColor = System.Drawing.Color.Orange;
+                        this.Controls[i].BackgroundImage = Constants.STYLE1_COLOR3;
                         break;
                 }
             }
 
             for (int i = 0; i < 16; i++)
             {
-                Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = (System.Drawing.Color)(Constants.COLOR_BACKGROUND);
+                Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.OFFGRID_COLOR;
                 switch (logic.TetrominoNext[i])
                 {
                     case 1:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Red;
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.STYLE1_COLOR1;
                         break;
                     case 2:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Red;
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.STYLE1_COLOR2;
                         break;
                     case 3:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Green;
-                        break;
-                    case 4:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Blue;
-                        break;
-                    case 5:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Blue;
-                        break;
-                    case 6:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Orange;
-                        break;
-                    case 7:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackColor = System.Drawing.Color.Orange;
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.STYLE1_COLOR3;
                         break;
                 }
             }
