@@ -18,6 +18,7 @@ namespace Tetris
         readonly Logic logic;
         readonly System.Windows.Forms.Timer timer;
         List<Keys> pressedKeys = new List<Keys>();
+        //readonly Sprites sprites;
 
         bool moveDownalreadypressed = false;
         bool alreadyPressedRotate = false;
@@ -31,8 +32,9 @@ namespace Tetris
         public Form1()
         {
             InitializeComponent();
-            logic = new Logic(this.Redraw);
+            logic = new Logic();
             timer = new System.Windows.Forms.Timer();
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -47,7 +49,7 @@ namespace Tetris
 
         private void TimerTick(object sender, EventArgs e)
         {
-            logic.Main__();
+            logic.Main__(this.Redraw);
             logic.Timer += Constants.GUI_TICK;
             keyTimer += 1;
             this.Controls[256].Text = $"SCORE\n{logic.ScoreIncrementor}";
@@ -96,6 +98,58 @@ namespace Tetris
             } 
         }
 
+        /// <summary>
+        /// Redraw GUI based on numbers at game grid/matrix.
+        /// </summary>
+        /// <param name="matrix"></param>
+        public void Redraw(List<byte> matrix)
+        {
+            for (byte i = 0; i < matrix.Count; i++)
+            {
+                switch (matrix[i])
+                {
+                    case 0:
+                        if (i < 20 || i >= 220)
+                        {
+                            this.Controls[i].BackgroundImage = sprites.OFFGRID_COLOR;
+                        }
+                        else
+                        {
+                            this.Controls[i].BackgroundImage = sprites.GRID_COLOR;
+                        }
+                        break;
+                    case 1:
+                        Console.WriteLine(sprites.TetrominoSpriteCollection[0][0]);
+                        Console.WriteLine(logic.CurrentLevel);
+                        this.Controls[i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][0];
+                        break;
+                    case 2:
+                        this.Controls[i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][1];
+                        break;
+                    case 3:
+                        this.Controls[i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][2];
+                        break;
+                }
+            }
+
+            for (int i = 0; i < 16; i++)
+            {
+                Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.GRID_COLOR;
+                switch (logic.TetrominoNext[i])
+                {
+                    case 1:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][0];
+                        break;
+                    case 2:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][1];
+                        break;
+                    case 3:
+                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][2];
+                        break;
+                }
+            }
+        }
+
         private void GameEnded()
         {
             if (!logic.skipLogicMain || shitak == 200) return;
@@ -103,7 +157,7 @@ namespace Tetris
             for (int i = 0; i < 10; i++)
             {
 
-                this.Controls[i+20+shitak].BackgroundImage = Constants.GAME_OVER_GRID_COLOR;
+                this.Controls[i+20+shitak].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel%10][3];
 
             }
             shitak += 10;

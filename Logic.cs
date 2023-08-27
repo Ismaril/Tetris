@@ -13,10 +13,10 @@ namespace Tetris
     {
         //SoundPlayer soundMoveToSides = new SoundPlayer(@"../../Music/SFX 4.wav");
         //SoundPlayer soundRotate = new SoundPlayer(@"../../Music/SFX 6.wav");
-        SoundPlayer soundObstacle = new SoundPlayer(@"../../Music/SFX 8.wav");
-        SoundPlayer soundLineCleared = new SoundPlayer(@"../../Music/SFX 11.wav");
+        //SoundPlayer soundObstacle = new SoundPlayer(@"../../Music/SFX 8.wav");
+        //SoundPlayer soundLineCleared = new SoundPlayer(@"../../Music/SFX 11.wav");
         //SoundPlayer soundGameOver = new SoundPlayer(@"../../Music/SFX 14.wav");
-        SoundPlayer soundTetris = new SoundPlayer(@"../../Music/SFX TetrisClear.wav");
+        //SoundPlayer soundTetris = new SoundPlayer(@"../../Music/SFX TetrisClear.wav");
 
         // Initialize the background music player
         //WaveOutEvent backgroundMusicPlayer = new WaveOutEvent();
@@ -119,21 +119,21 @@ namespace Tetris
         /// </summary>
         /// <param name="redraw"></param>
         /// <param name="redrawBack"></param>
-        public Logic(Action<List<byte>> redraw)
+        public Logic()
         {
-            this.redraw = redraw;
+            //this.redraw = redraw;
             tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
             speed = movementTicksBasedOnLevel[CurrentLevel];
             for(int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++) Matrix.Add(0);
 
 
             music.MainMusic(); //uncommment
-
+            
             
             //userEventSoundPlayer.Init(userEventSoundReader);
             
-            // Dispose of resources when done
-            //backgroundMusicPlayer.Dispose();
+            // DisposeSFX_NAudio of resources when done
+            //backgroundMusicPlayer.DisposeSFX_NAudio();
         }
 
         public Tetromino Tetromino { get { return tetrominoCurrent; } }
@@ -327,6 +327,7 @@ namespace Tetris
                 music.GameOver();
                 //throw new Exception("Game ended");
                 skipLogicMain = true;
+                music.DisposeBackgroundMusic_NAudio();
             }
         }
 
@@ -410,8 +411,8 @@ namespace Tetris
                     currentRow = 0;
                     toBeRemoved.Clear();
                     removeTetromino = false;
-                    soundObstacle.Play();/////////////////////////////////////////////////////////////////////////
-                    //music.Obstacle();
+                    //soundObstacle.Play();/////////////////////////////////////////////////////////////////////////
+                    music.Obstacle();
                 }
                 else
                 {
@@ -487,14 +488,14 @@ namespace Tetris
 
             if (indexesOfCompletedRows.Count > 0 && indexesOfCompletedRows.Count <= 3)
             {
-                soundLineCleared.Play();////////////////////////////////////////////////////////////////////////
-                //music.LineCleared();
+                //soundLineCleared.Play();////////////////////////////////////////////////////////////////////////
+                music.LineCleared();
                 System.Threading.Thread.Sleep(450);
             }
             else if(indexesOfCompletedRows.Count == 4)
             {
-                soundTetris.Play();/////////////////////////////////////////////////////////////////////////////////
-                //music.Tetris();
+                //soundTetris.Play();/////////////////////////////////////////////////////////////////////////////////
+                music.Tetris();
                 System.Threading.Thread.Sleep(450);
             }
             linesNextLevel += (byte)indexesOfCompletedRows.Count;
@@ -506,6 +507,7 @@ namespace Tetris
             {
                 linesNextLevel = 0;
                 currentLevel++;
+                music.NextLevel();
             }
         }
 
@@ -537,7 +539,7 @@ namespace Tetris
             cannotMoveDown = TetrominoHasObstacleAtNextRow();
         }
 
-        public void Main__()
+        public void Main__(Action<List<byte>> redraw)
         {
 
             //GameStarted();
@@ -565,7 +567,7 @@ namespace Tetris
             SetAllFlagsToFalse();
 
             if (timer >= movementTicksBasedOnLevel[CurrentLevel])
-                music.Dispose();
+                music.DisposeSFX_NAudio();
 
 
         }

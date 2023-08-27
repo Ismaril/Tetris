@@ -10,6 +10,7 @@ namespace Tetris
         private System.Windows.Forms.Label labelLevel;
         private uint score;
         private uint level;
+        private Sprites sprites = new Sprites();
 
         /// <summary>
         /// Required designer variable.
@@ -68,7 +69,7 @@ namespace Tetris
                     this.pictureBox.Location = new System.Drawing.Point(1200+j * 44, 150+i * 44);
                     this.pictureBox.Name = $"pictureBox{counter}";
                     this.pictureBox.Size = new System.Drawing.Size(40, 40);
-                    this.pictureBox.BackgroundImage = Constants.OFFGRID_COLOR;
+                    this.pictureBox.BackgroundImage = sprites.OFFGRID_COLOR;
                     this.pictureBox.TabIndex = 0;
                     this.pictureBox.TabStop = false;
                     this.Controls.Add(this.pictureBox);
@@ -117,55 +118,7 @@ namespace Tetris
         }
         #endregion
 
-        /// <summary>
-        /// Redraw GUI based on numbers at game grid/matrix.
-        /// </summary>
-        /// <param name="matrix"></param>
-        public void Redraw(List<byte> matrix)
-        {
-            for(byte i = 0; i < matrix.Count; i++)
-            {
-                switch (matrix[i])
-                {
-                    case 0:
-                        if (i < 20 || i >= 220)
-                        {
-                            this.Controls[i].BackgroundImage = Constants.OFFGRID_COLOR;
-                        }
-                        else
-                        {
-                            this.Controls[i].BackgroundImage = Constants.GRID_COLOR;
-                        }
-                        break;
-                    case 1:
-                        this.Controls[i].BackgroundImage = Constants.STYLE1_COLOR1;
-                        break;
-                    case 2:
-                        this.Controls[i].BackgroundImage = Constants.STYLE1_COLOR2;
-                        break;
-                    case 3:
-                        this.Controls[i].BackgroundImage = Constants.STYLE1_COLOR3;
-                        break;
-                }
-            }
 
-            for (int i = 0; i < 16; i++)
-            {
-                Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.OFFGRID_COLOR;
-                switch (logic.TetrominoNext[i])
-                {
-                    case 1:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.STYLE1_COLOR1;
-                        break;
-                    case 2:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.STYLE1_COLOR2;
-                        break;
-                    case 3:
-                        this.Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = Constants.STYLE1_COLOR3;
-                        break;
-                }
-            }
-        }
     }
 }
 
