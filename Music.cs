@@ -67,41 +67,26 @@ namespace Tetris
         {
             // Initialize the background music player
             AudioFileReader backgroundMusicReader = new AudioFileReader(backgroudMusic1_Slow);
+            //AudioFileReader backgroundMusicReader = new AudioFileReader(backgroudMusic2_Slow);
+            //AudioFileReader backgroundMusicReader = new AudioFileReader(backgroudMusic3_Slow);
             // Start playing the background music (looped)
             backgroundMusicPlayer.Init(backgroundMusicReader);
             backgroundMusicPlayer.Play();
         }
 
-        public void NextLevel()
-        {
-            nextLevel.Play();
-        }
+        public void NextLevel() {nextLevel.Play();}
 
-        public void Obstacle()
-        {
-            //AudioFileReader address = new AudioFileReader(soundObstacle);
-            //obstacle.Init(address);
-            obstacle.Play();
-        }
+        public void Obstacle() { obstacle.Play(); }
 
-        public void LineCleared()
-        {
-            //AudioFileReader address = new AudioFileReader(soundLineCleared);
-            //lineCleared.Init(address);
-            lineCleared.Play();
-        }
+        public void LineCleared() { lineCleared.Play(); }
+
+        public void Tetris() { tetris.Play(); }
+
         public void GameOver()
         {
             AudioFileReader address = new AudioFileReader(soundGameOver);
             gameOver.Init(address);
             gameOver.Play();
-        }
-
-        public void Tetris()
-        {
-        //    AudioFileReader address = new AudioFileReader(soundTetris);
-        //    tetris.Init(address);
-            tetris.Play();
         }
 
         /// <summary>
@@ -120,9 +105,7 @@ namespace Tetris
         /// <summary>
         /// Free up memory resources.
         /// </summary>
-        public void DisposeBackgroundMusic_NAudio()
-        {
-            backgroundMusicPlayer.Dispose();
-        }
+        public void DisposeBackgroundMusic_NAudio() { backgroundMusicPlayer.Dispose(); }
+        
     }
 }

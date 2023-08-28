@@ -11,20 +11,6 @@ namespace Tetris
 {
     public class Logic
     {
-        //SoundPlayer soundMoveToSides = new SoundPlayer(@"../../Music/SFX 4.wav");
-        //SoundPlayer soundRotate = new SoundPlayer(@"../../Music/SFX 6.wav");
-        //SoundPlayer soundObstacle = new SoundPlayer(@"../../Music/SFX 8.wav");
-        //SoundPlayer soundLineCleared = new SoundPlayer(@"../../Music/SFX 11.wav");
-        //SoundPlayer soundGameOver = new SoundPlayer(@"../../Music/SFX 14.wav");
-        //SoundPlayer soundTetris = new SoundPlayer(@"../../Music/SFX TetrisClear.wav");
-
-        // Initialize the background music player
-        //WaveOutEvent backgroundMusicPlayer = new WaveOutEvent();
-        //AudioFileReader backgroundMusicReader = new AudioFileReader(@"../../Music/1 - Music 1.wav");
-
-        // Create the user event sound player
-        //WaveOut userEventSoundPlayer = new WaveOut();
-        //AudioFileReader userEventSoundReader = new AudioFileReader(@"../../Music/SFX 4.wav");
         private Music music = new Music();
         private List<byte> matrix = new List<byte>();
         public int[] movementTicksBasedOnLevel = {
@@ -66,36 +52,28 @@ namespace Tetris
         private bool rotateRight = false;
         private bool rotateLeft = false;
         private bool moveDownFast = false;
-
-
-        private bool atGridBoundary = false;
         private bool cannotMoveRight = false;
         private bool cannotMoveLeft = false;
         public bool cannotMoveDown = false;
         private bool cannotRotateRight = false;
         private bool cannotRotateLeft = false;
-
         public bool sendNextPiece = true;
         public bool putTetrominoOnGrid = true; 
         public bool startRemoving = false;
         public bool removeTetromino = false;
-
-        private int timer = 0;
-        public byte currentRow = 0;
-        private byte nrOfSessionRows = 0;
-
         public bool gameStarted = false;
         private bool roundEnded = false;
         private bool totalGameEnded = false;
+        private byte tetrominoNextIndex = 99;
+        private byte currentLevel = 5;
+        private int totalNumberOfClearedLines = 0;
+        private int timer = 0;
+        public byte currentRow = 0;
         private int scoreIncrementor = 0;
-        private byte currentLevel = 0;
         private byte linesNextLevel = 0; // has to be 10 in order to continue to next level
         private byte[] tetrominoNext = new byte[16];
-        private byte tetrominoNextIndex = 99;
         public bool skipLogicMain = false;
-
         private Tetromino tetrominoCurrent = new Tetromino();
-
         private Tetromino I_tetromino = new Tetromino(Constants.I_0, Constants.I_1, Constants.I_0, Constants.I_1, (byte)Constants.TetrominoType.I_type);
         private Tetromino O_tetromino = new Tetromino(Constants.O_0, Constants.O_0, Constants.O_0, Constants.O_0, (byte)Constants.TetrominoType.O_type);
         private Tetromino T_tetromino = new Tetromino(Constants.T_0, Constants.T_1, Constants.T_2, Constants.T_3, (byte)Constants.TetrominoType.T_type);
@@ -108,11 +86,6 @@ namespace Tetris
         public List<byte> toBeRemoved = new List<byte>();
         public List<byte> collisionDetection = new List<byte>();
 
-        bool removeUpToThreeLines = false;
-        bool removingLinesSoundIsPlaying = false;
-
-        Stopwatch sw = new Stopwatch();
-
         /// <summary>
         /// 
         /// 
@@ -121,19 +94,10 @@ namespace Tetris
         /// <param name="redrawBack"></param>
         public Logic()
         {
-            //this.redraw = redraw;
             tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
             speed = movementTicksBasedOnLevel[CurrentLevel];
             for(int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++) Matrix.Add(0);
-
-
-            music.MainMusic(); //uncommment
-            
-            
-            //userEventSoundPlayer.Init(userEventSoundReader);
-            
-            // DisposeSFX_NAudio of resources when done
-            //backgroundMusicPlayer.DisposeSFX_NAudio();
+           // music.MainMusic(); //uncommment
         }
 
         public Tetromino Tetromino { get { return tetrominoCurrent; } }
@@ -148,6 +112,7 @@ namespace Tetris
         public byte CurrentLevel { get => currentLevel; set => currentLevel = value; }
         public bool RoundEnded1 { get => roundEnded; set => roundEnded = value; }
         public List<byte> Matrix { get => matrix; set => matrix = value; }
+        public int TotalNumberOfClearedLines { get => totalNumberOfClearedLines; set => totalNumberOfClearedLines = value; }
 
 
         /// <summary>
@@ -157,9 +122,6 @@ namespace Tetris
         private void PutTetrominoOnGrid(byte[] tetrominoMatrix, byte offset, bool active)
         {
             if(!active) return;
-
-
-
             byte columnRelative = 0;
             for (byte i = 0; i < tetrominoMatrix.Length; i++)
             {
@@ -195,10 +157,7 @@ namespace Tetris
                 if (Matrix.Contains(i)) continue;
                 Matrix[i] = 0;
             }
-             //toBeRemoved.Clear();
-             removeTetromino = false;
-
-
+            removeTetromino = false;
         }
 
         /// <summary>
@@ -213,11 +172,8 @@ namespace Tetris
                 for (byte i = 0; i < 4; i++)
                 {
                     if (!(toBeRemoved.Contains((byte)(toBeRemoved[i] + (byte)Constants.ROW_JUMP_GRID))))
-                    {
                         collisionDetection.Add((byte)this.toBeRemoved[i]);
-                    }
                 }
-
                 for (byte i = 0; i < collisionDetection.Count; i++)
                 {
                     if ((Matrix[collisionDetection[i] + Constants.ROW_JUMP_GRID] > 0))
@@ -233,21 +189,16 @@ namespace Tetris
 
         public bool TetrominaHasObstacleAtNextColumn(bool checkRightside)
         {
-
             sbyte operator_;
             if (checkRightside) operator_ = 1;
             else operator_ = -1;
-
             if (toBeRemoved.Count > 0)
             {
                 for (byte i = 0; i < 4; i++)
                 {
                     if (!(toBeRemoved.Contains((byte)(toBeRemoved[i] + operator_))))
-                    {
                         collisionDetection.Add((byte)toBeRemoved[i]);
-                    }
                 }
-
                 for (byte i = 0; i < collisionDetection.Count; i++)
                 {
                     if ((Matrix[collisionDetection[i] + operator_] > 0))
@@ -255,7 +206,6 @@ namespace Tetris
                         collisionDetection.Clear();
                         return true;
                     }
-
                 }
                 collisionDetection.Clear();
             }
@@ -265,10 +215,8 @@ namespace Tetris
         public bool TetrominaHasObstacleAtNextRotation(bool checkRightRotation, byte offset)
         {
             sbyte operator_;
-
             if (checkRightRotation)operator_ = 1;
             else operator_ = -1;
-
             if (toBeRemoved.Count > 0)
             {
                 sbyte rotationType = (sbyte)(tetrominoCurrent.GetPositionOfRotation + operator_);
@@ -276,7 +224,6 @@ namespace Tetris
                 else if (rotationType == 4) rotationType = 0;
                 byte[] tetrominoMatrix = tetrominoCurrent.Rotations[rotationType];
                 byte columnRelative = 0;
-
                 for (byte i = 0; i < tetrominoMatrix.Length; i++)
                 {
                     if (columnRelative % 4 == 0 && i > 0)
@@ -284,7 +231,6 @@ namespace Tetris
                         columnRelative = 0;
                         offset += (byte)Constants.ROW_JUMP_GRID;
                     }
-
                     byte gridIndexOffseted = (byte)((offset + columnRelative));
                     if ((tetrominoMatrix[i] > 0 && Matrix[gridIndexOffseted] > 0)
                         || (offset % 10 == 8 || offset % 10 == 7)
@@ -307,9 +253,7 @@ namespace Tetris
         private bool TetrominoIsAtBottom()
         {
             if(tetrominoCurrent.GetType_ == (byte)Constants.TetrominoType.I_type)
-            {
                 return currentRow == Constants.LAST_ROW - tetrominoCurrent.ComputeNrOfBottomPaddingRows() + 1;
-            }
             return currentRow == Constants.LAST_ROW - tetrominoCurrent.ComputeNrOfBottomPaddingRows();
         }
 
@@ -321,11 +265,8 @@ namespace Tetris
         {
             if (RoundEnded1)
             {
-                //Console.WriteLine("You lost");
                 RoundEnded1 = false;
-                //soundGameOver.Play();//////////////////////////////////////////////////////////////////////////
                 music.GameOver();
-                //throw new Exception("Game ended");
                 skipLogicMain = true;
                 music.DisposeBackgroundMusic_NAudio();
             }
@@ -334,31 +275,22 @@ namespace Tetris
         public void MoveRight_UserEvent(bool canMoveRight, bool desiredRight)
         {
             for (int i = 0; i < toBeRemoved.Count; i++)
-            {
                 if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 9) return;
-            }
             if (canMoveRight && desiredRight)
             {
                 tetrominoCurrent.MoveRight();
                 music.MoveToSides();
-
-
             }
-
         }
 
         public void MoveLeft_UserEvent(bool canMoveLeft, bool desiredLeft)
         {
             for (int i = 0; i < toBeRemoved.Count; i++)
-            {
                 if (toBeRemoved[i] % Constants.ROW_JUMP_GRID == 0) return;
-            }
             if (canMoveLeft && desiredLeft)
             {
                 tetrominoCurrent.MoveLeft();
                 music.MoveToSides();
-
-
             }
         }
 
@@ -374,7 +306,6 @@ namespace Tetris
             if (canRotateLeft && desiredRotationLeft)
             {
                 tetrominoCurrent.RotateLeft();
-                //soundRotate.Play();
                 music.Rotate();
             }
         }
@@ -384,7 +315,6 @@ namespace Tetris
             if (canRotateRight && desiredRotationRight)
             {
                 tetrominoCurrent.RotateRight();
-                //soundRotate.Play();
                 music.Rotate();
             }
         }
@@ -411,7 +341,6 @@ namespace Tetris
                     currentRow = 0;
                     toBeRemoved.Clear();
                     removeTetromino = false;
-                    //soundObstacle.Play();/////////////////////////////////////////////////////////////////////////
                     music.Obstacle();
                 }
                 else
@@ -419,11 +348,9 @@ namespace Tetris
                     removeTetromino = true;
                     tetrominoCurrent.MoveDown();
                     currentRow++;
-                    nrOfSessionRows++;
                     putTetrominoOnGrid = true;
                 }
                 timer = 0;
-                removingLinesSoundIsPlaying = false;
             }
         }
 
@@ -442,20 +369,13 @@ namespace Tetris
             {
                 Random random = new Random();
                 if(tetrominoNextIndex == 99)
-                {
                     tetrominoCurrent = tetrominos[random.Next(Constants.MIN_NR_OF_TETROMINOS, Constants.MAX_NR_OF_TETROMINOS)];
-                 
-                }
                 else tetrominoCurrent = tetrominos[tetrominoNextIndex];
 
                 if (tetrominoCurrent.GetType_ == (byte)Constants.TetrominoType.I_type)
-                {
                     tetrominoCurrent.Offset = 3;
-                }
                 else
-                {
                     tetrominoCurrent.Offset = 3 + Constants.ROW_JUMP_GRID;
-                }
 
                 tetrominoCurrent.Indexes = tetrominoCurrent.BaseRotation;
                 tetrominoCurrent.rotationType = 0;
@@ -463,8 +383,6 @@ namespace Tetris
 
                 tetrominoNextIndex = (byte)random.Next(Constants.MIN_NR_OF_TETROMINOS, Constants.MAX_NR_OF_TETROMINOS);
                 Array.Copy(tetrominos[tetrominoNextIndex].BaseRotation, TetrominoNext, TetrominoNext.Length);
-
-
             }
         }
 
@@ -488,22 +406,21 @@ namespace Tetris
 
             if (indexesOfCompletedRows.Count > 0 && indexesOfCompletedRows.Count <= 3)
             {
-                //soundLineCleared.Play();////////////////////////////////////////////////////////////////////////
                 music.LineCleared();
                 System.Threading.Thread.Sleep(450);
             }
             else if(indexesOfCompletedRows.Count == 4)
             {
-                //soundTetris.Play();/////////////////////////////////////////////////////////////////////////////////
                 music.Tetris();
                 System.Threading.Thread.Sleep(450);
             }
             linesNextLevel += (byte)indexesOfCompletedRows.Count;
-        }
+            TotalNumberOfClearedLines += (byte)indexesOfCompletedRows.Count;
+    }
 
-        private void CheckIfContinueToNextLevel()
+    private void CheckIfContinueToNextLevel()
         {
-            if(linesNextLevel >= 10)
+            if(linesNextLevel >= 5)
             {
                 linesNextLevel = 0;
                 currentLevel++;
@@ -519,6 +436,7 @@ namespace Tetris
             else if (numberOfFinishedRows == 3) ScoreIncrementor += (300 * (CurrentLevel + 1));
             else if (numberOfFinishedRows == 4) ScoreIncrementor += (1200 * (CurrentLevel + 1));
         }
+
         private void SetAllFlagsToFalse()
         {
             MoveRight = false;
@@ -527,9 +445,8 @@ namespace Tetris
             cannotMoveRight = false;
             RotateRight = false;
             RotateLeft = false;
-            atGridBoundary = false;
-            removeUpToThreeLines = false;
         }
+
         private void SetCollisionFlags()
         {
             cannotMoveRight = TetrominaHasObstacleAtNextColumn(checkRightside: true);
@@ -542,34 +459,25 @@ namespace Tetris
         public void Main__(Action<List<byte>> redraw)
         {
 
-            //GameStarted();
             RoundEnded();
-            
             if (skipLogicMain) return;
-            //TotalGameEnded();
             SetCollisionFlags();
             RotateRight_UserEvent(!cannotRotateRight, RotateRight);
             RotateLeft_UserEvent(!cannotRotateLeft, RotateLeft);
             MoveRight_UserEvent(!cannotMoveRight, MoveRight);
             MoveLeft_UserEvent(!cannotMoveLeft, MoveLeft);
             MoveDownFaster_UserEvent(activate: MoveDownFast);
-
             toBeRemoved.Clear();
             ChoseNextTetromino();
             PutTetrominoOnGrid(this.tetrominoCurrent.Indexes, tetrominoCurrent.Offset, putTetrominoOnGrid);
             DefaultTetrominoMovement();
-
             redraw(Matrix);
-
             RemoveTetrominoFromGrid(activate: removeTetromino);
             RemoveCompleteRows();
             CheckIfContinueToNextLevel();
             SetAllFlagsToFalse();
-
             if (timer >= movementTicksBasedOnLevel[CurrentLevel])
                 music.DisposeSFX_NAudio();
-
-
         }
     }
 }

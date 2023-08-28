@@ -29,7 +29,6 @@ namespace Tetris
         public byte GetType_ { get { return type; } }
         public byte Offset { get { return this.offset; } set { this.offset = value; } }
         public List<byte[]> Rotations { get {  return this.rotations; } }
-
         public byte[] BaseRotation { get => baseRotation; set => baseRotation = value; }
 
         /// <summary>
@@ -79,7 +78,6 @@ namespace Tetris
             byte result = 0;
             bool hasAPieceAtSecondLastRow = false;
             bool hasAPieceAtLastRow = false;
-
             for(int i = 0; i < this.indexes.Length;i++)
             {
                 if (i < 8) continue;
@@ -88,7 +86,6 @@ namespace Tetris
             }
             if (hasAPieceAtSecondLastRow) result++;
             if(hasAPieceAtLastRow) result++;
-
             return result;
         }
     }
