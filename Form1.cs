@@ -19,11 +19,17 @@ namespace Tetris
         Color B = Color.Transparent;
         Sprites sprites = new Sprites();
         PictureBox pictureBox;
+        Label labelBox;
         List<Keys> pressedKeys = new List<Keys>();
         Label labelScore = new Label();
         Label labelTopScore = new Label();
         Label labelLevel = new Label();
         Label labelLinesCleared = new Label();
+
+        Label labelLevelSetting = new Label();
+        Label labelMusicSetting = new Label();
+        Label labelMusicOn = new Label();
+        Label labelMusicOff = new Label();
 
         readonly Logic logic;
         readonly System.Windows.Forms.Timer timer;
@@ -41,6 +47,11 @@ namespace Tetris
         bool labelBoxesDrawn = false;
         bool gridDrawn = false;
 
+        bool settingsScrennDisplayed = false;
+        bool playMusic = true;
+        sbyte levelSettingInitial = 0;
+        bool playGame = false;
+
         public Form1()
         {
             // Enable double buffering and other optimizations
@@ -49,6 +60,8 @@ namespace Tetris
             InitializeComponent();
             logic = new Logic();
             timer = new System.Windows.Forms.Timer();
+            InitialScreen();
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -65,41 +78,87 @@ namespace Tetris
         {
             if (!initialScreenDisplayed)
             {
-                DrawGrid();
-                DrawLabelBoxes();
-                InitialScreen();
-            }
-            else if (initialScreenDisplayed && labelBoxesDrawn && gridDrawn && counterInitialScreen >= 100)
-            {
-                logic.Main__(Redraw);
-                logic.Timer += Constants.GUI_TICK;
-                keyTimer += 1;
-                Controls[257].Text = $"SCORE\n{logic.ScoreIncrementor}";
-                Controls[258].Text = $"LEVEL\n{logic.CurrentLevel}";
-                Controls[259].Text = $"LINES\n{logic.TotalNumberOfClearedLines}";
-
-                if (logic.currentRow < 1) moveDownalreadypressed = true;
-                else if (keyTimer % 2 == 0) moveDownalreadypressed = false;
-
-                if (keyTimer % 5 == 0)
+                if (counterInitialScreen > 100)
                 {
-                    alreadyPressed = false;
-                    keyTimer = 0;
+                    initialScreenDisplayed = true;
+                    //Controls[0].Dispose();
+                    Controls.RemoveByKey("pictureBoxInitialScreen");
+                    Console.WriteLine(Controls.ContainsKey("pictureBoxInitialScreen"));
+                    //Console.WriteLine(Controls[0].Disposing);
                 }
-
-                if (pressedKeys.Contains(Keys.Right) && !alreadyPressed) { logic.MoveRight = true; alreadyPressed = true; keyTimer = 0; }
-                else if (pressedKeys.Contains(Keys.Left) && !alreadyPressed) { logic.MoveLeft = true; alreadyPressed = true; keyTimer = 0; }
-
-                if (pressedKeys.Contains(Keys.Down) && !moveDownalreadypressed) { logic.MoveDownFast = true; moveDownalreadypressed = true; }
-
-                if (rotateLeft && !alreadyPressedRotate) { logic.RotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
-                else if (rotateRight && !alreadyPressedRotate) { logic.RotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
-
-                GameEnded();
-                counterInitialScreen = 200;
+                counterInitialScreen++;
             }
-            counterInitialScreen++;
-            
+            else if (!settingsScrennDisplayed)
+            {
+                SettingsScreen();
+            }
+            else if (playGame)
+            {
+                    logic.Main__(Redraw);
+                    logic.Timer += Constants.GUI_TICK;
+                    keyTimer += 1;
+                    Controls[257].Text = $"SCORE\n{logic.ScoreIncrementor}";
+                    Controls[258].Text = $"LEVEL\n{logic.CurrentLevel}";
+                    Controls[259].Text = $"LINES\n{logic.TotalNumberOfClearedLines}";
+
+                    if (logic.currentRow < 1) moveDownalreadypressed = true;
+                    else if (keyTimer % 2 == 0) moveDownalreadypressed = false;
+
+                    if (keyTimer % 5 == 0)
+                    {
+                        alreadyPressed = false;
+                        keyTimer = 0;
+                    }
+
+                    if (pressedKeys.Contains(Keys.Right) && !alreadyPressed) { logic.MoveRight = true; alreadyPressed = true; keyTimer = 0; }
+                    else if (pressedKeys.Contains(Keys.Left) && !alreadyPressed) { logic.MoveLeft = true; alreadyPressed = true; keyTimer = 0; }
+
+                    if (pressedKeys.Contains(Keys.Down) && !moveDownalreadypressed) { logic.MoveDownFast = true; moveDownalreadypressed = true; }
+
+                    if (rotateLeft && !alreadyPressedRotate) { logic.RotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
+                    else if (rotateRight && !alreadyPressedRotate) { logic.RotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
+
+                    GameEnded();
+
+            }
+
+            //if (!initialScreenDisplayed)
+            //{
+            //    InitialScreen();
+            //    DrawGrid();
+            //    DrawLabelBoxes();
+            //}
+            //else if (initialScreenDisplayed && labelBoxesDrawn && gridDrawn && counterInitialScreen >= 100)
+            //{
+            //    logic.Main__(Redraw);
+            //    logic.Timer += Constants.GUI_TICK;
+            //    keyTimer += 1;
+            //    Controls[257].Text = $"SCORE\n{logic.ScoreIncrementor}";
+            //    Controls[258].Text = $"LEVEL\n{logic.CurrentLevel}";
+            //    Controls[259].Text = $"LINES\n{logic.TotalNumberOfClearedLines}";
+
+            //    if (logic.currentRow < 1) moveDownalreadypressed = true;
+            //    else if (keyTimer % 2 == 0) moveDownalreadypressed = false;
+
+            //    if (keyTimer % 5 == 0)
+            //    {
+            //        alreadyPressed = false;
+            //        keyTimer = 0;
+            //    }
+
+            //    if (pressedKeys.Contains(Keys.Right) && !alreadyPressed) { logic.MoveRight = true; alreadyPressed = true; keyTimer = 0; }
+            //    else if (pressedKeys.Contains(Keys.Left) && !alreadyPressed) { logic.MoveLeft = true; alreadyPressed = true; keyTimer = 0; }
+
+            //    if (pressedKeys.Contains(Keys.Down) && !moveDownalreadypressed) { logic.MoveDownFast = true; moveDownalreadypressed = true; }
+
+            //    if (rotateLeft && !alreadyPressedRotate) { logic.RotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
+            //    else if (rotateRight && !alreadyPressedRotate) { logic.RotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
+
+            //    GameEnded();
+            //    counterInitialScreen = 200;
+            //}
+            //counterInitialScreen++;
+
         }
         private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
         {
@@ -126,7 +185,51 @@ namespace Tetris
             else if(!pressedKeys.Contains(e.KeyCode))
             {
                 pressedKeys.Add(e.KeyCode);
-            } 
+            }
+
+            if (settingsScrennDisplayed && !playGame)
+            {
+                Controls[levelSettingInitial+1].BackColor = A;
+
+                if (e.KeyCode == Keys.Right) levelSettingInitial++;
+                else if (e.KeyCode == Keys.Left) levelSettingInitial--;
+                
+                if(levelSettingInitial == 30) levelSettingInitial = 0;
+                else if(levelSettingInitial == -1) levelSettingInitial = 29;
+
+                Controls[levelSettingInitial+1].BackColor = Color.FromArgb(248, 56, 0);
+
+
+
+                if (e.KeyCode == Keys.Up) playMusic = !playMusic;
+                if (e.KeyCode == Keys.Down) playMusic = !playMusic;
+                if(playMusic)
+                {
+                    Controls[32].BackColor = Color.FromArgb(248, 56, 0); ;
+                    Controls[33].BackColor = A;
+                }
+                else
+                {
+                    Controls[32].BackColor = A;
+                    Controls[33].BackColor = Color.FromArgb(248, 56, 0);
+                }
+
+                if (e.KeyCode == Keys.Enter)
+                {
+                    //for (int i = 0; 0 < Controls.Count; i++)
+                    //{
+                    //    //Controls.RemoveAt(i);
+                    //    Controls[i].Visible = false;
+                    //}
+                    Controls.Clear();
+                    playGame = true;
+
+
+                    DrawGrid();
+                    DrawLabelBoxes();
+                }
+            }
+
         }
 
         /// <summary>
@@ -276,6 +379,72 @@ namespace Tetris
             }
         }
 
+        public void SettingsScreen()
+        {
+
+            // level setting
+            labelLevelSetting.Text = "SET LEVEL";
+            labelLevelSetting.Font = new Font("Bauhaus 93", 50);
+            labelLevelSetting.Location = new Point(820, 100);
+            labelLevelSetting.Name = "labelBoxlevelSetting";
+            labelLevelSetting.Size = new Size(300, 90);
+            labelLevelSetting.ForeColor = A;
+            labelLevelSetting.BackColor = Color.Black;
+            Controls.Add(labelLevelSetting);
+
+            byte counter = 0;
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    labelBox = new Label();
+                    labelBox.Text = $"{counter}";
+                    labelBox.Font = new Font("Bauhaus 93", 26);
+                    labelBox.Location = new Point(635 + j * 66, i * 66 + 200);
+                    labelBox.Name = $"labelBox{counter}";
+                    labelBox.Size = new Size(60, 60);
+                    labelBox.ForeColor = Color.Black;
+                    if(i+j==0) labelBox.BackColor = Color.FromArgb(248, 56, 0);
+                    else labelBox.BackColor = A;
+                    Controls.Add(labelBox);
+                    counter++;
+                }
+            }
+
+
+            // Music settings description
+            labelMusicSetting.Text = "SET MUSIC";
+            labelMusicSetting.Font = new Font("Bauhaus 93", 50);
+            labelMusicSetting.Location = new Point(795, 450);
+            labelMusicSetting.Name = "labelBoxLinesCleared";
+            labelMusicSetting.Size = new Size(340, 90);
+            labelMusicSetting.ForeColor = A;
+            labelMusicSetting.BackColor = Color.Black;
+            Controls.Add(labelMusicSetting);
+
+            // Music ON
+            labelMusicOn.Text = "ON";
+            labelMusicOn.Font = new Font("Bauhaus 93", 26);
+            labelMusicOn.Location = new Point(920, 540);
+            labelMusicOn.Name = "labelBoxLevel";
+            labelMusicOn.Size = new Size(80, 80);
+            labelMusicOn.ForeColor = System.Drawing.Color.Black;
+            labelMusicOn.BackColor = Color.FromArgb(248, 56, 0);
+            Controls.Add(labelMusicOn);
+
+            // music off
+            labelMusicOff.Text = "OFF";
+            labelMusicOff.Font = new Font("Bauhaus 93", 26);
+            labelMusicOff.Location = new Point(920, 626);
+            labelMusicOff.Name = "labelBoxLinesCleared";
+            labelMusicOff.Size = new Size(80, 80);
+            labelMusicOff.ForeColor = System.Drawing.Color.Black;
+            labelMusicOff.BackColor = A;
+            Controls.Add(labelMusicOff);
+            settingsScrennDisplayed = true;
+        }
+
         public void InitialScreen()
         {
             // Initial Screen
@@ -284,13 +453,10 @@ namespace Tetris
             pictureBox.Location = new Point(0, 0);
             pictureBox.Name = $"pictureBoxInitialScreen";
             pictureBox.Size = new Size(Constants.WIDTH_OF_APPLICATION_WINDOW, Constants.HEIGHT_OF_APPLICATION_WINDOW);
-            pictureBox.BackColor = Color.Black;
-            //this.pictureBox.Image = Image.FromFile(@"C:/Users/lazni/Downloads/Miriam Leone.jpg");
-            pictureBox.TabIndex = 0;
-            pictureBox.TabStop = false;
+            //pictureBox.BackColor = Color.Red;
+            this.pictureBox.Image = Image.FromFile(@"..\..\Sprites\hrad1_adjusted_tetris.png");
             Controls.Add(pictureBox);
             ((ISupportInitialize)(pictureBox)).EndInit();
-            initialScreenDisplayed = true;
         }
     }
 }
