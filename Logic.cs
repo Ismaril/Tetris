@@ -11,7 +11,8 @@ namespace Tetris
 {
     public class Logic
     {
-        private Music music = new Music();
+        //private Music music = new Music();
+        private Music music;
         private List<byte> matrix = new List<byte>();
         public int[] movementTicksBasedOnLevel = {
             Constants.GUI_TICK * 48,
@@ -64,6 +65,8 @@ namespace Tetris
         public bool gameStarted = false;
         private bool roundEnded = false;
         private bool totalGameEnded = false;
+        bool musicFastIsPlaying = false;
+        bool musicSlowIsPlaying = true;
         private byte tetrominoNextIndex = 99;
         private byte currentLevel = 5;
         private int totalNumberOfClearedLines = 0;
@@ -73,6 +76,7 @@ namespace Tetris
         private byte linesNextLevel = 0; // has to be 10 in order to continue to next level
         private byte[] tetrominoNext = new byte[16];
         public bool skipLogicMain = false;
+        private bool playMusic = false;
         private Tetromino tetrominoCurrent = new Tetromino();
         private Tetromino I_tetromino = new Tetromino(Constants.I_0, Constants.I_1, Constants.I_0, Constants.I_1, (byte)Constants.TetrominoType.I_type);
         private Tetromino O_tetromino = new Tetromino(Constants.O_0, Constants.O_0, Constants.O_0, Constants.O_0, (byte)Constants.TetrominoType.O_type);
@@ -92,12 +96,14 @@ namespace Tetris
         /// </summary>
         /// <param name="redraw"></param>
         /// <param name="redrawBack"></param>
-        public Logic()
+        public Logic(Music music)
         {
+            this.Music = music;
             tetrominos = new List<Tetromino> { I_tetromino, O_tetromino, T_tetromino, S_tetromino, Z_tetromino, J_tetromino, L_tetromino };
             speed = movementTicksBasedOnLevel[CurrentLevel];
             for(int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++) Matrix.Add(0);
-           // music.MainMusic(); //uncommment
+
+
         }
 
         public Tetromino Tetromino { get { return tetrominoCurrent; } }
@@ -113,6 +119,9 @@ namespace Tetris
         public bool RoundEnded1 { get => roundEnded; set => roundEnded = value; }
         public List<byte> Matrix { get => matrix; set => matrix = value; }
         public int TotalNumberOfClearedLines { get => totalNumberOfClearedLines; set => totalNumberOfClearedLines = value; }
+        internal Music Music { get => music; set => music = value; }
+        public bool PlayMusic { get => playMusic; set => playMusic = value; }
+        public bool MusicSlowIsPlaying { get => musicSlowIsPlaying; set => musicSlowIsPlaying = value; }
 
 
         /// <summary>
@@ -265,10 +274,10 @@ namespace Tetris
         {
             if (RoundEnded1)
             {
-                RoundEnded1 = false;
-                music.GameOver();
+                //RoundEnded1 = false;
+                Music.GameOver();
                 skipLogicMain = true;
-                music.DisposeBackgroundMusic_NAudio();
+                Music.DisposeBackgroundMusic_NAudio();
             }
         }
 
@@ -279,7 +288,7 @@ namespace Tetris
             if (canMoveRight && desiredRight)
             {
                 tetrominoCurrent.MoveRight();
-                music.MoveToSides();
+                Music.MoveToSides();
             }
         }
 
@@ -290,7 +299,7 @@ namespace Tetris
             if (canMoveLeft && desiredLeft)
             {
                 tetrominoCurrent.MoveLeft();
-                music.MoveToSides();
+                Music.MoveToSides();
             }
         }
 
@@ -306,7 +315,7 @@ namespace Tetris
             if (canRotateLeft && desiredRotationLeft)
             {
                 tetrominoCurrent.RotateLeft();
-                music.Rotate();
+                Music.Rotate();
             }
         }
 
@@ -315,7 +324,7 @@ namespace Tetris
             if (canRotateRight && desiredRotationRight)
             {
                 tetrominoCurrent.RotateRight();
-                music.Rotate();
+                Music.Rotate();
             }
         }
 
@@ -341,7 +350,7 @@ namespace Tetris
                     currentRow = 0;
                     toBeRemoved.Clear();
                     removeTetromino = false;
-                    music.Obstacle();
+                    Music.Obstacle();
                 }
                 else
                 {
@@ -349,9 +358,47 @@ namespace Tetris
                     tetrominoCurrent.MoveDown();
                     currentRow++;
                     putTetrominoOnGrid = true;
+
                 }
                 timer = 0;
             }
+        }
+
+        private void PlayMusicAccordingToFilledGrid()
+        {
+            if(!PlayMusic) return;
+
+            byte checkEmptySpaces = 0;
+
+            for (byte i = 0; i < matrix.Count; i++)
+            {
+                if (toBeRemoved.Contains(i))
+                {
+                    continue;
+                };
+
+                if (i < 80 && matrix[i] == 0 && !MusicSlowIsPlaying)
+                {
+                    checkEmptySpaces++;
+                    continue;
+                                               
+                }
+                else if (i < 80 && matrix[i] > 0 && !musicFastIsPlaying)
+                {
+                    music.MainMusicFast();
+                    musicFastIsPlaying = true;
+                    MusicSlowIsPlaying = false;
+                    return;
+                }
+
+            }
+            if(checkEmptySpaces > 79)
+            {
+                music.MainMusicSlow();
+                MusicSlowIsPlaying = true;
+                musicFastIsPlaying = false;
+            }
+
         }
 
         private void TotalGameEnded()
@@ -406,12 +453,12 @@ namespace Tetris
 
             if (indexesOfCompletedRows.Count > 0 && indexesOfCompletedRows.Count <= 3)
             {
-                music.LineCleared();
+                Music.LineCleared();
                 System.Threading.Thread.Sleep(450);
             }
             else if(indexesOfCompletedRows.Count == 4)
             {
-                music.Tetris();
+                Music.Tetris();
                 System.Threading.Thread.Sleep(450);
             }
             linesNextLevel += (byte)indexesOfCompletedRows.Count;
@@ -420,11 +467,11 @@ namespace Tetris
 
     private void CheckIfContinueToNextLevel()
         {
-            if(linesNextLevel >= 5)
+            if(linesNextLevel >= 10)
             {
                 linesNextLevel = 0;
                 currentLevel++;
-                music.NextLevel();
+                Music.NextLevel();
             }
         }
 
@@ -459,8 +506,9 @@ namespace Tetris
         public void Main__(Action<List<byte>> redraw)
         {
 
-            RoundEnded();
             if (skipLogicMain) return;
+            PlayMusicAccordingToFilledGrid();
+            RoundEnded();
             SetCollisionFlags();
             RotateRight_UserEvent(!cannotRotateRight, RotateRight);
             RotateLeft_UserEvent(!cannotRotateLeft, RotateLeft);
@@ -476,8 +524,9 @@ namespace Tetris
             RemoveCompleteRows();
             CheckIfContinueToNextLevel();
             SetAllFlagsToFalse();
+
             if (timer >= movementTicksBasedOnLevel[CurrentLevel])
-                music.DisposeSFX_NAudio();
+                Music.DisposeSFX_NAudio();
         }
     }
 }

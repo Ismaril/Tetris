@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Tetris
 {
-    internal class Sprites
+    public class Sprites
     {
         private List<List<Image>> tetrominoSpriteCollection = new List<List<Image>>();
 
