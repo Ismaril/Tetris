@@ -33,11 +33,17 @@ namespace Tetris
         static readonly string backgroundMusic2_Fast = path + @"9 - Track 9.mp3";
         static readonly string backgroundMusic3_Fast = path + @"10 - Track 10.mp3";
 
+        static readonly string backgroundMusicTetrisMaster = path + @"6 - High Score (Tetris Master).mp3";
+
+
         WaveOut rotateUserEvent = new WaveOut();
         WaveOut moveToSidesUserEvent = new WaveOut();
+        WaveOut gameOver = new WaveOut();
+
         WaveOutEvent backgroundMusicPlayerSlow = new WaveOutEvent();
         WaveOutEvent backgroundMusicPlayerFast = new WaveOutEvent();
-        WaveOut gameOver = new WaveOut();
+        WaveOutEvent backgroundMusicPlayerTetrisMaster = new WaveOutEvent();
+
 
         SoundPlayer obstacle = new SoundPlayer(soundObstacle);
         SoundPlayer lineCleared = new SoundPlayer(soundLineCleared);
@@ -48,12 +54,13 @@ namespace Tetris
         
 
         // Initialize the background music player
-        static readonly AudioFileReader backgroundMusicReader1 = new AudioFileReader(backgroundMusic1_Slow);
-        static readonly AudioFileReader backgroundMusicReader2 = new AudioFileReader(backgroundMusic2_Slow);
-        static readonly AudioFileReader backgroundMusicReader3 = new AudioFileReader(backgroundMusic3_Slow);
-        static readonly AudioFileReader backgroundMusicReader10 = new AudioFileReader(backgroundMusic1_Fast);
-        static readonly AudioFileReader backgroundMusicReader20 = new AudioFileReader(backgroundMusic2_Fast);
-        static readonly AudioFileReader backgroundMusicReader30 = new AudioFileReader(backgroundMusic3_Fast);
+        static AudioFileReader backgroundMusicReader1 = new AudioFileReader(backgroundMusic1_Slow);
+        static AudioFileReader backgroundMusicReader2 = new AudioFileReader(backgroundMusic2_Slow);
+        static AudioFileReader backgroundMusicReader3 = new AudioFileReader(backgroundMusic3_Slow);
+        static AudioFileReader backgroundMusicReader10 = new AudioFileReader(backgroundMusic1_Fast);
+        static AudioFileReader backgroundMusicReader20 = new AudioFileReader(backgroundMusic2_Fast);
+        static AudioFileReader backgroundMusicReader30 = new AudioFileReader(backgroundMusic3_Fast);
+        static AudioFileReader backgroundTetrisMaster = new AudioFileReader(backgroundMusicTetrisMaster);
 
         List<AudioFileReader> slowBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader1, backgroundMusicReader2, backgroundMusicReader3 };
         List<AudioFileReader> fastBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader10, backgroundMusicReader20, backgroundMusicReader30 };
@@ -75,6 +82,13 @@ namespace Tetris
         /// Constructor
         /// </summary>
         public Music() { }
+
+        public void TetrisMaster()
+        {
+
+            backgroundMusicPlayerTetrisMaster.Init(backgroundTetrisMaster);
+            backgroundMusicPlayerTetrisMaster.Play();
+        }
 
         public void MoveToSides()
         {
@@ -171,16 +185,46 @@ namespace Tetris
         {
             rotateUserEvent.Dispose();
             moveToSidesUserEvent.Dispose();
-            //obstacle.DisposeSFX_NAudio();
-            //lineCleared.DisposeSFX_NAudio();
             gameOver.Dispose();
-            //tetris.DisposeSFX_NAudio();
+            obstacle.Dispose();
+            lineCleared.Dispose();
+            tetris.Dispose();
+            nextLevel.Dispose();
+            settings.Dispose();
+
         }
 
         /// <summary>
         /// Free up memory resources.
         /// </summary>
-        public void DisposeBackgroundMusic_NAudio() { backgroundMusicPlayerSlow.Dispose(); backgroundMusicPlayerFast.Dispose(); }
+        public void DisposeBackgroundMusic_NAudio()
+        {
+            // Seems like Naudio is bugget as fuck and dispose doesnt work, therefore all has to be initialised again, because otherwise music just then continues where it left
+            backgroundMusicPlayerSlow.Dispose();
+            backgroundMusicPlayerSlow.Stop();
+            backgroundMusicPlayerFast.Dispose();
+            backgroundMusicPlayerFast.Stop();
+            backgroundMusicPlayerTetrisMaster.Stop();
+            backgroundMusicPlayerTetrisMaster.Dispose();
+
+            backgroundMusicPlayerSlow = new WaveOutEvent();
+            backgroundMusicPlayerFast = new WaveOutEvent();
+            backgroundMusicPlayerTetrisMaster = new WaveOutEvent();
+
+            backgroundMusicReader1 = new AudioFileReader(backgroundMusic1_Slow);
+            backgroundMusicReader2 = new AudioFileReader(backgroundMusic2_Slow);
+            backgroundMusicReader3 = new AudioFileReader(backgroundMusic3_Slow);
+            backgroundMusicReader10 = new AudioFileReader(backgroundMusic1_Fast);
+            backgroundMusicReader20 = new AudioFileReader(backgroundMusic2_Fast);
+            backgroundMusicReader30 = new AudioFileReader(backgroundMusic3_Fast);
+            backgroundTetrisMaster = new AudioFileReader(backgroundMusicTetrisMaster);
+
+
+            slowBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader1, backgroundMusicReader2, backgroundMusicReader3 };
+            fastBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader10, backgroundMusicReader20, backgroundMusicReader30 };
+
+            ChoseMainMusic();
+        }
         
     }
 }

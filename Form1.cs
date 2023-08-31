@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,6 +17,16 @@ namespace Tetris
 {
     public partial class Form1 : Form
     {
+        string name = "- - - - - - ";
+        string nameAdjusted = "";
+        string[] names = {"- - - - - - ", "- - - - - - " , "- - - - - - "};
+
+
+        int highScore = 0;
+        Dictionary<int, (string, int, int)> scores = new Dictionary<int, (string, int, int)>();
+        List<(string, int, int)> scoresList = new List<(string, int, int)>();
+        byte scoreScreenLabelboxIndex = 1;
+
         Color A = Color.FromArgb(red: 65, green: 65, blue: 65);
         Color B = Color.Transparent;
         Sprites sprites = new Sprites();
@@ -33,14 +44,16 @@ namespace Tetris
         Label labelMusicOn = new Label();
         Label labelMusicOff = new Label();
         Label scoreScreenGratulation = new Label();
+        Label scoreScreenGratulationTitle = new Label();
 
-        readonly Logic logic;
+        Logic logic;
         readonly System.Windows.Forms.Timer timer;
 
         byte shitak = 0;
         int keyTimer = 0;
         int counterInitialScreen = 0;
 
+        bool screenUpdaterScreenVisible = false;
         bool moveDownalreadypressed = false;
         bool alreadyPressedRotate = false;
         bool alreadyPressed = false;
@@ -56,6 +69,7 @@ namespace Tetris
         bool playGame = false;
         bool mainMusicStartedPlayin = false;
 
+        bool logicEndedUserPressedEnter = false;
 
         internal Music Music { get => music; set => music = value; }
 
@@ -69,7 +83,7 @@ namespace Tetris
             logic = new Logic(Music);
             timer = new System.Windows.Forms.Timer();
             InitialScreen(); //----------------------------------------------- uncomment
-
+            //ScoreScreenInitilaizer();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -82,6 +96,7 @@ namespace Tetris
             timer.Tick += new EventHandler(TimerTick);
             KeyDown += new KeyEventHandler(Form1_KeyArrowsDown);
             KeyUp += new KeyEventHandler(Form1_KeyArrowsUp);
+            KeyPress += new KeyPressEventHandler(YourKeyPressEventHandler);
             KeyPreview = true;
             timer.Start();
         }
@@ -103,8 +118,11 @@ namespace Tetris
             else if (!settingsScrennDisplayed)
             {
                 SettingsScreen();
+
+
+
             }
-            else if (playGame)
+            else if (playGame && !logicEndedUserPressedEnter)
             {
                 if (playMusic && !mainMusicStartedPlayin)
                 {
@@ -117,6 +135,7 @@ namespace Tetris
                 logic.Main__(Redraw);
                 logic.Timer += Constants.GUI_TICK;
                 keyTimer += 1;
+                Controls[256].Text = $"TOP SCORE\n{highScore}";
                 Controls[257].Text = $"SCORE\n{logic.ScoreIncrementor}";
                 Controls[258].Text = $"LEVEL\n{logic.CurrentLevel}";
                 Controls[259].Text = $"LINES\n{logic.TotalNumberOfClearedLines}";
@@ -137,16 +156,34 @@ namespace Tetris
 
                 if (rotateLeft && !alreadyPressedRotate) { logic.RotateLeft = true; alreadyPressedRotate = true; rotateLeft = false; }
                 else if (rotateRight && !alreadyPressedRotate) { logic.RotateRight = true; alreadyPressedRotate = true; rotateRight = false; }
-
                 GameEnded();
                 //music.GetPositionOfMainMusic();
             }
-            else if (logic.RoundEnded1)
+            else if (logic.RoundEnded1 && logic.ScoreIncrementor >= 10_000 && screenUpdaterScreenVisible)
             {
+                ScoreScreenUpdater();
 
             }
-            //ScoreScreen();
         }
+
+        private void YourKeyPressEventHandler(object sender, KeyPressEventArgs e)
+        {
+            // Check if the pressed key is a valid character (not a control key)
+            if (!char.IsControl(e.KeyChar) && screenUpdaterScreenVisible)
+            {
+                // Convert the pressed key to its ASCII character representation
+                char pressedChar = e.KeyChar;
+
+                // Now you have the ASCII character representation in the 'pressedChar' variable
+                // You can use 'pressedChar' in your code
+                name += pressedChar;
+                if(name.Length > 6) nameAdjusted = name.Substring(startIndex: name.Length - 6, 6);
+                names[scoreScreenLabelboxIndex-1] = nameAdjusted;
+                music.SoundSettings();
+                Console.WriteLine(name);
+            }
+        }
+
         private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.X || e.KeyCode == Keys.Z) { alreadyPressedRotate = false; return; }
@@ -174,7 +211,23 @@ namespace Tetris
                 pressedKeys.Add(e.KeyCode);
             }
 
-            if (settingsScrennDisplayed && !playGame)
+            if (screenUpdaterScreenVisible)
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    levelSettingInitial = 0;
+                    playMusic = true;
+                    playGame = false;
+                    Controls.Clear();
+                    settingsScrennDisplayed = false;
+                    mainMusicStartedPlayin = false;
+                    screenUpdaterScreenVisible = false;
+                    music.DisposeBackgroundMusic_NAudio();
+                    name = "- - - - - - ";
+                }
+
+            }
+            else if ((settingsScrennDisplayed && !playGame) || (!settingsScrennDisplayed && logicEndedUserPressedEnter))
             {
                 Controls[levelSettingInitial+1].BackColor = A;
                 if (e.KeyCode == Keys.Right) {levelSettingInitial++;music.SoundSettings(); }
@@ -182,7 +235,6 @@ namespace Tetris
                 if(levelSettingInitial == 30) levelSettingInitial = 0;
                 else if(levelSettingInitial == -1) levelSettingInitial = 29;
                 Controls[levelSettingInitial+1].BackColor = Color.FromArgb(248, 56, 0);
-                logic.CurrentLevel = (byte)levelSettingInitial;
 
 
                 if (e.KeyCode == Keys.Up) { playMusic = !playMusic; music.SoundSettings(); }
@@ -197,23 +249,90 @@ namespace Tetris
                     Controls[32].BackColor = A;
                     Controls[33].BackColor = Color.FromArgb(248, 56, 0);
                 }
+                logic.CurrentLevel = (byte)levelSettingInitial;
                 logic.PlayMusic = playMusic;
                 music.MusicIsAllowed = playMusic;
 
                 if (e.KeyCode == Keys.Enter)
                 {
+                    if (logic.RoundEnded1)
+                    {
+                        logic.ResetAllFields();
+                        music.DisposeBackgroundMusic_NAudio();
+                        shitak = 0;
+                    }
+                    
                     Controls.Clear();
                     playGame = true;
+                    logicEndedUserPressedEnter = false;
+                    
+                    logic.CurrentLevel = (byte)levelSettingInitial;
+                    logic.PlayMusic = playMusic;
                     DrawGrid();
                     DrawLabelBoxes();
                 }
 
+
             }
+            else if(logic.RoundEnded1 && e.KeyCode == Keys.Enter && logic.ScoreIncrementor >= 10_000)
+            {
+                if (logic.ScoreIncrementor > highScore)
+                {
+                    highScore = logic.ScoreIncrementor;
+                }
+                scores[logic.ScoreIncrementor] = ("- - - - - -", logic.ScoreIncrementor, logic.CurrentLevel);
+                //scores.OrderByDescending(c => c.Key);
+                scoresList = scores.Values.ToList();
+                //scoresList.OrderByDescending(c => c.Item2);
+                scoresList.Sort((x, y) => y.Item2.CompareTo(x.Item2));
+
+                if (logic.ScoreIncrementor >= scoresList[0].Item2)
+                {
+                    scoreScreenLabelboxIndex = 1;
+                    names[2] = names[1];
+                    names[1] = names[0];
+                    names[0] = "- - - - - -";
+
+                }
+                if (logic.ScoreIncrementor < scoresList[0].Item2)
+                {
+                    scoreScreenLabelboxIndex = 2;
+                }
+                try
+                {
+                    if (logic.ScoreIncrementor < scoresList[1].Item2)
+                    {
+                        scoreScreenLabelboxIndex = 3;
+                    }
+                }
+                catch { }
+
+
+                
+
+                levelSettingInitial = 0;
+                playMusic = true;
+                playGame = false;
+                Controls.Clear();
+                ScoreScreenInitilaizer();
+                mainMusicStartedPlayin = false;
+                screenUpdaterScreenVisible = true;
+
+            }
+            else if (logic.RoundEnded1 && e.KeyCode == Keys.Enter && logic.ScoreIncrementor < 10_000)
+            {
+                levelSettingInitial = 0;
+                playMusic = true;
+                playGame = false;
+                Controls.Clear();
+                settingsScrennDisplayed = false;
+                mainMusicStartedPlayin = false;
+            }
+
             if (e.KeyCode == Keys.Escape)
             {
                 Application.Exit();
             }
-
 
         }
 
@@ -444,46 +563,126 @@ namespace Tetris
             ((ISupportInitialize)(pictureBox)).EndInit();
         }
 
-        public void ScoreScreen()
+        public void ScoreScreenInitilaizer()
         // this has to be only initialised once, and subsequent changes can be done in loop
         {
+
+            scoreScreenGratulationTitle.Text = "CONGRATULATIONS";
+            scoreScreenGratulationTitle.Font = new Font("Bauhaus 93", 50);
+            scoreScreenGratulationTitle.Location = new Point(660, 100);
+            scoreScreenGratulationTitle.Name = "labelBoxLevel";
+            scoreScreenGratulationTitle.Size = new Size(650, 90);
+            scoreScreenGratulationTitle.ForeColor = Color.FromArgb(248, 56, 0);
+            scoreScreenGratulationTitle.BackColor = System.Drawing.Color.Black;
+            Controls.Add(scoreScreenGratulationTitle);
+
             scoreScreenGratulation.Text = "YOU ARE A TETRIS MASTER\nPLEASE ENTER YOUR NAME";
             scoreScreenGratulation.Font = new Font("Bauhaus 93", 50);
-            scoreScreenGratulation.Location = new Point(0, 540);
+            scoreScreenGratulation.Location = new Point(560, 240);
             scoreScreenGratulation.Name = "labelBoxLevel";
-            scoreScreenGratulation.Size = new Size(500, 500);
-            scoreScreenGratulation.ForeColor = System.Drawing.Color.Black;
-            scoreScreenGratulation.BackColor = Color.FromArgb(248, 56, 0);
+            scoreScreenGratulation.Size = new Size(800, 160);
+            scoreScreenGratulation.ForeColor = Color.FromArgb(65, 65, 65);
+            scoreScreenGratulation.BackColor = System.Drawing.Color.Black;
             Controls.Add(scoreScreenGratulation);
 
             byte counter = 0;
-
-            for(byte i =0; i < 3; i++)
+            int yOffset = 0;
+            int XoFFSET = 20;
+            for (byte i = 0; i < 4; i++)
             {
                 // labelbox poradi
-
-
-                // labelboxy nazev viteze
-                for (byte j = 0; j < 6; j++)
+                if(i > 0)
                 {
                     labelBox = new Label();
-                    labelBox.Text = $"Y";
+                    labelBox.Text = $"{counter}";
                     labelBox.Font = new Font("Bauhaus 93", 50);
-                    labelBox.Location = new Point(350 + j * 48,540);
-                    labelBox.Name = $"labelBox{counter}";
-                    labelBox.Size = new Size(65, 65);
+                    labelBox.Location = new Point(500 + XoFFSET, 540 + yOffset);
+                    labelBox.Name = $"labelBoxRow{i}";
+                    labelBox.Size = new Size(90, 90);
                     labelBox.ForeColor = Color.FromArgb(65, 65, 65);
-                    labelBox.BackColor = Color.Yellow;
+                    labelBox.BackColor = Color.Black;
                     Controls.Add(labelBox);
-                    counter++;
                 }
 
-                // labelbox skore z logic.score
+                // labelboxy nazev viteze
+                labelBox = new Label();
+                if (i == 0) { labelBox.Text = $"NAME"; }
+                try
+                {
 
+                    if (i > 0) { labelBox.Text = $"{names[i-1]}"; }
+                }
+                catch { labelBox.Text = "- - - - - -"; }
+
+                labelBox.Font = new Font("Bauhaus 93", 50);
+                labelBox.Location = new Point(630 + XoFFSET, 540 + yOffset);
+                labelBox.Name = $"labelBoxNAME{i}";
+                labelBox.Size = new Size(270, 90);
+                labelBox.ForeColor = Color.FromArgb(65, 65, 65);
+                labelBox.BackColor = Color.Black;
+                Controls.Add(labelBox);
+
+
+
+                // labelbox skore z logic.score
+                labelBox = new Label();
+                if (i == 0) { labelBox.Text = $"SCORE"; }
+                try
+                {
+                    if (i > 0) { labelBox.Text = $"{scoresList[i-1].Item2}"; }
+                }
+                catch { labelBox.Text = "- - - - - -"; }
+
+                labelBox.Font = new Font("Bauhaus 93", 50);
+                labelBox.Location = new Point(930 + XoFFSET, 540 + yOffset);
+                labelBox.Name = $"labelBoxSCORE{i}";
+                labelBox.Size = new Size(280, 90);
+                labelBox.ForeColor = Color.FromArgb(65, 65, 65);
+                labelBox.BackColor = Color.Black;
+                Controls.Add(labelBox);
 
                 // labelbox level z logic.level
+                labelBox = new Label();
+                    if (i == 0) { labelBox.Text = $"LVL"; }
+                try
+                {
+                    if (i > 0) { labelBox.Text = $"{scoresList[i - 1].Item3}"; }
+                }
+                catch { labelBox.Text = "- -"; }
+                labelBox.Font = new Font("Bauhaus 93", 50);
+                labelBox.Location = new Point(1250 + XoFFSET, 540 + yOffset);
+                labelBox.Name = $"labelBoxLVL{i}";
+                labelBox.Size = new Size(150, 90);
+                labelBox.ForeColor = Color.FromArgb(65, 65, 65);
+                labelBox.BackColor = Color.Black;
+                Controls.Add(labelBox);
+
+                counter++;
+                yOffset+=100;
+
             }
-            
+            music.TetrisMaster();
+        }
+
+        public void ScoreScreenUpdater()
+        {
+
+            Controls[$"labelBoxNAME{1}"].Text = names[0];
+            Controls[$"labelBoxNAME{2}"].Text = names[1];
+            Controls[$"labelBoxNAME{3}"].Text = names[2];
         }
     }
 }
+
+/*
+ * Enable condition ScoreScreenInitilaizer if Enter and logic.gameended. and score is bigger than 10000
+ * Clear all controls.
+ * If bool scorescreen, execute the ScoreScreenInitilaizer in TickMethod.
+ * Create controls of ScoreScreenInitilaizer.
+ * Play bacground music scorescreen and let sfx play with each keystroke.
+ * Check for keyboard user input and update the labelbox, condition for 6 characters max.
+ * Add there option do lete with backspace or delete keyword.
+ * If enter, stop checking for user input and change the color of name labelbox, assign the highscore to some genereal class.
+ * If next enter clear Controls and call settings screen.
+ * 
+ */

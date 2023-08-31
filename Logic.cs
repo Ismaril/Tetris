@@ -68,7 +68,7 @@ namespace Tetris
         bool musicFastIsPlaying = false;
         bool musicSlowIsPlaying = true;
         private byte tetrominoNextIndex = 99;
-        private byte currentLevel = 5;
+        private byte currentLevel = 0;
         private int totalNumberOfClearedLines = 0;
         private int timer = 0;
         public byte currentRow = 0;
@@ -527,6 +527,45 @@ namespace Tetris
 
             if (timer >= movementTicksBasedOnLevel[CurrentLevel])
                 Music.DisposeSFX_NAudio();
+
+        }
+
+
+        public void ResetAllFields()
+        {
+            matrix = new List<byte>();
+            for (int i = 0; i < Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID; i++) Matrix.Add(0);
+            moveRight = false;
+            moveLeft = false;
+            rotateRight = false;
+            rotateLeft = false;
+            moveDownFast = false;
+            cannotMoveRight = false;
+            cannotMoveLeft = false;
+            cannotMoveDown = false;
+            cannotRotateRight = false;
+            cannotRotateLeft = false;
+            sendNextPiece = true;
+            putTetrominoOnGrid = true;
+            startRemoving = false;
+            removeTetromino = false;
+            gameStarted = false;
+            roundEnded = false;
+            RoundEnded1 = false;
+            totalGameEnded = false;
+            musicFastIsPlaying = false;
+            musicSlowIsPlaying = true;
+            tetrominoNextIndex = 99;
+            currentLevel = 0;
+            totalNumberOfClearedLines = 0;
+            timer = 0;
+            currentRow = 0;
+            scoreIncrementor = 0;
+            linesNextLevel = 0; // has to be 10 in order to continue to next level
+            //tetrominoNext = new byte[16];
+            skipLogicMain = false;
+            playMusic = false;
+
         }
     }
 }
