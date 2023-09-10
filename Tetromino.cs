@@ -1,18 +1,16 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Tetris
 {
-    public class Tetromino : Constants
+    public class Tetromino
     {
         // Fields ------------------------------------------------------------------------------
-        private readonly List<byte[]> rotations;
-        private readonly byte type;
-        private byte[] baseRotation;
-        public sbyte rotationType;
-        private byte[] indexes;
-        private byte offset;
+        readonly List<byte[]> rotations;
+        readonly byte[] baseRotation;
+        readonly byte type;
+        sbyte rotationType;
+        byte[] indexes;
+        byte offset;
 
 
         // Constructors ------------------------------------------------------------------------
@@ -22,7 +20,7 @@ namespace Tetris
         public Tetromino() { }
 
         /// <summary>
-        /// Constructor which takes in a list of rotations and a type of tetromino.
+        /// Constructor which takes in a list of rotations and a type of tetromino. This class is a template for a tetromino objects.
         /// </summary>
         /// <param name="rotation0"></param>
         /// <param name="rotation1"></param>
@@ -36,9 +34,9 @@ namespace Tetris
             byte[] rotation3,
             byte type)
         {
-            BaseRotation = rotation0;
+            baseRotation = rotation0;
             rotations = new List<byte[]> { rotation0, rotation1, rotation2, rotation3 };
-            indexes = BaseRotation;
+            indexes = baseRotation;
             rotationType = 0;
             this.type = type;
         }
@@ -51,9 +49,9 @@ namespace Tetris
         public byte[] Indexes { get { return indexes; } set { indexes = value; } }
 
         /// <summary>
-        /// Returns a number between 0 and 3 which represents the rotation of tetromino. Check the Constants.cs file for more info.
+        /// Returns a number between 0 and 3 which represents the rotation of tetromino. Check the Consts.cs file for more info.
         /// </summary>
-        public sbyte GetPositionOfRotation { get { return rotationType; } }
+        public sbyte CurrentRotation { get { return rotationType; } set { rotationType = value; } }
 
         /// <summary>
         /// Returns the type of tetromino.
@@ -73,27 +71,27 @@ namespace Tetris
         /// <summary>
         /// Base rotation of tetromino. This is the starting rotation of tetromino when the tetromino is put to grid for the first time.
         /// </summary>
-        public byte[] BaseRotation { get => baseRotation; set => baseRotation = value; }
+        public byte[] BaseRotation { get => baseRotation;}
 
 
         // Methods ----------------------------------------------------------------------------
         /// <summary>
-        /// Move tetrominoCurrent at next row.
+        /// Move tetromino at next row.
         /// </summary>
-        public void MoveDown() => offset += ROW_JUMP_GRID;
+        public void MoveDown(int rowJumpGrid) => offset += (byte)rowJumpGrid;
 
         /// <summary>
-        /// Move tetrominoCurrent left.
+        /// Move tetromino left.
         /// </summary>
         public void MoveLeft() => offset--; 
 
         /// <summary>
-        /// Move tetrominoCurrent right.
+        /// Move tetromino right.
         /// </summary>
         public void MoveRight() => offset++;
 
         /// <summary>
-        /// Rotate tetrominoCurrent right.
+        /// Rotate tetromino right.
         /// </summary>
         public void RotateRight()
         {
@@ -103,7 +101,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Rotate tetrominoCurrent left.
+        /// Rotate tetromino left.
         /// </summary>
         public void RotateLeft()
         {
@@ -113,7 +111,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Due to the game matrix having extra two rows below the 20th line, compute how many rows earlier should the tetrominoCurrent matrix stop at the bottom of game matrix.
+        /// Due to the game matrix having extra two rows below the 20th line, compute how many rows earlier should the tetromino stop at the bottom of game matrix.
         /// </summary>
         /// <returns></returns>
         public byte ComputeNrOfBottomPaddingRows()

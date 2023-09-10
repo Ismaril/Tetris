@@ -1,11 +1,8 @@
 ﻿using NAudio.Wave;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
 using System.Media;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Tetris
 {
@@ -81,7 +78,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Play this sound when tetrominoCurrent is moved to the sides.
+        /// Play this sound when tetromino is moved to the sides.
         /// </summary>
         public void MoveToSides()
         {
@@ -90,7 +87,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Play this sound when tetrominoCurrent is rotated.
+        /// Play this sound when tetromino is rotated.
         /// </summary>
         public void Rotate()
         {
@@ -173,6 +170,7 @@ namespace Tetris
             gameOver.Init(addressGameOver);
             gameOver.Play();
             DisposeBackgroundMusic_NAudio();
+            DisposeSFX_NAudio();
         }
 
         /// <summary>
@@ -213,3 +211,5 @@ namespace Tetris
         }
     }
 }
+
+// Todo: Music from naudio playes where it left off. It should start from the beginning. Moreover short sounds are played only once. After another call they are not played.

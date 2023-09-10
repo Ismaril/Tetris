@@ -1,30 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tetris
 {
-    public class Constants
+    /// <summary>
+    /// This class contains all the constants used in the game.
+    /// </summary>
+    public class Consts
     {
+        // GUI Constants -----------------------------------------------------------------------
+        // Matrix shape (main game grid)
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 24;
-        public const int GUI_TICK = 16;
-        public const byte PICTURE_BOX_SIZE = 10;
+        
+        // Picture box size and location (main game grid)
+        public const byte PICTURE_BOX_SIZE = 40;
         public const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
-        public static readonly object COLOR_BACKGROUND = System.Drawing.Color.Black;
-        public static readonly object COLOR_FOREGROUND = System.Drawing.Color.White;
-        public const int FORM_HEIGHT = 200;
-        public const int FORM_WIDTH = 100;
-        public const byte MIN_NR_OF_TETROMINOS = 0;
-        public const byte MAX_NR_OF_TETROMINOS = 7;
-        public const int CENTRE_OF_SCREEN_OFFSET = 740;
-        public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
-        public const int ROW_JUMP_TETROMINO = 4;
-        public const int LAST_ROW = HEIGHT_OF_GRID - 5;
+        
+        // Application window size
         public const int WIDTH_OF_APPLICATION_WINDOW = 1920;
         public const int HEIGHT_OF_APPLICATION_WINDOW = 1080;
+        
+        // Background collor for the application window
+        public static readonly object COLOR_BACKGROUND = System.Drawing.Color.Black;
+
+        // Offsets
+        public const int CENTRE_OF_SCREEN_OFFSET = 740;
+
+
+        // Speeds of the game -----------------------------------------------------------------
+        // Tick after how many milliseconds should the graphics update
+        public const int GUI_TICK = 16;
+
+        // After how many multiples of GUI_TICK should the tetromino move down
+        public static readonly int[] movementTicksBasedOnLevel = {
+            GUI_TICK * 48, // Level 0
+            GUI_TICK * 43,
+            GUI_TICK * 38,
+            GUI_TICK * 33,
+            GUI_TICK * 28,
+            GUI_TICK * 23, // Level 5
+            GUI_TICK * 18,
+            GUI_TICK * 13,
+            GUI_TICK * 8,
+            GUI_TICK * 6,
+            GUI_TICK * 5,  // Level 10
+            GUI_TICK * 5,
+            GUI_TICK * 5,
+            GUI_TICK * 4,
+            GUI_TICK * 4,
+            GUI_TICK * 4,  // Level 15
+            GUI_TICK * 3,
+            GUI_TICK * 3,
+            GUI_TICK * 3,
+            GUI_TICK * 2,
+            GUI_TICK * 2,  // Level 20
+            GUI_TICK * 2,
+            GUI_TICK * 2,
+            GUI_TICK * 2,
+            GUI_TICK * 2,
+            GUI_TICK * 2,  // Level 25
+            GUI_TICK * 2,
+            GUI_TICK * 2,
+            GUI_TICK * 2,
+            GUI_TICK * 2,
+            GUI_TICK * 1,  // Level 30
+        };
+
+
+        // Unresolved yet
+        public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
+        public const int LAST_ROW = HEIGHT_OF_GRID - 5;
+        //
+
+
+
+
+        // Tetromino Constants -----------------------------------------------------------------
+        public const byte MIN_NR_OF_TETROMINOS = 0;
+        public const byte MAX_NR_OF_TETROMINOS = 7;
+        public const int ROW_JUMP_TETROMINO = 4;
 
         /// <summary>
         /// The type of tetrominos. There are 7 types of tetrominos.
@@ -39,7 +94,6 @@ namespace Tetris
             J_type,
             L_type
         }
-
 
         //  ____________ 
         // /__/__/__/__/ 
@@ -205,6 +259,20 @@ namespace Tetris
             0, 0, 3, 0,
             0, 0, 3, 3,
             0, 0, 0, 0,
+        };
+
+        /// <summary>
+        /// List of 7 tetromino objects. Each object is unique tetromino with its properties.
+        /// </summary>
+        public static readonly List<Tetromino> tetrominos = new List<Tetromino>
+        {
+            new Tetromino(I_0, I_1, I_0, I_1, (byte)TetrominoType.I_type),
+            new Tetromino(O_0, O_0, O_0, O_0, (byte)TetrominoType.O_type),
+            new Tetromino(T_0, T_1, T_2, T_3, (byte)TetrominoType.T_type),
+            new Tetromino(S_0, S_1, S_0, S_1, (byte)TetrominoType.S_type),
+            new Tetromino(Z_0, Z_1, Z_0, Z_1, (byte)TetrominoType.Z_type),
+            new Tetromino(J_0, J_1, J_2, J_3, (byte)TetrominoType.J_type),
+            new Tetromino(L_0, L_1, L_2, L_3, (byte)TetrominoType.L_type)
         };
     }
 }

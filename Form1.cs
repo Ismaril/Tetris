@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Tetris
@@ -19,7 +11,7 @@ namespace Tetris
     {
         string name = "- - - - - - ";
         string nameAdjusted = "";
-        string[] names = {"- - - - - - ", "- - - - - - " , "- - - - - - "};
+        string[] names = { "- - - - - - ", "- - - - - - ", "- - - - - - " };
 
 
         int highScore = 0;
@@ -92,7 +84,7 @@ namespace Tetris
             FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized; // Full screen window mode
 
-            timer.Interval = (int)(Constants.GUI_TICK);
+            timer.Interval = (int)(Consts.GUI_TICK);
             timer.Tick += new EventHandler(TimerTick);
             KeyDown += new KeyEventHandler(Form1_KeyArrowsDown);
             KeyUp += new KeyEventHandler(Form1_KeyArrowsUp);
@@ -132,14 +124,14 @@ namespace Tetris
                     mainMusicStartedPlayin = true;
                 }
                 logic.Main__(Redraw);
-                logic.Timer += Constants.GUI_TICK;
+                logic.Timer += Consts.GUI_TICK;
                 keyTimer += 1;
                 Controls[256].Text = $"TOP SCORE\n{highScore}";
                 Controls[257].Text = $"SCORE\n{logic.ScoreIncrementor}";
                 Controls[258].Text = $"LEVEL\n{logic.CurrentLevel}";
                 Controls[259].Text = $"LINES\n{logic.TotalNumberOfClearedLines}";
 
-                if (logic.currentRow < 1) moveDownalreadypressed = true;
+                if (logic.CurrentRow < 1) moveDownalreadypressed = true;
                 else if (keyTimer % 2 == 0) moveDownalreadypressed = false;
 
                 if (keyTimer % 5 == 0)
@@ -158,7 +150,7 @@ namespace Tetris
                 GameEnded();
                 //music.GetPositionOfMainMusic();
             }
-            else if (logic.RoundEnded1 && logic.ScoreIncrementor >= 10_000 && screenUpdaterScreenVisible)
+            else if (logic.RoundEndedFlag && logic.ScoreIncrementor >= 10_000 && screenUpdaterScreenVisible)
             {
                 ScoreScreenUpdater();
 
@@ -176,8 +168,8 @@ namespace Tetris
                 // Now you have the ASCII character representation in the 'pressedChar' variable
                 // You can use 'pressedChar' in your code
                 name += pressedChar;
-                if(name.Length > 6) nameAdjusted = name.Substring(startIndex: name.Length - 6, 6);
-                names[scoreScreenLabelboxIndex-1] = nameAdjusted;
+                if (name.Length > 6) nameAdjusted = name.Substring(startIndex: name.Length - 6, 6);
+                names[scoreScreenLabelboxIndex - 1] = nameAdjusted;
                 music.SoundSettings();
                 Console.WriteLine(name);
             }
@@ -186,7 +178,7 @@ namespace Tetris
         private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.X || e.KeyCode == Keys.Z) { alreadyPressedRotate = false; return; }
-            
+
             if (pressedKeys.Contains(e.KeyCode))
                 pressedKeys.Remove(e.KeyCode);
         }
@@ -205,7 +197,7 @@ namespace Tetris
                 rotateRight = true;
                 return;
             }
-            else if(!pressedKeys.Contains(e.KeyCode))
+            else if (!pressedKeys.Contains(e.KeyCode))
             {
                 pressedKeys.Add(e.KeyCode);
             }
@@ -228,17 +220,17 @@ namespace Tetris
             }
             else if ((settingsScrennDisplayed && !playGame) || (!settingsScrennDisplayed && logicEndedUserPressedEnter))
             {
-                Controls[levelSettingInitial+1].BackColor = A;
-                if (e.KeyCode == Keys.Right) {levelSettingInitial++;music.SoundSettings(); }
-                else if (e.KeyCode == Keys.Left) {levelSettingInitial--; music.SoundSettings(); }
-                if(levelSettingInitial == 30) levelSettingInitial = 0;
-                else if(levelSettingInitial == -1) levelSettingInitial = 29;
-                Controls[levelSettingInitial+1].BackColor = Color.FromArgb(248, 56, 0);
+                Controls[levelSettingInitial + 1].BackColor = A;
+                if (e.KeyCode == Keys.Right) { levelSettingInitial++; music.SoundSettings(); }
+                else if (e.KeyCode == Keys.Left) { levelSettingInitial--; music.SoundSettings(); }
+                if (levelSettingInitial == 30) levelSettingInitial = 0;
+                else if (levelSettingInitial == -1) levelSettingInitial = 29;
+                Controls[levelSettingInitial + 1].BackColor = Color.FromArgb(248, 56, 0);
 
 
                 if (e.KeyCode == Keys.Up) { playMusic = !playMusic; music.SoundSettings(); }
                 if (e.KeyCode == Keys.Down) { playMusic = !playMusic; music.SoundSettings(); }
-                if(playMusic)
+                if (playMusic)
                 {
                     Controls[32].BackColor = Color.FromArgb(248, 56, 0); ;
                     Controls[33].BackColor = A;
@@ -254,17 +246,17 @@ namespace Tetris
 
                 if (e.KeyCode == Keys.Enter)
                 {
-                    if (logic.RoundEnded1)
+                    if (logic.RoundEndedFlag)
                     {
                         logic.ResetAllFields();
                         music.DisposeBackgroundMusic_NAudio();
                         shitak = 0;
                     }
-                    
+
                     Controls.Clear();
                     playGame = true;
                     logicEndedUserPressedEnter = false;
-                    
+
                     logic.CurrentLevel = (byte)levelSettingInitial;
                     logic.PlayMusic = playMusic;
                     DrawGrid();
@@ -273,7 +265,7 @@ namespace Tetris
 
 
             }
-            else if(logic.RoundEnded1 && e.KeyCode == Keys.Enter && logic.ScoreIncrementor >= 10_000)
+            else if (logic.RoundEndedFlag && e.KeyCode == Keys.Enter && logic.ScoreIncrementor >= 10_000)
             {
                 if (logic.ScoreIncrementor > highScore)
                 {
@@ -307,7 +299,7 @@ namespace Tetris
                 catch { }
 
 
-                
+
 
                 levelSettingInitial = 0;
                 playMusic = true;
@@ -318,7 +310,7 @@ namespace Tetris
                 screenUpdaterScreenVisible = true;
 
             }
-            else if (logic.RoundEnded1 && e.KeyCode == Keys.Enter && logic.ScoreIncrementor < 10_000)
+            else if (logic.RoundEndedFlag && e.KeyCode == Keys.Enter && logic.ScoreIncrementor < 10_000)
             {
                 levelSettingInitial = 0;
                 playMusic = true;
@@ -341,6 +333,7 @@ namespace Tetris
         /// <param name="matrix"></param>
         public void Redraw(List<byte> matrix)
         {
+            // Redraw main game matrix
             for (byte i = 0; i < matrix.Count; i++)
             {
                 switch (matrix[i])
@@ -361,19 +354,20 @@ namespace Tetris
                 }
             }
 
+            // Redraw "next tetromino" matrix
             for (int i = 0; i < 16; i++)
             {
-                Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.OFFGRID_COLOR;
+                Controls[Consts.WIDTH_OF_GRID * Consts.HEIGHT_OF_GRID + i].BackgroundImage = sprites.OFFGRID_COLOR;
                 switch (logic.TetrominoNext[i])
                 {
                     case 1:
-                        Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][0];
+                        Controls[Consts.WIDTH_OF_GRID * Consts.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][0];
                         break;
                     case 2:
-                        Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][1];
+                        Controls[Consts.WIDTH_OF_GRID * Consts.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][1];
                         break;
                     case 3:
-                        Controls[Constants.WIDTH_OF_GRID * Constants.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][2];
+                        Controls[Consts.WIDTH_OF_GRID * Consts.HEIGHT_OF_GRID + i].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][2];
                         break;
                 }
             }
@@ -393,11 +387,11 @@ namespace Tetris
 
         private void GameEnded()
         {
-            if (!logic.skipLogicMain || shitak == 200) return;
+            if (!logic.SkipLogicMain || shitak == 200) return;
 
             for (int i = 0; i < 10; i++)
             {
-                Controls[i+20+shitak].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel%10][3];
+                Controls[i + 20 + shitak].BackgroundImage = sprites.TetrominoSpriteCollection[logic.CurrentLevel % 10][3];
             }
             shitak += 10;
         }
@@ -444,16 +438,19 @@ namespace Tetris
         {
             // Create 2D matrix at GUI.
             byte counter = 0;
-            for (int i = 0; i < Constants.HEIGHT_OF_GRID; i++)
+            for (int i = 0; i < Consts.HEIGHT_OF_GRID; i++)
             {
-                for (int j = 0; j < Constants.WIDTH_OF_GRID; j++)
+                for (int j = 0; j < Consts.WIDTH_OF_GRID; j++)
                 {
                     pictureBox = new PictureBox();
                     ((ISupportInitialize)(pictureBox)).BeginInit();
                     SuspendLayout();
-                    pictureBox.Location = new Point(Constants.CENTRE_OF_SCREEN_OFFSET + j * 44, i * 44);
+                    pictureBox.Location = new Point(
+                        Consts.CENTRE_OF_SCREEN_OFFSET + j * Consts.PICTURE_BOX_LOCATION,
+                        i * Consts.PICTURE_BOX_LOCATION
+                        );
                     pictureBox.Name = $"pictureBox{counter}";
-                    pictureBox.Size = new Size(40, 40);
+                    pictureBox.Size = new Size(Consts.PICTURE_BOX_SIZE, Consts.PICTURE_BOX_SIZE);
                     pictureBox.TabIndex = 0;
                     pictureBox.TabStop = false;
                     Controls.Add(pictureBox);
@@ -462,7 +459,11 @@ namespace Tetris
                 }
             }
 
-            // Create a GUI matrix which will display next tetrominoCurrent.
+            // Create a GUI matrix which will display next
+            //
+            //
+            //
+            // .
             for (byte i = 0; i < 4; i++)
             {
                 for (byte j = 0; j < 4; j++)
@@ -508,7 +509,7 @@ namespace Tetris
                     labelBox.Name = $"labelBox{counter}";
                     labelBox.Size = new Size(60, 60);
                     labelBox.ForeColor = Color.Black;
-                    if(i+j==0) labelBox.BackColor = Color.FromArgb(248, 56, 0);
+                    if (i + j == 0) labelBox.BackColor = Color.FromArgb(248, 56, 0);
                     else labelBox.BackColor = A;
                     Controls.Add(labelBox);
                     counter++;
@@ -555,7 +556,7 @@ namespace Tetris
             ((ISupportInitialize)(pictureBox)).BeginInit();
             pictureBox.Location = new Point(0, 0);
             pictureBox.Name = $"pictureBoxInitialScreen";
-            pictureBox.Size = new Size(Constants.WIDTH_OF_APPLICATION_WINDOW, Constants.HEIGHT_OF_APPLICATION_WINDOW);
+            pictureBox.Size = new Size(Consts.WIDTH_OF_APPLICATION_WINDOW, Consts.HEIGHT_OF_APPLICATION_WINDOW);
             //pictureBox.BackColor = Color.Red;
             this.pictureBox.Image = Image.FromFile(@"..\..\Sprites\hrad1_adjusted_tetris.png");
             Controls.Add(pictureBox);
@@ -590,7 +591,7 @@ namespace Tetris
             for (byte i = 0; i < 4; i++)
             {
                 // labelbox poradi
-                if(i > 0)
+                if (i > 0)
                 {
                     labelBox = new Label();
                     labelBox.Text = $"{counter}";
@@ -609,7 +610,7 @@ namespace Tetris
                 try
                 {
 
-                    if (i > 0) { labelBox.Text = $"{names[i-1]}"; }
+                    if (i > 0) { labelBox.Text = $"{names[i - 1]}"; }
                 }
                 catch { labelBox.Text = "- - - - - -"; }
 
@@ -628,7 +629,7 @@ namespace Tetris
                 if (i == 0) { labelBox.Text = $"SCORE"; }
                 try
                 {
-                    if (i > 0) { labelBox.Text = $"{scoresList[i-1].Item2}"; }
+                    if (i > 0) { labelBox.Text = $"{scoresList[i - 1].Item2}"; }
                 }
                 catch { labelBox.Text = "- - - - - -"; }
 
@@ -642,7 +643,7 @@ namespace Tetris
 
                 // labelbox level z logic.level
                 labelBox = new Label();
-                    if (i == 0) { labelBox.Text = $"LVL"; }
+                if (i == 0) { labelBox.Text = $"LVL"; }
                 try
                 {
                     if (i > 0) { labelBox.Text = $"{scoresList[i - 1].Item3}"; }
@@ -657,7 +658,7 @@ namespace Tetris
                 Controls.Add(labelBox);
 
                 counter++;
-                yOffset+=100;
+                yOffset += 100;
 
             }
             music.TetrisMaster();
