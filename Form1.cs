@@ -126,7 +126,6 @@ namespace Tetris
             {
                 if (playMusic && !mainMusicStartedPlayin)
                 {
-                    //music.InitialiseBackgroundMusic();
                     music.ChoseMainMusic();
                     logic.MusicSlowIsPlaying = true;
                     music.MainMusicSlow();

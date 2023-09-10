@@ -11,7 +11,6 @@ namespace Tetris
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 24;
         public const int GUI_TICK = 16;
-
         public const byte PICTURE_BOX_SIZE = 10;
         public const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
         public static readonly object COLOR_BACKGROUND = System.Drawing.Color.Black;
@@ -27,6 +26,9 @@ namespace Tetris
         public const int WIDTH_OF_APPLICATION_WINDOW = 1920;
         public const int HEIGHT_OF_APPLICATION_WINDOW = 1080;
 
+        /// <summary>
+        /// The type of tetrominos. There are 7 types of tetrominos.
+        /// </summary>
         public enum TetrominoType
         {
             I_type,

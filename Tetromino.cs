@@ -6,6 +6,7 @@ namespace Tetris
 {
     public class Tetromino : Constants
     {
+        // Fields ------------------------------------------------------------------------------
         private readonly List<byte[]> rotations;
         private readonly byte type;
         private byte[] baseRotation;
@@ -13,50 +14,92 @@ namespace Tetris
         private byte[] indexes;
         private byte offset;
 
+
+        // Constructors ------------------------------------------------------------------------
+        /// <summary>
+        /// Empty constructor
+        /// </summary>
         public Tetromino() { }
 
-        public Tetromino(byte[] rotation0, byte[] rotation1, byte[] rotation2, byte[] rotation3, byte type)
+        /// <summary>
+        /// Constructor which takes in a list of rotations and a type of tetromino.
+        /// </summary>
+        /// <param name="rotation0"></param>
+        /// <param name="rotation1"></param>
+        /// <param name="rotation2"></param>
+        /// <param name="rotation3"></param>
+        /// <param name="type"> Type of tetromino </param>
+        public Tetromino(
+            byte[] rotation0,
+            byte[] rotation1,
+            byte[] rotation2,
+            byte[] rotation3,
+            byte type)
         {
-            this.BaseRotation = rotation0;
-            this.rotations = new List<byte[]> { rotation0, rotation1, rotation2, rotation3 };
+            BaseRotation = rotation0;
+            rotations = new List<byte[]> { rotation0, rotation1, rotation2, rotation3 };
+            indexes = BaseRotation;
+            rotationType = 0;
             this.type = type;
-            this.indexes = BaseRotation;
-            this.rotationType = 0;
         }
 
-        public byte[] Indexes { get { return this.indexes; } set { this.indexes = value; } }
-        public sbyte GetPositionOfRotation { get { return this.rotationType; } }
-        public byte GetType_ { get { return type; } }
-        public byte Offset { get { return this.offset; } set { this.offset = value; } }
-        public List<byte[]> Rotations { get {  return this.rotations; } }
+
+        // Properties-------------------------------------------------------------------------
+        /// <summary>
+        /// 4x4 matrix of bytes which represents the shape of tetromino.
+        /// </summary>
+        public byte[] Indexes { get { return indexes; } set { indexes = value; } }
+
+        /// <summary>
+        /// Returns a number between 0 and 3 which represents the rotation of tetromino. Check the Constants.cs file for more info.
+        /// </summary>
+        public sbyte GetPositionOfRotation { get { return rotationType; } }
+
+        /// <summary>
+        /// Returns the type of tetromino.
+        /// </summary>
+        public byte GetType_ { get { return this.type; } }
+
+        /// <summary>
+        /// Returns the offset of tetromino with regards to the matrix. With offset we specify where to start drawing the tetromino. Starting with the top left corner of the tetromino matrix.
+        /// </summary>
+        public byte Offset { get { return offset; } set { offset = value; } }
+
+        /// <summary>
+        /// Returns a list of four 4x4 matrixes - all possible rotations of tetromino.
+        /// </summary>
+        public List<byte[]> Rotations { get {  return rotations; } }
+
+        /// <summary>
+        /// Base rotation of tetromino. This is the starting rotation of tetromino when the tetromino is put to grid for the first time.
+        /// </summary>
         public byte[] BaseRotation { get => baseRotation; set => baseRotation = value; }
 
+
+        // Methods ----------------------------------------------------------------------------
         /// <summary>
         /// Move tetrominoCurrent at next row.
         /// </summary>
-        public void MoveDown()
-        {
-            this.offset += ROW_JUMP_GRID;
-        }
+        public void MoveDown() => offset += ROW_JUMP_GRID;
 
         /// <summary>
         /// Move tetrominoCurrent left.
         /// </summary>
-        public void MoveLeft(){ this.offset--; }
+        public void MoveLeft() => offset--; 
 
         /// <summary>
         /// Move tetrominoCurrent right.
         /// </summary>
-        public void MoveRight(){ this.offset++; }
+        public void MoveRight() => offset++;
 
         /// <summary>
         /// Rotate tetrominoCurrent right.
         /// </summary>
         public void RotateRight()
         {
-            this.rotationType++;
-            if (this.rotationType == 4) this.rotationType = 0;
-            this.indexes = this.rotations[this.rotationType];
+            rotationType++;
+            if (rotationType == 4) rotationType = 0;
+            indexes = rotations[rotationType];
         }
 
         /// <summary>
@@ -64,9 +107,9 @@ namespace Tetris
         /// </summary>
         public void RotateLeft()
         {
-            this.rotationType--;
-            if (this.rotationType == -1) this.rotationType = 3;
-            this.indexes = this.rotations[this.rotationType];
+            rotationType--;
+            if (rotationType == -1) rotationType = 3;
+            indexes = rotations[rotationType];
         }
 
         /// <summary>
@@ -78,7 +121,7 @@ namespace Tetris
             byte result = 0;
             bool hasAPieceAtSecondLastRow = false;
             bool hasAPieceAtLastRow = false;
-            for(int i = 0; i < this.indexes.Length;i++)
+            for(int i = 0; i < indexes.Length;i++)
             {
                 if (i < 8) continue;
                 else if (i < 12 && indexes[i] > 0 && !hasAPieceAtSecondLastRow) hasAPieceAtSecondLastRow = true;

@@ -1,11 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Reflection;
-using System.Windows.Forms;
-
-namespace Tetris
+﻿namespace Tetris
 {
     partial class Form1
     {

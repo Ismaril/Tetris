@@ -64,7 +64,6 @@ namespace Tetris
         public bool removeTetromino = false;
         public bool gameStarted = false;
         private bool roundEnded = false;
-        private bool totalGameEnded = false;
         bool musicFastIsPlaying = false;
         bool musicSlowIsPlaying = true;
         private byte tetrominoNextIndex = 99;
@@ -277,7 +276,7 @@ namespace Tetris
                 //RoundEnded1 = false;
                 Music.GameOver();
                 skipLogicMain = true;
-                Music.DisposeBackgroundMusic_NAudio();
+                //Music.DisposeBackgroundMusic_NAudio();
             }
         }
 
@@ -328,17 +327,6 @@ namespace Tetris
             }
         }
 
-    //private void GameStarted()
-    //{
-    //    if (!gameStarted)
-    //    {
-    //        gameStarted = true;
-    //        //this.ChoseNextTetromino();
-    //        this.PutTetrominoOnGrid(this.tetrominoCurrent.Indexes, this.tetrominoCurrent.Offset);
-    //        this.redraw(this.matrix);
-    //    }
-    //}
-
     private void DefaultTetrominoMovement()
         {
             if (timer >= movementTicksBasedOnLevel[CurrentLevel])
@@ -358,7 +346,6 @@ namespace Tetris
                     tetrominoCurrent.MoveDown();
                     currentRow++;
                     putTetrominoOnGrid = true;
-
                 }
                 timer = 0;
             }
@@ -398,12 +385,6 @@ namespace Tetris
                 MusicSlowIsPlaying = true;
                 musicFastIsPlaying = false;
             }
-
-        }
-
-        private void TotalGameEnded()
-        {
-            if (totalGameEnded) { }
         }
 
         /// <summary>
@@ -552,7 +533,6 @@ namespace Tetris
             gameStarted = false;
             roundEnded = false;
             RoundEnded1 = false;
-            totalGameEnded = false;
             musicFastIsPlaying = false;
             musicSlowIsPlaying = true;
             tetrominoNextIndex = 99;
@@ -561,11 +541,9 @@ namespace Tetris
             timer = 0;
             currentRow = 0;
             scoreIncrementor = 0;
-            linesNextLevel = 0; // has to be 10 in order to continue to next level
-            //tetrominoNext = new byte[16];
+            linesNextLevel = 0;
             skipLogicMain = false;
             playMusic = false;
-
         }
     }
 }
