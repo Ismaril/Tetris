@@ -2,17 +2,23 @@
 using System;
 using System.Collections.Generic;
 using System.Media;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Tetris
 {
     public class Music
     {
+        // ------------------------------------------------------------------------------------------------
+        // FIELDS
+
         Random random = new Random();
         bool musicIsAllowed = true;
         byte currentMainMusicIndex = 0;
 
         static readonly string path = @"../../Music/";
+
         static readonly string soundRotate = path + @"SFX 6.mp3";
         static readonly string soundMoveToSides = path + @"SFX 4.mp3";
         static readonly string soundGameOver = path + @"SFX 14.mp3";
@@ -21,6 +27,7 @@ namespace Tetris
         static readonly string soundTetris = path + @"SFX TetrisClear.wav";
         static readonly string soundNextLevel = path + @"SFX 7.wav";
         static readonly string soundSettings = path + @"SFX 2.wav";
+
         static readonly string backgroundMusic1_Slow = path + @"1 - Music 1.mp3";
         static readonly string backgroundMusic2_Slow = path + @"2 - Music 2.mp3";
         static readonly string backgroundMusic3_Slow = path + @"3 - Music 3.mp3";
@@ -29,9 +36,7 @@ namespace Tetris
         static readonly string backgroundMusic3_Fast = path + @"10 - Track 10.mp3";
         static readonly string backgroundMusicTetrisMaster = path + @"6 - High Score (Tetris Master).mp3";
 
-        WaveOut gameOver = new WaveOut();
-        WaveOut rotateUserEvent = new WaveOut();
-        WaveOut moveToSidesUserEvent = new WaveOut();
+
 
         WaveOutEvent backgroundMusicPlayerSlow = new WaveOutEvent();
         WaveOutEvent backgroundMusicPlayerFast = new WaveOutEvent();
@@ -51,22 +56,34 @@ namespace Tetris
         static AudioFileReader backgroundMusicReader20 = new AudioFileReader(backgroundMusic2_Fast);
         static AudioFileReader backgroundMusicReader30 = new AudioFileReader(backgroundMusic3_Fast);
         static AudioFileReader backgroundTetrisMaster = new AudioFileReader(backgroundMusicTetrisMaster);
-        AudioFileReader addressToSides = new AudioFileReader(soundMoveToSides);
-        AudioFileReader addressRotate = new AudioFileReader(soundRotate);
-        AudioFileReader addressGameOver = new AudioFileReader(soundGameOver);
+
+
 
         List<AudioFileReader> slowBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader1, backgroundMusicReader2, backgroundMusicReader3 };
         List<AudioFileReader> fastBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader10, backgroundMusicReader20, backgroundMusicReader30 };
+
+        public List<AudioFileReader> toBeDisposed1 = new List<AudioFileReader>();
+        public List<WaveOutEvent> toBeDisposed2 = new List<WaveOutEvent>();
+
+        // ------------------------------------------------------------------------------------------------
+        // CONSTRUCTOR
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Music() { }
+
+
+        // ------------------------------------------------------------------------------------------------
+        // PROPERTIES
 
         /// <summary>
         /// Controls if music is allowed or not.
         /// </summary>
         public bool MusicIsAllowed { get => musicIsAllowed; set => musicIsAllowed = value; }
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public Music() { }
+
+        // ------------------------------------------------------------------------------------------------
+        // METHODS
 
         /// <summary>
         /// Play this music when the game is over and the player has high score.
@@ -82,8 +99,15 @@ namespace Tetris
         /// </summary>
         public void MoveToSides()
         {
+            AudioFileReader addressToSides = new AudioFileReader(soundMoveToSides);
+            WaveOutEvent moveToSidesUserEvent = new WaveOutEvent();
+
             moveToSidesUserEvent.Init(addressToSides);
             moveToSidesUserEvent.Play();
+
+            toBeDisposed1.Add(addressToSides);
+            toBeDisposed2.Add(moveToSidesUserEvent);
+
         }
 
         /// <summary>
@@ -91,8 +115,13 @@ namespace Tetris
         /// </summary>
         public void Rotate()
         {
+            AudioFileReader addressRotate = new AudioFileReader(soundRotate);
+            WaveOutEvent rotateUserEvent = new WaveOutEvent();
             rotateUserEvent.Init(addressRotate);
             rotateUserEvent.Play();
+
+            toBeDisposed1.Add(addressRotate);
+            toBeDisposed2.Add(rotateUserEvent);
         }
 
         /// <summary>
@@ -167,10 +196,13 @@ namespace Tetris
         /// </summary>
         public void GameOver()
         {
+            AudioFileReader addressGameOver = new AudioFileReader(soundGameOver);
+            WaveOutEvent gameOver = new WaveOutEvent();
             gameOver.Init(addressGameOver);
             gameOver.Play();
-            DisposeBackgroundMusic_NAudio();
-            DisposeSFX_NAudio();
+
+            toBeDisposed1.Add(addressGameOver);
+            toBeDisposed2.Add(gameOver);
         }
 
         /// <summary>
@@ -178,9 +210,9 @@ namespace Tetris
         /// </summary>
         public void DisposeSFX_NAudio()
         {
-            rotateUserEvent.Dispose();
-            moveToSidesUserEvent.Dispose();
-            gameOver.Dispose();
+            //rotateUserEvent.Dispose();
+            //moveToSidesUserEvent.Dispose();
+            //gameOver.Dispose();
             obstacle.Dispose();
             lineCleared.Dispose();
             tetris.Dispose();
@@ -200,6 +232,7 @@ namespace Tetris
             backgroundMusicPlayerFast.Dispose();
             backgroundMusicPlayerTetrisMaster.Stop();
             backgroundMusicPlayerTetrisMaster.Dispose();
+
             backgroundMusicReader1.Dispose();
             backgroundMusicReader2.Dispose();
             backgroundMusicReader3.Dispose();

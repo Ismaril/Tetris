@@ -4,7 +4,8 @@ namespace Tetris
 {
     public class Tetromino
     {
-        // Fields ------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // FIELDS
         readonly List<byte[]> rotations;
         readonly byte[] baseRotation;
         readonly byte type;
@@ -13,7 +14,8 @@ namespace Tetris
         byte offset;
 
 
-        // Constructors ------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // CONSTRUCTORS
         /// <summary>
         /// Empty constructor
         /// </summary>
@@ -42,7 +44,8 @@ namespace Tetris
         }
 
 
-        // Properties-------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // PROPERTIES
         /// <summary>
         /// 4x4 matrix of bytes which represents the shape of tetromino.
         /// </summary>
@@ -74,7 +77,8 @@ namespace Tetris
         public byte[] BaseRotation { get => baseRotation;}
 
 
-        // Methods ----------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // METHODS
         /// <summary>
         /// Move tetromino at next row.
         /// </summary>

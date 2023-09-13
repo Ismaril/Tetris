@@ -8,7 +8,10 @@ namespace Tetris
     /// </summary>
     public class Consts
     {
-        // GUI Constants -----------------------------------------------------------------------
+
+        // ------------------------------------------------------------------------------------------------
+        // GUI CONSTANTS
+
         // Matrix shape (main game grid)
         public const int WIDTH_OF_GRID = 10;
         public const int HEIGHT_OF_GRID = 24;
@@ -28,7 +31,9 @@ namespace Tetris
         public const int CENTRE_OF_SCREEN_OFFSET = 740;
 
 
-        // Speeds of the game -----------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // SPEEDS OF THE GAME
+
         // Tick after how many milliseconds should the graphics update
         public const int GUI_TICK = 16;
 
@@ -71,15 +76,19 @@ namespace Tetris
         // Unresolved yet
         public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
         public const int LAST_ROW = HEIGHT_OF_GRID - 5;
+        public const int FAST_MUSIC_INDEX = 89;
         //
 
 
-
-
-        // Tetromino Constants -----------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------
+        // TETROMINO CONSTANTS
         public const byte MIN_NR_OF_TETROMINOS = 0;
-        public const byte MAX_NR_OF_TETROMINOS = 7;
+        public const byte MAX_NR_OF_TETROMINOS = 1;
         public const int ROW_JUMP_TETROMINO = 4;
+        public const int SCORE_ONE_LINE = 40;
+        public const int SCORE_TWO_LINES = 100;
+        public const int SCORE_THREE_LINES = 300;
+        public const int SCORE_FOUR_LINES = 1200;
 
         /// <summary>
         /// The type of tetrominos. There are 7 types of tetrominos.
