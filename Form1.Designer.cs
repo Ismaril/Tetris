@@ -35,7 +35,7 @@
             this.ClientSize = new System.Drawing.Size(Consts.WIDTH_OF_APPLICATION_WINDOW, Consts.HEIGHT_OF_APPLICATION_WINDOW);
             this.Name = "Tetris";
             this.Text = "Tetris";
-            this.BackColor = (System.Drawing.Color)Consts.COLOR_BACKGROUND;
+            this.BackColor = (System.Drawing.Color)Consts.COLOR_BLACK;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
         }

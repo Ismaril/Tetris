@@ -22,7 +22,8 @@ namespace Tetris
         public Tetromino() { }
 
         /// <summary>
-        /// Constructor which takes in a list of rotations and a type of tetromino. This class is a template for a tetromino objects.
+        /// Constructor which takes in a list of rotations and a type of tetromino. 
+        /// This class is a template for a tetromino objects.
         /// </summary>
         /// <param name="rotation0"></param>
         /// <param name="rotation1"></param>
@@ -52,7 +53,8 @@ namespace Tetris
         public byte[] Indexes { get { return indexes; } set { indexes = value; } }
 
         /// <summary>
-        /// Returns a number between 0 and 3 which represents the rotation of tetromino. Check the Consts.cs file for more info.
+        /// Returns a number between 0 and 3 which represents the rotation of tetromino. 
+        /// Check the Consts.cs file for more info.
         /// </summary>
         public sbyte CurrentRotation { get { return rotationType; } set { rotationType = value; } }
 
@@ -62,7 +64,9 @@ namespace Tetris
         public byte GetType_ { get { return this.type; } }
 
         /// <summary>
-        /// Returns the offset of tetromino with regards to the matrix. With offset we specify where to start drawing the tetromino. Starting with the top left corner of the tetromino matrix.
+        /// Returns the offset of tetromino with regards to the matrix. 
+        /// With offset we specify where to start drawing the tetromino. 
+        /// Starting with the top left corner of the tetromino matrix.
         /// </summary>
         public byte Offset { get { return offset; } set { offset = value; } }
 
@@ -72,7 +76,8 @@ namespace Tetris
         public List<byte[]> Rotations { get {  return rotations; } }
 
         /// <summary>
-        /// Base rotation of tetromino. This is the starting rotation of tetromino when the tetromino is put to grid for the first time.
+        /// Base rotation of tetromino. 
+        /// This is the starting rotation of tetromino when the tetromino is put to grid for the first time.
         /// </summary>
         public byte[] BaseRotation { get => baseRotation;}
 
@@ -115,7 +120,8 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Due to the game matrix having extra two rows below the 20th line, compute how many rows earlier should the tetromino stop at the bottom of game matrix.
+        /// Due to the game matrix having extra two rows below the 20th line, 
+        /// compute how many rows earlier should the tetromino stop at the bottom of game matrix.
         /// </summary>
         /// <returns></returns>
         public byte ComputeNrOfBottomPaddingRows()

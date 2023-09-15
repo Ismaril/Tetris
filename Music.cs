@@ -17,53 +17,23 @@ namespace Tetris
         bool musicIsAllowed = true;
         byte currentMainMusicIndex = 0;
 
-        static readonly string path = @"../../Music/";
+        SoundPlayer obstacle = new SoundPlayer(Consts.SOUND_OBSTACLE);
+        SoundPlayer lineCleared = new SoundPlayer(Consts.SOUND_LINE_CLEARED);
+        SoundPlayer tetris = new SoundPlayer(Consts.SOUND_TETRIS);
+        SoundPlayer nextLevel = new SoundPlayer(Consts.SOUND_NEXTLEVEL);
+        SoundPlayer settings = new SoundPlayer(Consts.SOUND_SETTINGS);
 
-        static readonly string soundRotate = path + @"SFX 6.mp3";
-        static readonly string soundMoveToSides = path + @"SFX 4.mp3";
-        static readonly string soundGameOver = path + @"SFX 14.mp3";
-        static readonly string soundObstacle = path + @"SFX 8.wav";
-        static readonly string soundLineCleared = path + @"SFX 11.wav";
-        static readonly string soundTetris = path + @"SFX TetrisClear.wav";
-        static readonly string soundNextLevel = path + @"SFX 7.wav";
-        static readonly string soundSettings = path + @"SFX 2.wav";
-
-        static readonly string backgroundMusic1_Slow = path + @"1 - Music 1.mp3";
-        static readonly string backgroundMusic2_Slow = path + @"2 - Music 2.mp3";
-        static readonly string backgroundMusic3_Slow = path + @"3 - Music 3.mp3";
-        static readonly string backgroundMusic1_Fast = path + @"8 - Track 8.mp3";
-        static readonly string backgroundMusic2_Fast = path + @"9 - Track 9.mp3";
-        static readonly string backgroundMusic3_Fast = path + @"10 - Track 10.mp3";
-        static readonly string backgroundMusicTetrisMaster = path + @"6 - High Score (Tetris Master).mp3";
-
-
-
-        WaveOutEvent backgroundMusicPlayerSlow = new WaveOutEvent();
-        WaveOutEvent backgroundMusicPlayerFast = new WaveOutEvent();
-        WaveOutEvent backgroundMusicPlayerTetrisMaster = new WaveOutEvent();
-
-        SoundPlayer obstacle = new SoundPlayer(soundObstacle);
-        SoundPlayer lineCleared = new SoundPlayer(soundLineCleared);
-        SoundPlayer tetris = new SoundPlayer(soundTetris);
-        SoundPlayer nextLevel = new SoundPlayer(soundNextLevel);
-        SoundPlayer settings = new SoundPlayer(soundSettings);
-
-        // Initialize the background music player
-        static AudioFileReader backgroundMusicReader1 = new AudioFileReader(backgroundMusic1_Slow);
-        static AudioFileReader backgroundMusicReader2 = new AudioFileReader(backgroundMusic2_Slow);
-        static AudioFileReader backgroundMusicReader3 = new AudioFileReader(backgroundMusic3_Slow);
-        static AudioFileReader backgroundMusicReader10 = new AudioFileReader(backgroundMusic1_Fast);
-        static AudioFileReader backgroundMusicReader20 = new AudioFileReader(backgroundMusic2_Fast);
-        static AudioFileReader backgroundMusicReader30 = new AudioFileReader(backgroundMusic3_Fast);
-        static AudioFileReader backgroundTetrisMaster = new AudioFileReader(backgroundMusicTetrisMaster);
-
-
-
-        List<AudioFileReader> slowBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader1, backgroundMusicReader2, backgroundMusicReader3 };
-        List<AudioFileReader> fastBackgroundMusic = new List<AudioFileReader>() { backgroundMusicReader10, backgroundMusicReader20, backgroundMusicReader30 };
+        AudioFileReader backgroundMusicReader;
 
         public List<AudioFileReader> toBeDisposed1 = new List<AudioFileReader>();
         public List<WaveOutEvent> toBeDisposed2 = new List<WaveOutEvent>();
+
+        public List<AudioFileReader> toBeDisposed3 = new List<AudioFileReader>();
+        public List<WaveOutEvent> toBeDisposed4 = new List<WaveOutEvent>();
+
+        public List<AudioFileReader> toBeDisposed5 = new List<AudioFileReader>();
+        public List<WaveOutEvent> toBeDisposed6 = new List<WaveOutEvent>();
+
 
         // ------------------------------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -90,8 +60,13 @@ namespace Tetris
         /// </summary>
         public void TetrisMaster()
         {
+            AudioFileReader backgroundTetrisMaster = new AudioFileReader(Consts.MUSIC_BACKGROUND_TETRISMASTER);
+            WaveOutEvent backgroundMusicPlayerTetrisMaster = new WaveOutEvent();
+
             backgroundMusicPlayerTetrisMaster.Init(backgroundTetrisMaster);
             backgroundMusicPlayerTetrisMaster.Play();
+            toBeDisposed5.Add(backgroundTetrisMaster);
+            toBeDisposed6.Add(backgroundMusicPlayerTetrisMaster);
         }
 
         /// <summary>
@@ -99,7 +74,7 @@ namespace Tetris
         /// </summary>
         public void MoveToSides()
         {
-            AudioFileReader addressToSides = new AudioFileReader(soundMoveToSides);
+            AudioFileReader addressToSides = new AudioFileReader(Consts.SOUND_MOVE_TO_SIDES);
             WaveOutEvent moveToSidesUserEvent = new WaveOutEvent();
 
             moveToSidesUserEvent.Init(addressToSides);
@@ -115,7 +90,7 @@ namespace Tetris
         /// </summary>
         public void Rotate()
         {
-            AudioFileReader addressRotate = new AudioFileReader(soundRotate);
+            AudioFileReader addressRotate = new AudioFileReader(Consts.SOUND_ROTATE);
             WaveOutEvent rotateUserEvent = new WaveOutEvent();
             rotateUserEvent.Init(addressRotate);
             rotateUserEvent.Play();
@@ -125,41 +100,78 @@ namespace Tetris
         }
 
         /// <summary>
-        /// This is main music. It is played during the game and when played tetrominos have not reached the certain treshold of the game matrix.
+        /// This is main music. 
+        /// It is played during the game and when played tetrominos 
+        /// have not reached the certain treshold of the game matrix.
         /// </summary>
         public void MainMusicSlow()
         {
-                backgroundMusicPlayerFast.Stop();
-                backgroundMusicPlayerFast.Dispose();
-                backgroundMusicPlayerSlow.Init(slowBackgroundMusic[currentMainMusicIndex]);
-                backgroundMusicPlayerSlow.Play();
+
+            DisposeMusic(case_: 3);
+
+            switch (currentMainMusicIndex)
+            {
+                case 0:
+                    backgroundMusicReader = new AudioFileReader(Consts.MUSIC_BACKGROUND1_SLOW);
+                    break;
+                case 1:
+                    backgroundMusicReader = new AudioFileReader(Consts.MUSIC_BACKGROUND2_SLOW);
+                    break;
+                case 2:
+                    backgroundMusicReader = new AudioFileReader(Consts.MUSIC_BACKGROUND3_SLOW);
+                    break;
+            }
+            WaveOutEvent backgroundMusicPlayer = new WaveOutEvent();
+            backgroundMusicPlayer.Init(backgroundMusicReader);
+            backgroundMusicPlayer.Play();
+
+            toBeDisposed3.Add(backgroundMusicReader);
+            toBeDisposed4.Add(backgroundMusicPlayer);
         }
 
         /// <summary>
-        /// This is main music. It is played during the game and when played tetrominos have reached the certain treshold of the game matrix.
+        /// This is main music. 
+        /// It is played during the game and when played tetrominos 
+        /// have reached the certain treshold of the game matrix.
         /// </summary>
         public void MainMusicFast()
         {
-                backgroundMusicPlayerSlow.Stop();
-                backgroundMusicPlayerSlow.Dispose();
-                backgroundMusicPlayerFast.Init(fastBackgroundMusic[currentMainMusicIndex]);
-                backgroundMusicPlayerFast.Play();
+            DisposeMusic(case_: 3);
+
+            switch (currentMainMusicIndex)
+            {
+                case 0:
+                    backgroundMusicReader = new AudioFileReader(Consts.MUSIC_BACKGROUND1_FAST);
+                    break;
+                case 1:
+                    backgroundMusicReader = new AudioFileReader(Consts.MUSIC_BACKGROUND2_FAST);
+                    break;
+                case 2:
+                    backgroundMusicReader = new AudioFileReader(Consts.MUSIC_BACKGROUND3_FAST);
+                    break;
+            }
+            WaveOutEvent backgroundMusicPlayer = new WaveOutEvent();
+            backgroundMusicPlayer.Init(backgroundMusicReader);
+            backgroundMusicPlayer.Play();
+
+            toBeDisposed3.Add(backgroundMusicReader);
+            toBeDisposed4.Add(backgroundMusicPlayer);
         }
 
         // Not implemented yet
-        public void GetPositionOfMainMusic()
-        {
-            // 63556920
-            // 63551992
-            if (musicIsAllowed)
-            {
-                if (backgroundMusicPlayerSlow.GetPosition() > (long)10000000)
-                {
-                    MainMusicSlow();
-                }
-                Console.WriteLine(backgroundMusicPlayerSlow.GetPosition());
-            }
-        }
+        //public void GetPositionOfMainMusic()
+        //{
+        //    // 63556920
+        //    // 63551992
+        //    if (musicIsAllowed)
+        //    {
+        //        if (backgroundMusicPlayerSlow.GetPosition() > (long)10000000)
+        //        {
+        //            MainMusicSlow();
+        //        }
+        //        Console.WriteLine(backgroundMusicPlayerSlow.GetPosition());
+        //    }
+        //}
 
         /// <summary>
         /// Chose a randomly main music. There are 3 main songs.
@@ -196,7 +208,7 @@ namespace Tetris
         /// </summary>
         public void GameOver()
         {
-            AudioFileReader addressGameOver = new AudioFileReader(soundGameOver);
+            AudioFileReader addressGameOver = new AudioFileReader(Consts.SOUND_GAME_OVER);
             WaveOutEvent gameOver = new WaveOutEvent();
             gameOver.Init(addressGameOver);
             gameOver.Play();
@@ -206,43 +218,55 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Free up memory resources.
+        /// Dispose music.
         /// </summary>
-        public void DisposeSFX_NAudio()
+        /// <param name="case_">Based on case, select which objects should be disposed</param>
+        public void DisposeMusic(byte case_)
         {
-            //rotateUserEvent.Dispose();
-            //moveToSidesUserEvent.Dispose();
-            //gameOver.Dispose();
-            obstacle.Dispose();
-            lineCleared.Dispose();
-            tetris.Dispose();
-            nextLevel.Dispose();
-            settings.Dispose();
-        }
+            switch (case_)
+            {
+                case 1:
+                    foreach (AudioFileReader audioFileReader in toBeDisposed1)
+                    {
+                        audioFileReader.Dispose();
+                    }
 
-        /// <summary>
-        /// Free up memory resources.
-        /// </summary>
-        public void DisposeBackgroundMusic_NAudio()
-        {
-            //Todo: When the same music is called again, it plays where it left off. It should start from the beginning.
-            backgroundMusicPlayerSlow.Stop();
-            backgroundMusicPlayerSlow.Dispose();
-            backgroundMusicPlayerFast.Stop();
-            backgroundMusicPlayerFast.Dispose();
-            backgroundMusicPlayerTetrisMaster.Stop();
-            backgroundMusicPlayerTetrisMaster.Dispose();
+                    foreach (WaveOutEvent audioFileReader in toBeDisposed2)
+                    {
+                        audioFileReader.Dispose();
+                    }
+                    toBeDisposed1.Clear();
+                    toBeDisposed2.Clear();
+                    break;
+                case 3:
+                    foreach (AudioFileReader audioFileReader in toBeDisposed3)
+                    {
+                        audioFileReader.Dispose();
+                    }
 
-            backgroundMusicReader1.Dispose();
-            backgroundMusicReader2.Dispose();
-            backgroundMusicReader3.Dispose();
-            backgroundMusicReader10.Dispose();
-            backgroundMusicReader20.Dispose();
-            backgroundMusicReader30.Dispose();
-            backgroundTetrisMaster.Dispose();
-            ChoseMainMusic();
+                    foreach (WaveOutEvent audioFileReader in toBeDisposed4)
+                    {
+                        audioFileReader.Dispose();
+                    }
+                    toBeDisposed3.Clear();
+                    toBeDisposed4.Clear();
+                    break;
+                case 5:
+                    foreach (AudioFileReader audioFileReader in toBeDisposed5)
+                    {
+                        audioFileReader.Dispose();
+                    }
+
+                    foreach (WaveOutEvent audioFileReader in toBeDisposed6)
+                    {
+                        audioFileReader.Dispose();
+                    }
+                    toBeDisposed5.Clear();
+                    toBeDisposed6.Clear();
+                    break;
+            }
         }
     }
 }
 
-// Todo: Music from naudio playes where it left off. It should start from the beginning. Moreover short sounds are played only once. After another call they are not played.
+// Todo: There is an exception when disposing the music but music is still playing. (Reproducible)
