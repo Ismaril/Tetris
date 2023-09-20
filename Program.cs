@@ -18,5 +18,4 @@ namespace Tetris
     }
 }
 
-
-
+// refactoring tip: max 3 indentations in a method

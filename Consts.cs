@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 
+
 namespace Tetris
 {
+
+
     /// <summary>
     /// This class contains all the constants used in the game.
     /// </summary>
-    public class Consts
+    public static class Consts
     {
-
         // ------------------------------------------------------------------------------------------------
         // GUI CONSTANTS
 
@@ -47,6 +49,7 @@ namespace Tetris
         public const string TEXT_TOP_SCORE = "TOP SCORE";
         public const string TEXT_SCORE = "SCORE";
         public const string TEXT_LEVEL = "LEVEL";
+        public const string TEXT_LEVEL_SHORT = "LVL";
         public const string TEXT_LINES_CLEARED = "LINES";
         public const string TEXT_CONGRATULATIONS = "CONGRATULATIONS";
         public const string TEXT_TETRIS_MASTER = "YOU ARE A TETRIS MASTER";
@@ -57,35 +60,21 @@ namespace Tetris
         public const string TEXT_OFF_SETTING = "OFF";
         public const string TEXT_BLANK_SPACE = "- - - - - - ";
         public const string TEXT_BLANK_SPACE_SHORT = "- -";
-        public const string TEXT_TEXTBOX = "textbox";
-        public const string TEXT_LABELBOX = "labelbox";
-        public const string TEXT_PICTUREBOX = "picturebox";
+        public const string TEXT_NAME = "NAME";
+        public const string TEXT_TEXTBOX = "textBox";
+        public const string TEXT_LABELBOX = "labelBox";
+        public const string TEXT_PICTUREBOX = "pictureBox";
+        public const string TEXT_PICTUREBOX_INITIAL_SCREEN = "pictureBoxInitialScreen";
 
 
-        // ------------------------------------------------------------------------------------------------
-        // MUSIC CONSTANTS
 
-        public const int FAST_MUSIC_INDEX = 89;
-        public const string MUSIC_PATH = @"../../Music/";
-        public const string SOUND_ROTATE = MUSIC_PATH + @"SFX 6.mp3";
-        public const string SOUND_MOVE_TO_SIDES = MUSIC_PATH + @"SFX 4.mp3";
-        public const string SOUND_GAME_OVER = MUSIC_PATH + @"SFX 14.mp3";
-        public const string SOUND_OBSTACLE = MUSIC_PATH + @"SFX 8.wav";
-        public const string SOUND_LINE_CLEARED = MUSIC_PATH + @"SFX 11.wav";
-        public const string SOUND_TETRIS = MUSIC_PATH + @"SFX TetrisClear.wav";
-        public const string SOUND_NEXTLEVEL = MUSIC_PATH + @"SFX 7.wav";
-        public const string SOUND_SETTINGS = MUSIC_PATH + @"SFX 2.wav";
-        public const string MUSIC_BACKGROUND1_SLOW = MUSIC_PATH + @"1 - Music 1.mp3";
-        public const string MUSIC_BACKGROUND2_SLOW = MUSIC_PATH + @"2 - Music 2.mp3";
-        public const string MUSIC_BACKGROUND3_SLOW = MUSIC_PATH + @"3 - Music 3.mp3";
-        public const string MUSIC_BACKGROUND1_FAST = MUSIC_PATH + @"8 - Track 8.mp3";
-        public const string MUSIC_BACKGROUND2_FAST = MUSIC_PATH + @"9 - Track 9.mp3";
-        public const string MUSIC_BACKGROUND3_FAST = MUSIC_PATH + @"10 - Track 10.mp3";
-        public const string MUSIC_BACKGROUND_TETRISMASTER = MUSIC_PATH + @"6 - High Score (Tetris Master).mp3";
+
 
 
         // ------------------------------------------------------------------------------------------------
         // SPRITES CONSTANTS
+
+        public const string WALLPAPER_INITIAL_SCREEN = @"..\..\Sprites\hrad1_adjusted_tetris.png";
 
         public static readonly string SPRITES_PATH = @"../../Sprites/";
         public static readonly Image GRID_COLOR = Image.FromFile(SPRITES_PATH + "grid.png");
@@ -169,13 +158,15 @@ namespace Tetris
         // Unresolved yet
         public const int ROW_JUMP_GRID = WIDTH_OF_GRID;
         public const int LAST_ROW = HEIGHT_OF_GRID - 5;
-        public const int MINIMUM_HIGH_SCORE = 10_000;
+        public const int MINIMUM_HIGH_SCORE_LIMIT = 10_000;
+        public const byte INITIAL_SCRREN_VISIBILITY_LIMIT = 100;
+        public const int FAST_MUSIC_INDEX = 89;
         //
 
 
         // ------------------------------------------------------------------------------------------------
         // TETROMINO CONSTANTS
-        public const byte MIN_NR_OF_TETROMINOS = 0;
+        public const byte MIN_NR_OF_TETROMINOS = 1;
         public const byte MAX_NR_OF_TETROMINOS = 7;
         public const int ROW_JUMP_TETROMINO = 4;
         public const int SCORE_ONE_LINE = 40;
@@ -197,184 +188,6 @@ namespace Tetris
             L_type
         }
 
-        //  ____________ 
-        // /__/__/__/__/ 
-        public static readonly byte[] I_0 =
-        {
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-            1, 1, 1, 1,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] I_1 =
-{
-            0, 0, 1, 0,
-            0, 0, 1, 0,
-            0, 0, 1, 0,
-            0, 0, 1, 0,
-        };
 
-
-        //   ______
-        //  /__/__/
-        // /__/__/ 
-        public static readonly byte[] O_0 =
-        {
-            0, 0, 0, 0,
-            0, 1, 1, 0,
-            0, 1, 1, 0,
-            0, 0, 0, 0,
-        };
-
-
-        //   _________
-        //  /__/__/__/
-        //    /__/ 
-        public static readonly byte[] T_0 =
-        {
-            0, 0, 0, 0,
-            0, 1, 1, 1,
-            0, 0, 1, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] T_1 =
-{
-            0, 0, 1, 0,
-            0, 1, 1, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] T_2 =
-{
-            0, 0, 1, 0,
-            0, 1, 1, 1,
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] T_3 =
-{
-            0, 0, 1, 0,
-            0, 0, 1, 1,
-            0, 0, 1, 0,
-            0, 0, 0, 0,
-        };
-
-
-        //      ______
-        //  ___/__/__/
-        // /__/__/ 
-        public static readonly byte[] S_0 =
-        {
-            0, 0, 0, 0,
-            0, 0, 2, 2,
-            0, 2, 2, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] S_1 =
-{
-            0, 0, 2, 0,
-            0, 0, 2, 2,
-            0, 0, 0, 2,
-            0, 0, 0, 0,
-        };
-
-
-        //   ______
-        //  /__/__/__
-        //    /__/__/ 
-        public static readonly byte[] Z_0 =
-        {
-            0, 0, 0, 0,
-            0, 3, 3, 0,
-            0, 0, 3, 3,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] Z_1 =
-{
-            0, 0, 0, 3,
-            0, 0, 3, 3,
-            0, 0, 3, 0,
-            0, 0, 0, 0,
-        };
-
-
-        //   _________
-        //  /__/__/__/
-        //       /__/ 
-        public static readonly byte[] J_0 =
-        {
-            0, 0, 0, 0,
-            0, 2, 2, 2,
-            0, 0, 0, 2,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] J_1 =
-        {
-            0, 0, 2, 0,
-            0, 0, 2, 0,
-            0, 2, 2, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] J_2 =
-        {
-            0, 2, 0, 0,
-            0, 2, 2, 2,
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] J_3 =
-        {
-            0, 0, 2, 2,
-            0, 0, 2, 0,
-            0, 0, 2, 0,
-            0, 0, 0, 0,
-        };
-
-
-        //    _________
-        //   /__/__/__/
-        //  /__/ 
-        public static readonly byte[] L_0 =
-        {
-            0, 0, 0, 0,
-            0, 3, 3, 3,
-            0, 3, 0, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] L_1 =
-{
-            0, 3, 3, 0,
-            0, 0, 3, 0,
-            0, 0, 3, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] L_2 =
-{
-            0, 0, 0, 3,
-            0, 3, 3, 3,
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-        };
-        public static readonly byte[] L_3 =
-{
-            0, 0, 3, 0,
-            0, 0, 3, 0,
-            0, 0, 3, 3,
-            0, 0, 0, 0,
-        };
-
-        /// <summary>
-        /// List of 7 tetromino objects. Each object is unique tetromino with its properties.
-        /// </summary>
-        public static readonly List<Tetromino> tetrominos = new List<Tetromino>
-        {
-            new Tetromino(I_0, I_1, I_0, I_1, (byte)TetrominoType.I_type),
-            new Tetromino(O_0, O_0, O_0, O_0, (byte)TetrominoType.O_type),
-            new Tetromino(T_0, T_1, T_2, T_3, (byte)TetrominoType.T_type),
-            new Tetromino(S_0, S_1, S_0, S_1, (byte)TetrominoType.S_type),
-            new Tetromino(Z_0, Z_1, Z_0, Z_1, (byte)TetrominoType.Z_type),
-            new Tetromino(J_0, J_1, J_2, J_3, (byte)TetrominoType.J_type),
-            new Tetromino(L_0, L_1, L_2, L_3, (byte)TetrominoType.L_type)
-        };
     }
 }

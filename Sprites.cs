@@ -6,17 +6,15 @@ namespace Tetris
     public class Sprites
     {
         // ------------------------------------------------------------------------------------------------
-        // FIELDS
-
-        private List<List<Image>> tetrominoSpriteCollection = new List<List<Image>>();
+        // PROPERTIES
 
         /// <summary>
         /// Collection of lists. Each sublist contains 4 different images of a tetromino single block. 
         /// Sublists are called based on which level is current player on. Based on that, 
         /// the color of tetromino blocks change.
         /// </summary>
-        public List<List<Image>> TetrominoSpriteCollection { get => tetrominoSpriteCollection; }
-        
+        public List<List<Image>> TetrominoSpriteCollection { get; } = new List<List<Image>>();
+
 
         // ------------------------------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -33,7 +31,7 @@ namespace Tetris
                 Consts.BLUE_WHITE,
                 Consts.BLUE,
                 Consts.TURQUOISE,
-                Consts.TURQUOISE_WHITE_BLUE 
+                Consts.TURQUOISE_WHITE_BLUE
             });
 
             TetrominoSpriteCollection.Add(new List<Image>
@@ -45,67 +43,67 @@ namespace Tetris
             });
 
             TetrominoSpriteCollection.Add(new List<Image>
-            { 
-                Consts.PURPLE_WHITE, 
-                Consts.PURPLE, 
-                Consts.PINK, 
-                Consts.PINK_WHITE_PURPLE 
-            });
-
-            TetrominoSpriteCollection.Add(new List<Image> 
-            { 
-                Consts.BLUE_WHITE,
-                Consts.BLUE,
-                Consts.GREEN,
-                Consts.GREEN_WHITE_BLUE 
+            {
+                Consts.PURPLE_WHITE,
+                Consts.PURPLE,
+                Consts.PINK,
+                Consts.PINK_WHITE_PURPLE
             });
 
             TetrominoSpriteCollection.Add(new List<Image>
-            { 
+            {
+                Consts.BLUE_WHITE,
+                Consts.BLUE,
+                Consts.GREEN,
+                Consts.GREEN_WHITE_BLUE
+            });
+
+            TetrominoSpriteCollection.Add(new List<Image>
+            {
                 Consts.PASTEL_RED_WHITE,
                 Consts.PASTEL_RED,
                 Consts.PASTEL_GREEN,
-                Consts.PASTEL_GREEN_WHITE_PASTEL_RED 
+                Consts.PASTEL_GREEN_WHITE_PASTEL_RED
             });
 
-            TetrominoSpriteCollection.Add(new List<Image> 
-            { 
-                Consts.PASTEL_GREEN_WHITE, 
-                Consts.PASTEL_GREEN, 
-                Consts.LIGHT_BLUE, 
-                Consts.LIGHT_BLUE_WHITE_PASTEL_GREEN 
+            TetrominoSpriteCollection.Add(new List<Image>
+            {
+                Consts.PASTEL_GREEN_WHITE,
+                Consts.PASTEL_GREEN,
+                Consts.LIGHT_BLUE,
+                Consts.LIGHT_BLUE_WHITE_PASTEL_GREEN
             });
 
-            TetrominoSpriteCollection.Add(new List<Image> 
-            { 
+            TetrominoSpriteCollection.Add(new List<Image>
+            {
                 Consts.RED_WHITE,
-                Consts.RED, 
+                Consts.RED,
                 Consts.GRAY,
-                Consts.GRAY_WHITE_RED 
+                Consts.GRAY_WHITE_RED
             });
 
-            TetrominoSpriteCollection.Add(new List<Image> 
-            { 
-                Consts.PURPLE_BLUE_WHITE, 
-                Consts.PURPLE_BLUE, 
-                Consts.DARK_RED, 
-                Consts.DARK_RED_WHITE_PURPLE_BLUE 
+            TetrominoSpriteCollection.Add(new List<Image>
+            {
+                Consts.PURPLE_BLUE_WHITE,
+                Consts.PURPLE_BLUE,
+                Consts.DARK_RED,
+                Consts.DARK_RED_WHITE_PURPLE_BLUE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image> 
-            { 
-                Consts.BLUE_WHITE, 
-                Consts.BLUE, 
-                Consts.RED, 
-                Consts.RED_WHITE_BLUE 
+            TetrominoSpriteCollection.Add(new List<Image>
+            {
+                Consts.BLUE_WHITE,
+                Consts.BLUE,
+                Consts.RED,
+                Consts.RED_WHITE_BLUE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image> 
-            { 
+            TetrominoSpriteCollection.Add(new List<Image>
+            {
                 Consts.RED_WHITE,
-                Consts.RED, 
+                Consts.RED,
                 Consts.ORANGE,
-                Consts.ORANGE_WHITE_RED 
+                Consts.ORANGE_WHITE_RED
             });
         }
     }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Tetris
 {
@@ -40,10 +41,10 @@ namespace Tetris
         bool rotateRight = false;
         bool rotateLeft = false;
         bool moveDownFast = false;
-        bool cannotMoveRight = false;
-        bool cannotMoveLeft = false;
-        bool cannotRotateRight = false;
-        bool cannotRotateLeft = false;
+        bool canMoveRight = false;
+        bool canMoveLeft = false;
+        bool canRotateRight = false;
+        bool canRotateLeft = false;
         bool roundEnded = false;
         bool musicFastIsPlaying = false;
         bool musicSlowIsPlaying = true;
@@ -259,7 +260,7 @@ namespace Tetris
         /// </summary>
         /// <param name="checkRightside">If yes, check movement to right else check movement to left</param>
         /// <returns></returns>
-        public bool TetrominaHasObstacleAtNextColumn(bool checkRightside)
+        public bool TetrominaHasNotObstacleAtNextColumn(bool checkRightside)
         {
             sbyte operator_;
             if (checkRightside) operator_ = 1;
@@ -275,19 +276,29 @@ namespace Tetris
                         collisionDetection.Add((byte)toBeRemoved[i]);
                 }
 
-                // Check if at next main matrix column,
-                // there are some indexes non zero (there are some former tetrominos).
-                for (byte i = 0; i < collisionDetection.Count; i++)
+                try
                 {
-                    if ((Matrix[collisionDetection[i] + operator_] > 0))
+                    // Check if at next main matrix column,
+                    // there are some indexes non zero (there are some former tetrominos).
+                    for (byte i = 0; i < collisionDetection.Count; i++)
                     {
-                        collisionDetection.Clear();
-                        return true;
+                        if ((Matrix[collisionDetection[i] + operator_] > 0))
+                        {
+                            collisionDetection.Clear();
+                            return false;
+                        }
                     }
                 }
+                catch(ArgumentOutOfRangeException)
+                {
+                    // User moved I-type tetromino on the most upper index to left boundary. This resulted to check
+                    // index position which is negative. Therefore there is no need for boundary check/
+                    // meaning no action required, continue.
+                }
+                
                 collisionDetection.Clear();
             }
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -297,7 +308,7 @@ namespace Tetris
         /// <param name="checkRightRotation">If yes, check right rotation else check left rotation</param>
         /// <param name="offset">Offset where to start putting indexes of tetrominoMatrix </param>
         /// <returns></returns>
-        public bool TetrominaHasObstacleAtNextRotation(bool checkRightRotation, byte offset)
+        public bool TetrominaHasNotObstacleAtNextRotation(bool checkRightRotation, byte offset)
         {
             sbyte operator_;
             if (checkRightRotation) operator_ = 1;
@@ -330,14 +341,12 @@ namespace Tetris
                         // but applies for I type tetromino
                         || (tetrominoCurrent.GetType_ == (byte)Consts.TetrominoType.I_type && offset % 10 == 9))
                     {
-                        //collisionDetection.Clear(); Might be possible to delete ====================================================
-                        return true;
+                        return false;
                     }
                     columnRelative++;
                 }
             }
-            //collisionDetection.Clear(); Might be possible to delete ====================================================
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -359,10 +368,7 @@ namespace Tetris
             if (RoundEndedFlag)
             {
                 music.GameOver();
-
                 music.DisposeMusic(case_: 3);
-
-
                 SkipLogicMain = true;
             }
         }
@@ -394,7 +400,8 @@ namespace Tetris
         {
             // Make sure that tetromino does not move out of left boundary of matrix.
             for (int i = 0; i < toBeRemoved.Count; i++)
-                if (toBeRemoved[i] % Consts.ROW_JUMP_GRID == 0) return;
+                if (toBeRemoved[i] % Consts.ROW_JUMP_GRID == 0)
+                    return;
 
             if (canMoveLeft && desiredLeft)
             {
@@ -411,6 +418,7 @@ namespace Tetris
         private void MoveDownFaster_UserEvent(bool activate)
         {
             if (!activate) return;
+
             timer = Consts.movementTicksBasedOnLevel[CurrentLevel];
             MoveDownFast = false;
         }
@@ -460,10 +468,7 @@ namespace Tetris
                     CurrentRow = 0;
                     toBeRemoved.Clear();
                     music.Obstacle();
-
-
-                    music.DisposeMusic(case_: 1);
-
+                    //music.DisposeMusic(case_: 1);
                 }
                 // Move tetrominoCurrent down by one row.
                 else
@@ -494,9 +499,7 @@ namespace Tetris
             {
                 //Todo: Check why is this block here.
                 if (toBeRemoved.Contains(i))
-                {
                     continue;
-                };
 
                 if (i <= Consts.FAST_MUSIC_INDEX && matrix[i] == 0 && !MusicSlowIsPlaying)
                 {
@@ -506,7 +509,8 @@ namespace Tetris
                 }
                 else if (i <= Consts.FAST_MUSIC_INDEX && matrix[i] > 0 && !musicFastIsPlaying)
                 {
-                    music.MainMusicFast();
+                    //music.MainMusicFast();
+                    music.MainMusic(playSlowMusic: false);
                     musicFastIsPlaying = true;
                     MusicSlowIsPlaying = false;
                     return;
@@ -515,7 +519,8 @@ namespace Tetris
             }
             if (checkEmptySpaces > Consts.FAST_MUSIC_INDEX)
             {
-                music.MainMusicSlow();
+                //music.MainMusicSlow();
+                music.MainMusic();
                 MusicSlowIsPlaying = true;
                 musicFastIsPlaying = false;
             }
@@ -531,11 +536,12 @@ namespace Tetris
                 // If no tetromino was chosen yet (game has just started), chose one based on number 99.
                 // Otherwise chose a tetromino which was determined in previous round.
                 if (tetrominoNextIndex == 99)
-                    tetrominoCurrent = Consts.tetrominos[random.Next(
+                    tetrominoCurrent = Tetromino.TETROMINOS[random.Next(
                         Consts.MIN_NR_OF_TETROMINOS, 
                         Consts.MAX_NR_OF_TETROMINOS
                         )];
-                else tetrominoCurrent = Consts.tetrominos[tetrominoNextIndex];
+                else
+                    tetrominoCurrent = Tetromino.TETROMINOS[tetrominoNextIndex];
 
                 // Adjust starting position of tetrominoCurrent based on its type, on playing grid.
                 if (tetrominoCurrent.GetType_ == (byte)Consts.TetrominoType.I_type)
@@ -550,7 +556,7 @@ namespace Tetris
 
                 sendNextPiece = false;
                 tetrominoNextIndex = (byte)random.Next(Consts.MIN_NR_OF_TETROMINOS, Consts.MAX_NR_OF_TETROMINOS);
-                Array.Copy(Consts.tetrominos[tetrominoNextIndex].BaseRotation, TetrominoNext, TetrominoNext.Length);
+                Array.Copy(Tetromino.TETROMINOS[tetrominoNextIndex].BaseRotation, TetrominoNext, TetrominoNext.Length);
             }
         }
 
@@ -586,13 +592,10 @@ namespace Tetris
             // Play music according to number of cleared lines.
             if (indexesOfCompletedRows.Count > 0
                 && indexesOfCompletedRows.Count <= 3)
-            {
                 music.LineCleared();
-            }
+
             else if (indexesOfCompletedRows.Count == 4)
-            {
                 music.Tetris();
-            }
 
             // This sleep should be replaced by some animation when lines are cleared.
             System.Threading.Thread.Sleep(450);
@@ -611,12 +614,11 @@ namespace Tetris
         /// </summary>
         private void CheckIfContinueToNextLevel()
         {
-            if (linesNextLevel >= 10)
-            {
-                linesNextLevel = 0;
-                currentLevel++;
-                music.NextLevel();
-            }
+            if (!(linesNextLevel >= 10)) return;
+
+            linesNextLevel = 0;
+            currentLevel++;
+            music.NextLevel();
         }
 
         /// <summary>
@@ -640,12 +642,12 @@ namespace Tetris
         {
             MoveRight = false;
             MoveLeft = false;
-            cannotMoveLeft = false;
-            cannotMoveRight = false;
+            canMoveLeft = false;
+            canMoveRight = false;
             RotateRight = false;
             RotateLeft = false;
-            cannotRotateLeft = false;
-            cannotRotateRight = false;
+            canRotateLeft = false;
+            canRotateRight = false;
         }
 
         /// <summary>
@@ -654,10 +656,10 @@ namespace Tetris
         /// </summary>
         private void SetCollisionFlags()
         {
-            cannotMoveRight = TetrominaHasObstacleAtNextColumn(checkRightside: true);
-            cannotMoveLeft = TetrominaHasObstacleAtNextColumn(checkRightside: false);
-            cannotRotateRight = TetrominaHasObstacleAtNextRotation(checkRightRotation: true, offset: tetrominoCurrent.Offset);
-            cannotRotateLeft = TetrominaHasObstacleAtNextRotation(checkRightRotation: false, offset: tetrominoCurrent.Offset);
+            canMoveRight = TetrominaHasNotObstacleAtNextColumn(checkRightside: true);
+            canMoveLeft = TetrominaHasNotObstacleAtNextColumn(checkRightside: false);
+            canRotateRight = TetrominaHasNotObstacleAtNextRotation(checkRightRotation: true, offset: tetrominoCurrent.Offset);
+            canRotateLeft = TetrominaHasNotObstacleAtNextRotation(checkRightRotation: false, offset: tetrominoCurrent.Offset);
         }
 
         // Todo: Check if this method is needed. It might be possible to reinitialise the class instead.
@@ -673,10 +675,10 @@ namespace Tetris
             rotateRight = false;
             rotateLeft = false;
             moveDownFast = false;
-            cannotMoveRight = false;
-            cannotMoveLeft = false;
-            cannotRotateRight = false;
-            cannotRotateLeft = false;
+            canMoveRight = false;
+            canMoveLeft = false;
+            canRotateRight = false;
+            canRotateLeft = false;
             sendNextPiece = true;
             putTetrominoOnGrid = true;
             roundEnded = false;
@@ -701,17 +703,18 @@ namespace Tetris
         public void Main__(Action<List<byte>> redraw)
         {
             // Todo: There is a merge of tetrominos when tetromino moves diagonally down. Happens both at slow and button down pressed.
-            // Todo: Once I was able to rotate a tetromino out of matrix boundaries. Check how to reproduce this bug.
+            // Todo: I was able to rotate a tetromino out of matrix boundaries. Happend with I type and T type, meaning bbly all are fucked.
+            // Todo; It was possible to rotate out of bottom with T type.
 
             if (SkipLogicMain) return;
-
+            music.DisposeMusic(case_: 1);
             PlayMusicAccordingToFilledGrid();
             RoundEnded();
             SetCollisionFlags();
-            RotateRight_UserEvent(!cannotRotateRight, RotateRight);
-            RotateLeft_UserEvent(!cannotRotateLeft, RotateLeft);
-            MoveRight_UserEvent(!cannotMoveRight, MoveRight);
-            MoveLeft_UserEvent(!cannotMoveLeft, MoveLeft);
+            RotateRight_UserEvent(canRotateRight, RotateRight);
+            RotateLeft_UserEvent(canRotateLeft, RotateLeft);
+            MoveRight_UserEvent(canMoveRight, MoveRight);
+            MoveLeft_UserEvent(canMoveLeft, MoveLeft);
             MoveDownFaster_UserEvent(activate: MoveDownFast);
             toBeRemoved.Clear();
             ChoseNextTetromino();
