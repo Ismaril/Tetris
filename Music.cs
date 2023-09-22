@@ -11,37 +11,43 @@ namespace Tetris
         // ------------------------------------------------------------------------------------------------
         // CONSTANTS
 
-        const string MUSIC_PATH = @"../../Music/";
-        const string SOUND_ROTATE = MUSIC_PATH + @"SFX 6.mp3";
-        const string SOUND_MOVE_TO_SIDES = MUSIC_PATH + @"SFX 4.mp3";
-        const string SOUND_GAME_OVER = MUSIC_PATH + @"SFX 14.mp3";
-        const string SOUND_OBSTACLE = MUSIC_PATH + @"SFX 8.wav";
-        const string SOUND_LINE_CLEARED = MUSIC_PATH + @"SFX 11.wav";
-        const string SOUND_TETRIS = MUSIC_PATH + @"SFX TetrisClear.wav";
-        const string SOUND_NEXTLEVEL = MUSIC_PATH + @"SFX 7.wav";
-        const string SOUND_SETTINGS = MUSIC_PATH + @"SFX 2.wav";
-        const string MUSIC_BACKGROUND1_SLOW = MUSIC_PATH + @"1 - Music 1.mp3";
-        const string MUSIC_BACKGROUND2_SLOW = MUSIC_PATH + @"2 - Music 2.mp3";
-        const string MUSIC_BACKGROUND3_SLOW = MUSIC_PATH + @"3 - Music 3.mp3";
-        const string MUSIC_BACKGROUND1_FAST = MUSIC_PATH + @"8 - Track 8.mp3";
-        const string MUSIC_BACKGROUND2_FAST = MUSIC_PATH + @"9 - Track 9.mp3";
-        const string MUSIC_BACKGROUND3_FAST = MUSIC_PATH + @"10 - Track 10.mp3";
-        const string MUSIC_BACKGROUND_TETRISMASTER = MUSIC_PATH + @"6 - High Score (Tetris Master).mp3";
+        private const string MUSIC_PATH = @"../../Music/";
+        private const string SOUND_ROTATE = MUSIC_PATH + @"SFX 6.mp3";
+        private const string SOUND_MOVE_TO_SIDES = MUSIC_PATH + @"SFX 4.mp3";
+        private const string SOUND_GAME_OVER = MUSIC_PATH + @"SFX 14.mp3";
+        private const string SOUND_OBSTACLE = MUSIC_PATH + @"SFX 8.wav";
+        private const string SOUND_LINE_CLEARED = MUSIC_PATH + @"SFX 11.wav";
+        private const string SOUND_TETRIS = MUSIC_PATH + @"SFX TetrisClear.wav";
+        private const string SOUND_NEXTLEVEL = MUSIC_PATH + @"SFX 7.wav";
+        private const string SOUND_SETTINGS = MUSIC_PATH + @"SFX 2.wav";
+        private const string MUSIC_BACKGROUND1_SLOW = MUSIC_PATH + @"1 - Music 1.mp3";
+        private const string MUSIC_BACKGROUND2_SLOW = MUSIC_PATH + @"2 - Music 2.mp3";
+        private const string MUSIC_BACKGROUND3_SLOW = MUSIC_PATH + @"3 - Music 3.mp3";
+        private const string MUSIC_BACKGROUND1_FAST = MUSIC_PATH + @"8 - Track 8.mp3";
+        private const string MUSIC_BACKGROUND2_FAST = MUSIC_PATH + @"9 - Track 9.mp3";
+        private const string MUSIC_BACKGROUND3_FAST = MUSIC_PATH + @"10 - Track 10.mp3";
+        private const string MUSIC_BACKGROUND_TETRISMASTER = MUSIC_PATH + @"6 - High Score (Tetris Master).mp3";
 
+        private const byte NUMBER_OF_OBJECTS_NOT_TO_DISPOSE = 6;
 
         // ------------------------------------------------------------------------------------------------
         // FIELDS
 
-        byte _currentMainMusicIndex;
-        readonly Random _random = new Random();
-        AudioFileReader _backgroundMusicReader;
-        readonly SoundPlayer _obstacle = new SoundPlayer(soundLocation: SOUND_OBSTACLE);
-        readonly SoundPlayer _lineCleared = new SoundPlayer(soundLocation: SOUND_LINE_CLEARED);
-        readonly SoundPlayer _tetris = new SoundPlayer(soundLocation: SOUND_TETRIS);
-        readonly SoundPlayer _nextLevel = new SoundPlayer(soundLocation: SOUND_NEXTLEVEL);
-        readonly SoundPlayer _settings = new SoundPlayer(soundLocation: SOUND_SETTINGS);
+        private byte _currentMainMusicIndex;
+        private AudioFileReader _backgroundMusicReader;
+        private readonly Random _random = new Random();
+        private readonly SoundPlayer _obstacle = new SoundPlayer(soundLocation: SOUND_OBSTACLE);
+        private readonly SoundPlayer _lineCleared = new SoundPlayer(soundLocation: SOUND_LINE_CLEARED);
+        private readonly SoundPlayer _tetris = new SoundPlayer(soundLocation: SOUND_TETRIS);
+        private readonly SoundPlayer _nextLevel = new SoundPlayer(soundLocation: SOUND_NEXTLEVEL);
+        private readonly SoundPlayer _settings = new SoundPlayer(soundLocation: SOUND_SETTINGS);
+        public enum Type
+        {
+            Movement,
+            MainMusic,
+            TetrisMaster
+        }
 
-        
         // ------------------------------------------------------------------------------------------------
         // CONSTRUCTOR
         /// <summary>
@@ -58,21 +64,21 @@ namespace Tetris
         /// </summary>
         public bool MusicIsAllowed { get; set; } = true;
 
-        // Lists for disposing movement sounds
-        public List<AudioFileReader> ToBeDisposed1 { get; set; } = new List<AudioFileReader>();
-        public List<WaveOutEvent> ToBeDisposed2 { get; set; } = new List<WaveOutEvent>();
-
-        // Lists for disposing main music
-        public List<AudioFileReader> ToBeDisposed3 { get; } = new List<AudioFileReader>();
-        public List<WaveOutEvent> ToBeDisposed4 { get; } = new List<WaveOutEvent>();
-
-        // Lists for disposing TetrisMaster music
-        public List<AudioFileReader> ToBeDisposed5 { get; } = new List<AudioFileReader>();
-        public List<WaveOutEvent> ToBeDisposed6 { get; } = new List<WaveOutEvent>();
+        // Lists which contain objects that should be disposed
+        public List<AudioFileReader> ToBeDisposedMovementAF { get; set; } = new List<AudioFileReader>();
+        public List<WaveOutEvent> ToBeDisposedMovementWO { get; set; } = new List<WaveOutEvent>();
+        public List<AudioFileReader> ToBeDisposedMainMusicAF { get; } = new List<AudioFileReader>();
+        public List<WaveOutEvent> ToBeDisposedMainMusicWO { get; } = new List<WaveOutEvent>();
+        public List<AudioFileReader> ToBeDisposedTetrisMasterAF { get; } = new List<AudioFileReader>();
+        public List<WaveOutEvent> ToBeDisposedTetrisMasterWO { get; } = new List<WaveOutEvent>();
 
 
         // ------------------------------------------------------------------------------------------------
         // METHODS
+
+        // For some reason, the Classes AduioFileReader and WaveOutEvent have to be instantiated again and
+        // again with each call of below methods. Without that the music/sounds would just stop playing after one
+        // call of each method. I don't know why is that happening...
 
         /// <summary>
         /// Play this music when the game is over and the player has high score.
@@ -83,8 +89,8 @@ namespace Tetris
             var backgroundMusicPlayerTetrisMaster = new WaveOutEvent();
             backgroundMusicPlayerTetrisMaster.Init(backgroundTetrisMaster);
             backgroundMusicPlayerTetrisMaster.Play();
-            ToBeDisposed5.Add(backgroundTetrisMaster);
-            ToBeDisposed6.Add(backgroundMusicPlayerTetrisMaster);
+            ToBeDisposedTetrisMasterAF.Add(backgroundTetrisMaster);
+            ToBeDisposedTetrisMasterWO.Add(backgroundMusicPlayerTetrisMaster);
         }
 
         /// <summary>
@@ -96,8 +102,8 @@ namespace Tetris
             var moveToSidesUserEvent = new WaveOutEvent();
             moveToSidesUserEvent.Init(addressToSides);
             moveToSidesUserEvent.Play();
-            ToBeDisposed1.Add(addressToSides);
-            ToBeDisposed2.Add(moveToSidesUserEvent);
+            ToBeDisposedMovementAF.Add(addressToSides);
+            ToBeDisposedMovementWO.Add(moveToSidesUserEvent);
 
         }
 
@@ -110,14 +116,17 @@ namespace Tetris
             var rotateUserEvent = new WaveOutEvent();
             rotateUserEvent.Init(addressRotate);
             rotateUserEvent.Play();
-            ToBeDisposed1.Add(addressRotate);
-            ToBeDisposed2.Add(rotateUserEvent);
+            ToBeDisposedMovementAF.Add(addressRotate);
+            ToBeDisposedMovementWO.Add(rotateUserEvent);
         }
         
-
+        /// <summary>
+        /// Play Main Background music.
+        /// </summary>
+        /// <param name="playSlowMusic"></param>
         public void MainMusic(bool playSlowMusic = true)
         {
-            DisposeMusic(case_: 3);
+            DisposeMusic(music: Type.MainMusic);
             
             if (playSlowMusic)
                 SlowMusic();
@@ -128,11 +137,14 @@ namespace Tetris
             backgroundMusicPlayer.Init(_backgroundMusicReader);
             backgroundMusicPlayer.Play();
 
-            ToBeDisposed3.Add(_backgroundMusicReader);
-            ToBeDisposed4.Add(backgroundMusicPlayer);
+            ToBeDisposedMainMusicAF.Add(_backgroundMusicReader);
+            ToBeDisposedMainMusicWO.Add(backgroundMusicPlayer);
         }
 
-        public void SlowMusic()
+        /// <summary>
+        /// Helper method for Main music.
+        /// </summary>
+        private void SlowMusic()
         {
             switch (_currentMainMusicIndex)
             {
@@ -148,7 +160,10 @@ namespace Tetris
             }
         }
 
-        public void FastMusic()
+        /// <summary>
+        /// Helper method for Main music.
+        /// </summary>
+        private void FastMusic()
         {
             switch (_currentMainMusicIndex)
             {
@@ -219,76 +234,80 @@ namespace Tetris
             gameOver.Init(addressGameOver);
             gameOver.Play();
 
-            ToBeDisposed1.Add(addressGameOver);
-            ToBeDisposed2.Add(gameOver);
+            ToBeDisposedMovementAF.Add(addressGameOver);
+            ToBeDisposedMovementWO.Add(gameOver);
         }
 
         /// <summary>
         /// Dispose music.
         /// </summary>
-        /// <param name="case_">Based on case, select which objects should be disposed</param>
-        public void DisposeMusic(byte case_)
+        /// <param name="music">Based on case, select which objects should be disposed</param>
+        public void DisposeMusic(Type music)
         {
-            switch (case_)
+            switch (music)
             {
-                case 1:
-
-                    // Todo: still not working
-                    // Dispose only the first x elements, excluding last 6. There was a problem that I was trying
-                    // to dispose the sounds that were still playing.
-                    byte num = 6;
-                    if (ToBeDisposed1.Count < num)
-                        break;
-                    for (byte i = 0; i < ToBeDisposed1.Count - num; i++)
-                    {
-                        ToBeDisposed1[i].Dispose();
-                        ToBeDisposed2[i].Dispose();
-                    }
-
-                    var temp1 = new List<AudioFileReader>();
-                    var temp2 = new List<WaveOutEvent>();
-
-                    for (byte i = 0; i < num; i++)
-                    {
-                        temp1.Add(ToBeDisposed1[ToBeDisposed1.Count - num + i]);
-                        temp2.Add(ToBeDisposed2[ToBeDisposed1.Count - num + i]);
-                    }
-
-                    ToBeDisposed1.Clear();
-                    ToBeDisposed2.Clear();
-
-                    ToBeDisposed1 = temp1.ToList();
-                    ToBeDisposed2= temp2.ToList();
-
+                case Type.Movement:
+                    DisposerAdvanced();
                     break;
-                case 3:
-                    // todo: here also happend RaceOnRCWCleanup
-                    foreach (var audioFileReader in ToBeDisposed3)
-                    {
-                        audioFileReader.Dispose();
-                    }
-
-                    foreach (var audioFileReader in ToBeDisposed4)
-                    {
-                        audioFileReader.Dispose();
-                    }
-                    ToBeDisposed3.Clear();
-                    ToBeDisposed4.Clear();
+                case Type.MainMusic:
+                    DisposerBasic(ToBeDisposedMainMusicAF, ToBeDisposedMainMusicWO);
                     break;
-                case 5:
-                    foreach (var audioFileReader in ToBeDisposed5)
-                    {
-                        audioFileReader.Dispose();
-                    }
-
-                    foreach (var audioFileReader in ToBeDisposed6)
-                    {
-                        audioFileReader.Dispose();
-                    }
-                    ToBeDisposed5.Clear();
-                    ToBeDisposed6.Clear();
+                case Type.TetrisMaster:
+                    DisposerBasic(ToBeDisposedTetrisMasterAF, ToBeDisposedTetrisMasterWO);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Dispose only older objects. In the past I disposed objects that were still in use.
+        /// </summary>
+        private void DisposerAdvanced()
+        {
+            if (ToBeDisposedMovementAF.Count < NUMBER_OF_OBJECTS_NOT_TO_DISPOSE)
+                return ;
+
+            for (byte i = 0; i < ToBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE; i++)
+            {
+                ToBeDisposedMovementAF[i].Dispose();
+                ToBeDisposedMovementWO[i].Dispose();
+            }
+
+            var temp1 = new List<AudioFileReader>();
+            var temp2 = new List<WaveOutEvent>();
+
+            for (byte i = 0; i < NUMBER_OF_OBJECTS_NOT_TO_DISPOSE; i++)
+            {
+                temp1.Add(ToBeDisposedMovementAF[ToBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE + i]);
+                temp2.Add(ToBeDisposedMovementWO[ToBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE + i]);
+            }
+
+            ToBeDisposedMovementAF.Clear();
+            ToBeDisposedMovementWO.Clear();
+
+            ToBeDisposedMovementAF = temp1.ToList();
+            ToBeDisposedMovementWO = temp2.ToList();
+        }
+
+
+        /// <summary>
+        /// Helper method for DisposeMusic.
+        /// </summary>
+        /// <param name="container1"></param>
+        /// <param name="container2"></param>
+        private void DisposerBasic(List<AudioFileReader> container1, List<WaveOutEvent> container2)
+        {
+            foreach (var audioFileReader in container1)
+            {
+                audioFileReader.Dispose();
+            }
+
+            foreach (var audioFileReader in container2)
+            {
+                audioFileReader.Dispose();
+            }
+            container1.Clear();
+            container2.Clear();
+
         }
     }
 }

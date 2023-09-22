@@ -8,47 +8,63 @@ namespace Tetris
 {
     public class Logic
     {
+        // ------------------------------------------------------------------------------------------------
+        // CONSTANTS
+
+        // After how many multiples of GUI_TICK should the tetromino move down
+        private static readonly int[] LEVEL_SPEED_LIMITS = {
+            Consts.GUI_TICK * 48, // Level 0
+            Consts.GUI_TICK * 43,
+            Consts.GUI_TICK * 38,
+            Consts.GUI_TICK * 33,
+            Consts.GUI_TICK * 28,
+            Consts.GUI_TICK * 23, // Level 5
+            Consts.GUI_TICK * 18,
+            Consts.GUI_TICK * 13,
+            Consts.GUI_TICK * 8,
+            Consts.GUI_TICK * 6,
+            Consts.GUI_TICK * 5,  // Level 10
+            Consts.GUI_TICK * 5,
+            Consts.GUI_TICK * 5,
+            Consts.GUI_TICK * 4,
+            Consts.GUI_TICK * 4,
+            Consts.GUI_TICK * 4,  // Level 15
+            Consts.GUI_TICK * 3,
+            Consts.GUI_TICK * 3,
+            Consts.GUI_TICK * 3,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,  // Level 20
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,  // Level 25
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 2,
+            Consts.GUI_TICK * 1,  // Level 30
+        };
 
         // ------------------------------------------------------------------------------------------------
         // FIELDS
 
-        Music music;
-        Random random = new Random();
-        Tetromino tetrominoCurrent = new Tetromino();
-
-        List<byte> matrix = new List<byte>();
-        List<byte> toBeRemoved = new List<byte>();
-        List<byte> collisionDetection = new List<byte>();
-        List<byte> indexesOfCompletedRows = new List<byte> { };
-
-        byte[] tetrominoNext = new byte[16];
-        byte[] rows = new byte[10];
-
-        byte currentRow = 0;
-        byte currentLevel = 0;
-        byte linesNextLevel = 0; // has to be 10 in order to continue to next level
-        byte tetrominoNextIndex = 99; // just a random number which means that we have not yet chosen the next tetromino
-
-        int timer = 0;
-        int scoreIncrementor = 0;
-        int totalNumberOfClearedLines = 0;
-
-        bool sendNextPiece = true;
-        bool putTetrominoOnGrid = true;
-        bool skipLogicMain = false;
-        bool moveRight = false;
-        bool moveLeft = false;
-        bool rotateRight = false;
-        bool rotateLeft = false;
-        bool moveDownFast = false;
-        bool canMoveRight = false;
-        bool canMoveLeft = false;
-        bool canRotateRight = false;
-        bool canRotateLeft = false;
-        bool roundEnded = false;
-        bool musicFastIsPlaying = false;
-        bool musicSlowIsPlaying = true;
-        bool playMusic = false;
+        private readonly Music _music;
+        private readonly Random _random = new Random();
+        private readonly List<byte> _toBeRemoved = new List<byte>();
+        private readonly List<byte> _collisionDetection = new List<byte>();
+        private readonly List<byte> _indexesOfCompletedRows = new List<byte> { };
+        private readonly byte[] _rows = new byte[10];
+        private Tetromino _tetrominoCurrent = new Tetromino();
+        private byte _linesNextLevel; // has to be 10 in order to continue to next level
+        private byte _tetrominoNextIndex = 99; // just a random number which means that we have not yet chosen the next tetromino
+        private bool _sendNextPiece = true;
+        private bool _putTetrominoOnGrid = true;
+        private bool _canMoveRight;
+        private bool _canMoveLeft;
+        private bool _canRotateRight;
+        private bool _canRotateLeft;
+        private bool _musicFastIsPlaying;
 
 
         // ------------------------------------------------------------------------------------------------
@@ -60,8 +76,8 @@ namespace Tetris
         /// <param name="music"></param>
         public Logic(Music music)
         {
-            this.music = music;
-            for (int i = 0; i < Consts.WIDTH_OF_GRID * Consts.HEIGHT_OF_GRID; i++) Matrix.Add(0);
+            this._music = music;
+            for (var i = 0; i < Consts.GRID; i++) Matrix.Add(0);
         }
 
         // ------------------------------------------------------------------------------------------------
@@ -72,101 +88,98 @@ namespace Tetris
         /// It gets incremented by every GUI_TICK.
         /// Once the timer equals or exceeds the movementTicksBasedOnLevel, the tetrominoCurrent moves down.
         /// </summary>
-        public int Timer { get { return timer; } set { timer = value; } }
+        public int Timer { get; set; }
 
         /// <summary>
         /// Boolean which determines if the tetrominoCurrent should move right.
         /// </summary>
-        public bool MoveRight { get => moveRight; set => moveRight = value; }
+        public bool MoveRight { get; set; }
 
         /// <summary>
         /// Boolean which determines if the tetrominoCurrent should move left.
         /// </summary>
-        public bool MoveLeft { get => moveLeft; set => moveLeft = value; }
+        public bool MoveLeft { get; set; }
 
         /// <summary>
         /// Boolean which determines if the tetrominoCurrent should move down faster.
         /// </summary>
-        public bool MoveDownFast { get => moveDownFast; set => moveDownFast = value; }
+        public bool MoveDownFast { get; set; }
 
         /// <summary>
         /// Boolean which determines if the tetrominoCurrent should rotate right.
         /// </summary>
-        public bool RotateRight { get => rotateRight; set => rotateRight = value; }
+        public bool RotateRight { get; set; }
 
         /// <summary>
         /// Boolean which determines if the tetrominoCurrent should rotate left.
         /// </summary>
-        public bool RotateLeft { get => rotateLeft; set => rotateLeft = value; }
+        public bool RotateLeft { get; set; }
 
         /// <summary>
         /// Counter which holds the score of the player. It gets incremented by every finished row.
         /// </summary>
-        public int ScoreIncrementor { get => scoreIncrementor; set => scoreIncrementor = value; }
+        public int ScoreIncrementor { get; set; }
 
         /// <summary>
         /// 4x4 grid which holds the tetromino which will be used in the next round at main matrix. 
         /// During current round, this array is used to display the next tetromino.
         /// </summary>
-        public byte[] TetrominoNext { get => tetrominoNext; set => tetrominoNext = value; }
+        public byte[] TetrominoNext { get; set; } = new byte[16];
 
         /// <summary>
         /// Level of the game. It gets incremented by every 10 finished rows. 
         /// It is used to determine the speed of the game.
         /// </summary>
-        public byte CurrentLevel { get => currentLevel; set => currentLevel = value; }
+        public byte CurrentLevel { get; set; }
 
         /// <summary>
         /// Boolean which controls if the game should end. 
         /// It gets set to true when the tetrominoCurrent reaches the top of the grid.
         /// </summary>
-        public bool RoundEndedFlag { get => roundEnded; set => roundEnded = value; }
+        public bool RoundEndedFlag { get; set; }
 
         /// <summary>
         /// 1D array which holds the main matrix of the game. 
         /// It holds all the tetrominos which were put to the grid.
         /// </summary>
-        public List<byte> Matrix { get => matrix; set => matrix = value; }
+        public List<byte> Matrix { get; set; } = new List<byte>();
 
         /// <summary>
         /// Holds the number of cleared lines. It gets incremented by every finished row. 
         /// The number is used later by GUI to display the number of all cleared lines.
         /// </summary>
-        public int TotalNumberOfClearedLines
-        { 
-            get => totalNumberOfClearedLines; set => totalNumberOfClearedLines = value; 
-        }
+        public int TotalNumberOfClearedLines { get; set; }
 
         /// <summary>
         /// Flag which controls whether to play music.
         /// </summary>
-        public bool PlayMusic { get => playMusic; set => playMusic = value; }
+        public bool PlayMusic { get; set; }
 
         /// <summary>
-        /// Flag which controls wheter musicslow is playing.
+        /// Flag which controls whether musicslow is playing.
         /// </summary>
-        public bool MusicSlowIsPlaying { get => musicSlowIsPlaying; set => musicSlowIsPlaying = value; }
+        public bool MusicSlowIsPlaying { get; set; }
 
         /// <summary>
         /// Controls at which row is tetromino during its lifetime on main matrix. 
         /// Row gets always incremented by 1 when tetromino moves down 
         /// (When tetromino moves by 10 index positions on matrix).
         /// </summary>
-        public byte CurrentRow { get => currentRow; set => currentRow = value; }
+        public byte CurrentRow { get; set; }
 
         /// <summary>
         /// Boolean flag which controls if whole game logic should be skipped. 
         /// It gets set to true when the game is paused and other parts of the program like settings,
         /// or score screen are visible.
         /// </summary>
-        public bool SkipLogicMain { get => skipLogicMain; set => skipLogicMain = value; }
+        public bool SkipLogicMain { get; set; }
 
 
         // ------------------------------------------------------------------------------------------------
         // METHODS
 
         /// <summary>
-        /// Actualises the selected matrix indexes to 1 from indexes of tetrominoCurrent object.
+        /// Actualizes the selected matrix indexes to 1 from indexes of tetrominoCurrent object.
         /// </summary>
         /// <param name="tetrominoMatrix"></param>
         private void PutTetrominoOnGrid(byte[] tetrominoMatrix, byte offset, bool active)
@@ -186,68 +199,66 @@ namespace Tetris
                     columnRelative = 0;
                     offset += (byte)Consts.ROW_JUMP_GRID;
                 }
-                byte gridIndexOffseted = (byte)(offset + columnRelative);
+                var gridIndexOffset = (byte)(offset + columnRelative);
 
-                // Put subpart of tetromino on grid if the subpart actually
+                // Put sub-part of tetromino on grid if the sub-part actually
                 // holds some value in tetrominoMatrix.
                 if (tetrominoMatrix[i] > 0)
                 {
-                    Matrix[gridIndexOffseted] = tetrominoMatrix[i];
-                    toBeRemoved.Add((byte)(gridIndexOffseted));  // These indexes will be later removed.
+                    Matrix[gridIndexOffset] = tetrominoMatrix[i];
+                    _toBeRemoved.Add((byte)(gridIndexOffset));  // These indexes will be later removed.
                 }
                 columnRelative++;
             }
 
             // Set indexes below index 20 to zero, so that tetromino is not drawn outside of the matrix,
             // when rotated during first two rows at matrix.
-            for (int i = 0; i < 20; i++)
+            for (var i = 0; i < 20; i++)
             {
                 Matrix[i] = 0;
             }
         }
 
         /// <summary>
-        /// Actualises the selected matrix indexes to 0.
+        /// Actualizes the selected matrix indexes to 0.
         /// </summary>
-        /// <param name="tetrominoIndexes"></param>
         private void RemoveTetrominoFromGrid()
         {
-            foreach (byte i in toBeRemoved)
+            foreach (var i in _toBeRemoved)
             {
-                if (Matrix.Contains(i)) continue; // Checks if there is no overlap between former and current tetromino position. TODO: Check if this is needed, I think it is not. ============================================================
                 Matrix[i] = 0;
             }
         }
 
         /// <summary>
-        /// Checks wheter there is a tetrominoCurrent at next row.
+        /// Checks whether there is a tetrominoCurrent at next row.
         /// If yes, current tetrominoCurrent has to stop on current row.
         /// </summary>
         /// <returns></returns>
         public bool TetrominoHasObstacleAtNextRow()
         {
-            if (toBeRemoved.Count > 0)
-            {
-                // Check for collision detection only at those indexes,
-                // which will not overlap when the tetrominoCurrent moves down.
-                for (byte i = 0; i < 4; i++)
-                {
-                    if (!(toBeRemoved.Contains((byte)(toBeRemoved[i] + (byte)Consts.ROW_JUMP_GRID))))
-                        collisionDetection.Add((byte)this.toBeRemoved[i]);
-                }
+            if (_toBeRemoved.Count == 0)
+                return false;   
 
-                // Check if at next main matrix row, there are some indexes non zero
-                // (there are some former tetrominos).
-                for (byte i = 0; i < collisionDetection.Count; i++)
-                {
-                    if ((Matrix[collisionDetection[i] + Consts.ROW_JUMP_GRID] > 0))
-                    {
-                        collisionDetection.Clear();
-                        return true;
-                    }
-                }
-                collisionDetection.Clear();
+            // Check for collision detection only at those indexes,
+            // which will not overlap when the tetrominoCurrent moves down.
+            for (byte i = 0; i < 4; i++)
+            {
+                if (!_toBeRemoved.Contains((byte)(_toBeRemoved[i] + (byte)Consts.ROW_JUMP_GRID)))
+                    _collisionDetection.Add((byte)_toBeRemoved[i]);
             }
+
+            // Check if at next main matrix row, there are some indexes non zero
+            // (there are some former tetrominos).
+            for (byte i = 0; i < _collisionDetection.Count; i++)
+            {
+                if (Matrix[_collisionDetection[i] + Consts.ROW_JUMP_GRID] == 0)
+                    continue;
+                _collisionDetection.Clear();
+                return true;
+            }
+            _collisionDetection.Clear();
+
             return false;
         }
 
@@ -260,44 +271,43 @@ namespace Tetris
         /// </summary>
         /// <param name="checkRightside">If yes, check movement to right else check movement to left</param>
         /// <returns></returns>
-        public bool TetrominaHasNotObstacleAtNextColumn(bool checkRightside)
+        public bool TetrominoHasNotObstacleAtNextColumn(bool checkRightside)
         {
+            if (_toBeRemoved.Count == 0)
+                return true;
+
             sbyte operator_;
             if (checkRightside) operator_ = 1;
             else operator_ = -1;
 
-            if (toBeRemoved.Count > 0)
+            // Check for collision detection only at those indexes,
+            // which will not overlap when the tetrominoCurrent moves to side.
+            for (byte i = 0; i < 4; i++)
             {
-                // Check for collision detection only at those indexes,
-                // which will not overlap when the tetrominoCurrent moves to side.
-                for (byte i = 0; i < 4; i++)
-                {
-                    if (!(toBeRemoved.Contains((byte)(toBeRemoved[i] + operator_))))
-                        collisionDetection.Add((byte)toBeRemoved[i]);
-                }
-
-                try
-                {
-                    // Check if at next main matrix column,
-                    // there are some indexes non zero (there are some former tetrominos).
-                    for (byte i = 0; i < collisionDetection.Count; i++)
-                    {
-                        if ((Matrix[collisionDetection[i] + operator_] > 0))
-                        {
-                            collisionDetection.Clear();
-                            return false;
-                        }
-                    }
-                }
-                catch(ArgumentOutOfRangeException)
-                {
-                    // User moved I-type tetromino on the most upper index to left boundary. This resulted to check
-                    // index position which is negative. Therefore there is no need for boundary check/
-                    // meaning no action required, continue.
-                }
-                
-                collisionDetection.Clear();
+                if (!(_toBeRemoved.Contains((byte)(_toBeRemoved[i] + operator_))))
+                    _collisionDetection.Add(_toBeRemoved[i]);
             }
+
+            try
+            {
+                // Check if at next main matrix column,
+                // there are some indexes non zero (there are some former tetrominos).
+                for (byte i = 0; i < _collisionDetection.Count; i++)
+                {
+                    if (Matrix[_collisionDetection[i] + operator_] == 0)
+                        continue;
+                    _collisionDetection.Clear();
+                    return false;
+                }
+            }
+            catch(ArgumentOutOfRangeException)
+            {
+                // User moved I-type tetromino on the most upper index to left boundary. This resulted to check
+                // index position which is negative. Therefore there is no need for boundary check/
+                // meaning no action required, continue.
+            }
+            
+            _collisionDetection.Clear();
             return true;
         }
 
@@ -308,43 +318,49 @@ namespace Tetris
         /// <param name="checkRightRotation">If yes, check right rotation else check left rotation</param>
         /// <param name="offset">Offset where to start putting indexes of tetrominoMatrix </param>
         /// <returns></returns>
-        public bool TetrominaHasNotObstacleAtNextRotation(bool checkRightRotation, byte offset)
+        public bool TetrominoHasNotObstacleAtNextRotation(bool checkRightRotation, byte offset)
         {
-            sbyte operator_;
-            if (checkRightRotation) operator_ = 1;
-            else operator_ = -1;
-            if (toBeRemoved.Count > 0)
+            if (_toBeRemoved.Count == 0)
+                return true;
+
+            var operator_ = checkRightRotation ? 1 : -1;
+            
+            // Compute hypothetical rotation of tetrominoCurrent.
+            sbyte hypotheticalRotationType = (sbyte)(_tetrominoCurrent.CurrentRotation + operator_);
+
+
+            switch (hypotheticalRotationType)
             {
-                // Compute hypothetical rotation of tetrominoCurrent.
-                sbyte hypotheticRotationType = (sbyte)(tetrominoCurrent.CurrentRotation + operator_);
-
                 // Adjust rotation type if is out of bounds.
-                if (hypotheticRotationType == -1) hypotheticRotationType = 3;
-                else if (hypotheticRotationType == 4) hypotheticRotationType = 0;
+                case -1:
+                    hypotheticalRotationType = 3;
+                    break;
+                case 4:
+                    hypotheticalRotationType = 0;
+                    break;
+            }
 
-                // Put artifitially tetrominoMatrixRotated on grid and check if there are no collisions.
-                byte[] tetrominoMatrixRotated = tetrominoCurrent.Rotations[hypotheticRotationType];
-                byte columnRelative = 0;
-                for (byte i = 0; i < tetrominoMatrixRotated.Length; i++)
+
+            // Put artificially tetrominoMatrixRotated on grid and check if there are no collisions.
+            byte[] tetrominoMatrixRotated = _tetrominoCurrent.Rotations[hypotheticalRotationType];
+            byte columnRelative = 0;
+            for (byte i = 0; i < tetrominoMatrixRotated.Length; i++)
+            {
+                if (columnRelative % 4 == 0 && i > 0)
                 {
-                    if (columnRelative % 4 == 0 && i > 0)
-                    {
-                        columnRelative = 0;
-                        offset += (byte)Consts.ROW_JUMP_GRID;
-                    }
-                    byte gridIndexOffseted = (byte)((offset + columnRelative));
-
-                    if ((tetrominoMatrixRotated[i] > 0 && Matrix[gridIndexOffseted] > 0)
-                        // Checks if tetromino would be out off left & right boundaries of matrix
-                        || (offset % 10 == 8 || offset % 10 == 7)
-                        // Checks if tetromino would be out off left & right boundaries of matrix
-                        // but applies for I type tetromino
-                        || (tetrominoCurrent.GetType_ == (byte)Consts.TetrominoType.I_type && offset % 10 == 9))
-                    {
-                        return false;
-                    }
-                    columnRelative++;
+                    columnRelative = 0;
+                    offset += (byte)Consts.ROW_JUMP_GRID;
                 }
+                var gridIndexOffseted = (byte)(offset + columnRelative);
+
+                if ((tetrominoMatrixRotated[i] > 0 && Matrix[gridIndexOffseted] > 0)
+                    // Checks if tetromino would be out off left & right boundaries of matrix
+                    || (offset % 10 == 8 || offset % 10 == 7)
+                    // Checks if tetromino would be out off left & right boundaries of matrix
+                    // but applies for I type tetromino
+                    || (_tetrominoCurrent.GetType_ == (byte)Tetromino.Type.I && offset % 10 == 9))
+                    return false;
+                columnRelative++;
             }
             return true;
         }
@@ -355,9 +371,9 @@ namespace Tetris
         /// <returns></returns>
         private bool TetrominoIsAtBottom()
         {
-            if (tetrominoCurrent.GetType_ == (byte)Consts.TetrominoType.I_type)
-                return CurrentRow == Consts.LAST_ROW - tetrominoCurrent.ComputeNrOfBottomPaddingRows() + 1;
-            return CurrentRow == Consts.LAST_ROW - tetrominoCurrent.ComputeNrOfBottomPaddingRows();
+            if (_tetrominoCurrent.GetType_ == (byte)Tetromino.Type.I)
+                return CurrentRow == Consts.LAST_ROW - _tetrominoCurrent.ComputeNrOfBottomPaddingRows() + 1;
+            return CurrentRow == Consts.LAST_ROW - _tetrominoCurrent.ComputeNrOfBottomPaddingRows();
         }
 
         /// <summary>
@@ -365,12 +381,12 @@ namespace Tetris
         /// </summary>
         private void RoundEnded()
         {
-            if (RoundEndedFlag)
-            {
-                music.GameOver();
-                music.DisposeMusic(case_: 3);
-                SkipLogicMain = true;
-            }
+            if (!RoundEndedFlag)
+                return;
+
+            _music.GameOver();
+            _music.DisposeMusic(music: Music.Type.MainMusic);
+            SkipLogicMain = true;
         }
 
         /// <summary>
@@ -381,14 +397,14 @@ namespace Tetris
         public void MoveRight_UserEvent(bool canMoveRight, bool desiredRight)
         {
             // Make sure that tetromino does not move out of right boundary of matrix.
-            for (int i = 0; i < toBeRemoved.Count; i++)
-                if (toBeRemoved[i] % Consts.ROW_JUMP_GRID == 9) return;
+            if (_toBeRemoved.Any(item => item % Consts.ROW_JUMP_GRID == 9))
+                return;
 
-            if (canMoveRight && desiredRight)
-            {
-                tetrominoCurrent.MoveRight();
-                music.MoveToSides();
-            }
+            if (!canMoveRight || !desiredRight)
+                return;
+
+            _tetrominoCurrent.MoveRight();
+            _music.MoveToSides();
         }
 
         /// <summary>
@@ -399,15 +415,14 @@ namespace Tetris
         public void MoveLeft_UserEvent(bool canMoveLeft, bool desiredLeft)
         {
             // Make sure that tetromino does not move out of left boundary of matrix.
-            for (int i = 0; i < toBeRemoved.Count; i++)
-                if (toBeRemoved[i] % Consts.ROW_JUMP_GRID == 0)
-                    return;
+            if (_toBeRemoved.Any(t => t % Consts.ROW_JUMP_GRID == 0))
+                return;
 
-            if (canMoveLeft && desiredLeft)
-            {
-                tetrominoCurrent.MoveLeft();
-                music.MoveToSides();
-            }
+            if (!canMoveLeft || !desiredLeft)
+                return;
+
+            _tetrominoCurrent.MoveLeft();
+            _music.MoveToSides();
         }
 
         /// <summary>
@@ -417,9 +432,10 @@ namespace Tetris
         /// <param name="activate"></param>
         private void MoveDownFaster_UserEvent(bool activate)
         {
-            if (!activate) return;
+            if (!activate)
+                return;
 
-            timer = Consts.movementTicksBasedOnLevel[CurrentLevel];
+            Timer = LEVEL_SPEED_LIMITS[CurrentLevel];
             MoveDownFast = false;
         }
 
@@ -430,11 +446,11 @@ namespace Tetris
         /// <param name="desiredRotationLeft">Holds bool whether player requested rotation to left.</param>
         public void RotateLeft_UserEvent(bool canRotateLeft, bool desiredRotationLeft)
         {
-            if (canRotateLeft && desiredRotationLeft)
-            {
-                tetrominoCurrent.RotateLeft();
-                music.Rotate();
-            }
+            if (!canRotateLeft || !desiredRotationLeft) 
+                return;
+
+            _tetrominoCurrent.RotateLeft();
+            _music.Rotate();
         }
 
         /// <summary>
@@ -444,11 +460,11 @@ namespace Tetris
         /// <param name="desiredRotationRight">Holds bool whether player requested rotation to right.</param>
         public void RotateRight_UserEvent(bool canRotateRight, bool desiredRotationRight)
         {
-            if (canRotateRight && desiredRotationRight)
-            {
-                tetrominoCurrent.RotateRight();
-                music.Rotate();
-            }
+            if (!canRotateRight || !desiredRotationRight)
+                return;
+
+            _tetrominoCurrent.RotateRight();
+            _music.Rotate();
         }
 
         /// <summary>
@@ -457,28 +473,28 @@ namespace Tetris
         private void DefaultTetrominoMovement()
         {
             // Execute only if timer is equal or greater than limit specified for each level.
-            if (timer >= Consts.movementTicksBasedOnLevel[CurrentLevel])
+            if (Timer < LEVEL_SPEED_LIMITS[CurrentLevel])
+                return;
+
+            // If tetrominoCurrent has obstacle at next row or is at bottom of grid,
+            // leave tetrominoCurrent on current row and chose next tetrominoCurrent.
+            if (TetrominoHasObstacleAtNextRow() || TetrominoIsAtBottom())
             {
-                // If tetrominoCurrent has obstacle at next row or is at bottom of grid,
-                // leave tetrominoCurrent on current row and chose next tetrominoCurrent.
-                if (TetrominoHasObstacleAtNextRow() || TetrominoIsAtBottom())
-                {
-                    if (CurrentRow == 0) RoundEndedFlag = true;
-                    sendNextPiece = true;
-                    CurrentRow = 0;
-                    toBeRemoved.Clear();
-                    music.Obstacle();
-                    //music.DisposeMusic(case_: 1);
-                }
-                // Move tetrominoCurrent down by one row.
-                else
-                {
-                    tetrominoCurrent.MoveDown(rowJumpGrid: Consts.ROW_JUMP_GRID);
-                    CurrentRow++;
-                    putTetrominoOnGrid = true;
-                }
-                timer = 0;
+                if (CurrentRow == 0) RoundEndedFlag = true;
+                _sendNextPiece = true;
+                CurrentRow = 0;
+                _toBeRemoved.Clear();
+                _music.Obstacle();
+                //music.DisposeMusic(case_: 1);
             }
+            // Move tetrominoCurrent down by one row.
+            else
+            {
+                _tetrominoCurrent.MoveDown(rowJumpGrid: Consts.ROW_JUMP_GRID);
+                CurrentRow++;
+                _putTetrominoOnGrid = true;
+            }
+            Timer = 0;
         }
 
         /// <summary>
@@ -495,35 +511,31 @@ namespace Tetris
 
             // Loops through the upper part of main matrix and checks how many indexes are filled
             // with non zero values (tetrominos are present).
-            for (byte i = 0; i < matrix.Count; i++)
+            for (byte i = 0; i < Matrix.Count; i++)
             {
                 //Todo: Check why is this block here.
-                if (toBeRemoved.Contains(i))
+                if (_toBeRemoved.Contains(i))
                     continue;
 
-                if (i <= Consts.FAST_MUSIC_INDEX && matrix[i] == 0 && !MusicSlowIsPlaying)
+                switch (i <= Consts.FAST_MUSIC_INDEX)
                 {
-                    checkEmptySpaces++;
-                    continue;
-
+                    case true when Matrix[i] == 0 && !MusicSlowIsPlaying:
+                        checkEmptySpaces++;
+                        continue;
+                    case true when Matrix[i] > 0 && !_musicFastIsPlaying:
+                        _music.MainMusic(playSlowMusic: false);
+                        _musicFastIsPlaying = true;
+                        MusicSlowIsPlaying = false;
+                        return;
                 }
-                else if (i <= Consts.FAST_MUSIC_INDEX && matrix[i] > 0 && !musicFastIsPlaying)
-                {
-                    //music.MainMusicFast();
-                    music.MainMusic(playSlowMusic: false);
-                    musicFastIsPlaying = true;
-                    MusicSlowIsPlaying = false;
-                    return;
-                }
+            }
 
-            }
-            if (checkEmptySpaces > Consts.FAST_MUSIC_INDEX)
-            {
-                //music.MainMusicSlow();
-                music.MainMusic();
-                MusicSlowIsPlaying = true;
-                musicFastIsPlaying = false;
-            }
+            if (checkEmptySpaces <= Consts.FAST_MUSIC_INDEX)
+                return;
+
+            _music.MainMusic();
+            MusicSlowIsPlaying = true;
+            _musicFastIsPlaying = false;
         }
 
         /// <summary>
@@ -531,33 +543,33 @@ namespace Tetris
         /// </summary>
         public void ChoseNextTetromino()
         {
-            if (sendNextPiece)
-            {
-                // If no tetromino was chosen yet (game has just started), chose one based on number 99.
-                // Otherwise chose a tetromino which was determined in previous round.
-                if (tetrominoNextIndex == 99)
-                    tetrominoCurrent = Tetromino.TETROMINOS[random.Next(
-                        Consts.MIN_NR_OF_TETROMINOS, 
-                        Consts.MAX_NR_OF_TETROMINOS
-                        )];
-                else
-                    tetrominoCurrent = Tetromino.TETROMINOS[tetrominoNextIndex];
+            if (!_sendNextPiece) 
+                return;
 
-                // Adjust starting position of tetrominoCurrent based on its type, on playing grid.
-                if (tetrominoCurrent.GetType_ == (byte)Consts.TetrominoType.I_type)
-                    tetrominoCurrent.Offset = 3;
-                else
-                    tetrominoCurrent.Offset = 3 + Consts.ROW_JUMP_GRID;
+            // If no tetromino was chosen yet (game has just started), chose one based on number 99.
+            // Otherwise chose a tetromino which was determined in previous round.
+            if (_tetrominoNextIndex == 99)
+                _tetrominoCurrent = Tetromino.TETROMINOS[_random.Next(
+                    Consts.MIN_NR_OF_TETROMINOS, 
+                    Consts.MAX_NR_OF_TETROMINOS
+                )];
+            else
+                _tetrominoCurrent = Tetromino.TETROMINOS[_tetrominoNextIndex];
 
-                // This will reset the tetrominoCurrent to its base rotation. Without this,
-                // new tetromino which would start at top of grid would have the same rotation as the previous one.
-                tetrominoCurrent.Indexes = tetrominoCurrent.BaseRotation;
-                tetrominoCurrent.CurrentRotation = 0;
+            // Adjust starting position of tetrominoCurrent based on its type, on playing grid.
+            if (_tetrominoCurrent.GetType_ == (byte)Tetromino.Type.I)
+                _tetrominoCurrent.Offset = 3;
+            else
+                _tetrominoCurrent.Offset = 3 + Consts.ROW_JUMP_GRID;
 
-                sendNextPiece = false;
-                tetrominoNextIndex = (byte)random.Next(Consts.MIN_NR_OF_TETROMINOS, Consts.MAX_NR_OF_TETROMINOS);
-                Array.Copy(Tetromino.TETROMINOS[tetrominoNextIndex].BaseRotation, TetrominoNext, TetrominoNext.Length);
-            }
+            // This will reset the tetrominoCurrent to its base rotation. Without this,
+            // new tetromino which would start at top of grid would have the same rotation as the previous one.
+            _tetrominoCurrent.Indexes = _tetrominoCurrent.BaseRotation;
+            _tetrominoCurrent.CurrentRotation = 0;
+
+            _sendNextPiece = false;
+            _tetrominoNextIndex = (byte)_random.Next(Consts.MIN_NR_OF_TETROMINOS, Consts.MAX_NR_OF_TETROMINOS);
+            Array.Copy(Tetromino.TETROMINOS[_tetrominoNextIndex].BaseRotation, TetrominoNext, TetrominoNext.Length);
         }
 
         /// <summary>
@@ -571,42 +583,42 @@ namespace Tetris
                 Array.Copy(
                     sourceArray: Matrix.ToArray(),
                     sourceIndex: i * 10,
-                    destinationArray: rows,
+                    destinationArray: _rows,
                     destinationIndex: 0,
                     length: 10);
-                if (rows.All(x => x > 0)) indexesOfCompletedRows.Add(i);
+                if (_rows.All(x => x > 0)) _indexesOfCompletedRows.Add(i);
             }
 
             // Skip the rest of the code if no row were completed.
-            if (indexesOfCompletedRows.Count == 0) return;
+            if (_indexesOfCompletedRows.Count == 0) return;
 
             // Remove completed rows and insert new empty rows at the top of matrix.
-            foreach (byte row in indexesOfCompletedRows)
+            foreach (byte row in _indexesOfCompletedRows)
             {
                 Matrix.RemoveRange(index: row * 10, count: 10);
                 Matrix.InsertRange(index: 0, collection: new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             }
 
-            ComputeScore((byte)indexesOfCompletedRows.Count);
+            ComputeScore((byte)_indexesOfCompletedRows.Count);
 
             // Play music according to number of cleared lines.
-            if (indexesOfCompletedRows.Count > 0
-                && indexesOfCompletedRows.Count <= 3)
-                music.LineCleared();
+            if (_indexesOfCompletedRows.Count > 0
+                && _indexesOfCompletedRows.Count <= 3)
+                _music.LineCleared();
 
-            else if (indexesOfCompletedRows.Count == 4)
-                music.Tetris();
+            else if (_indexesOfCompletedRows.Count == 4)
+                _music.Tetris();
 
             // This sleep should be replaced by some animation when lines are cleared.
             System.Threading.Thread.Sleep(450);
 
             // Add numbers to statistic
-            linesNextLevel += (byte)indexesOfCompletedRows.Count;
-            TotalNumberOfClearedLines += (byte)indexesOfCompletedRows.Count;
+            _linesNextLevel += (byte)_indexesOfCompletedRows.Count;
+            TotalNumberOfClearedLines += (byte)_indexesOfCompletedRows.Count;
 
             // Clear resources.
-            Array.Clear(rows, 0, rows.Length);
-            indexesOfCompletedRows.Clear();
+            Array.Clear(_rows, 0, _rows.Length);
+            _indexesOfCompletedRows.Clear();
         }
 
         /// <summary>
@@ -614,11 +626,12 @@ namespace Tetris
         /// </summary>
         private void CheckIfContinueToNextLevel()
         {
-            if (!(linesNextLevel >= 10)) return;
+            if (!(_linesNextLevel >= 10))
+                return;
 
-            linesNextLevel = 0;
-            currentLevel++;
-            music.NextLevel();
+            _linesNextLevel = 0;
+            CurrentLevel++;
+            _music.NextLevel();
         }
 
         /// <summary>
@@ -627,12 +640,24 @@ namespace Tetris
         /// <param name="numberOfFinishedRows"></param>
         private void ComputeScore(byte numberOfFinishedRows)
         {
-            if (numberOfFinishedRows == 0) return;
-            // This math formula is taken from original Tetris game.
-            else if (numberOfFinishedRows == 1) ScoreIncrementor += (Consts.SCORE_ONE_LINE * (CurrentLevel + 1));
-            else if (numberOfFinishedRows == 2) ScoreIncrementor += (Consts.SCORE_TWO_LINES * (CurrentLevel + 1));
-            else if (numberOfFinishedRows == 3) ScoreIncrementor += (Consts.SCORE_THREE_LINES * (CurrentLevel + 1));
-            else if (numberOfFinishedRows == 4) ScoreIncrementor += (Consts.SCORE_FOUR_LINES * (CurrentLevel + 1));
+            switch (numberOfFinishedRows)
+            {
+                case 0:
+                    return;
+                // This math formula is taken from original Tetris game.
+                case 1:
+                    ScoreIncrementor += (Consts.SCORE_ONE_LINE * (CurrentLevel + 1));
+                    break;
+                case 2:
+                    ScoreIncrementor += (Consts.SCORE_TWO_LINES * (CurrentLevel + 1));
+                    break;
+                case 3:
+                    ScoreIncrementor += (Consts.SCORE_THREE_LINES * (CurrentLevel + 1));
+                    break;
+                case 4:
+                    ScoreIncrementor += (Consts.SCORE_FOUR_LINES * (CurrentLevel + 1));
+                    break;
+            }
         }
 
         /// <summary>
@@ -642,12 +667,12 @@ namespace Tetris
         {
             MoveRight = false;
             MoveLeft = false;
-            canMoveLeft = false;
-            canMoveRight = false;
+            _canMoveLeft = false;
+            _canMoveRight = false;
             RotateRight = false;
             RotateLeft = false;
-            canRotateLeft = false;
-            canRotateRight = false;
+            _canRotateLeft = false;
+            _canRotateRight = false;
         }
 
         /// <summary>
@@ -656,10 +681,10 @@ namespace Tetris
         /// </summary>
         private void SetCollisionFlags()
         {
-            canMoveRight = TetrominaHasNotObstacleAtNextColumn(checkRightside: true);
-            canMoveLeft = TetrominaHasNotObstacleAtNextColumn(checkRightside: false);
-            canRotateRight = TetrominaHasNotObstacleAtNextRotation(checkRightRotation: true, offset: tetrominoCurrent.Offset);
-            canRotateLeft = TetrominaHasNotObstacleAtNextRotation(checkRightRotation: false, offset: tetrominoCurrent.Offset);
+            _canMoveRight = TetrominoHasNotObstacleAtNextColumn(checkRightside: true);
+            _canMoveLeft = TetrominoHasNotObstacleAtNextColumn(checkRightside: false);
+            _canRotateRight = TetrominoHasNotObstacleAtNextRotation(checkRightRotation: true, offset: _tetrominoCurrent.Offset);
+            _canRotateLeft = TetrominoHasNotObstacleAtNextRotation(checkRightRotation: false, offset: _tetrominoCurrent.Offset);
         }
 
         // Todo: Check if this method is needed. It might be possible to reinitialise the class instead.
@@ -668,32 +693,28 @@ namespace Tetris
         /// </summary>
         public void ResetAllFields()
         {
-            matrix = new List<byte>();
-            for (int i = 0; i < Consts.WIDTH_OF_GRID * Consts.HEIGHT_OF_GRID; i++) Matrix.Add(0);
-            moveRight = false;
-            moveLeft = false;
-            rotateRight = false;
-            rotateLeft = false;
-            moveDownFast = false;
-            canMoveRight = false;
-            canMoveLeft = false;
-            canRotateRight = false;
-            canRotateLeft = false;
-            sendNextPiece = true;
-            putTetrominoOnGrid = true;
-            roundEnded = false;
+            Matrix.Clear();
+            for (var i = 0; i < Consts.GRID; i++)
+                Matrix.Add(0);
+            MoveRight = false;
+            MoveLeft = false;
+            RotateRight = false;
+            RotateLeft = false;
+            MoveDownFast = false;
+            _canMoveRight = false;
+            _canMoveLeft = false;
+            _canRotateRight = false;
+            _canRotateLeft = false;
+            _sendNextPiece = true;
+            _putTetrominoOnGrid = true;
             RoundEndedFlag = false;
-            musicFastIsPlaying = false;
-            musicSlowIsPlaying = true;
-            tetrominoNextIndex = 99;
-            currentLevel = 0;
-            totalNumberOfClearedLines = 0;
-            timer = 0;
+            _musicFastIsPlaying = false;
+            _tetrominoNextIndex = 99;
+            Timer = 0;
             CurrentRow = 0;
-            scoreIncrementor = 0;
-            linesNextLevel = 0;
+            ScoreIncrementor = 0;
+            _linesNextLevel = 0;
             SkipLogicMain = false;
-            playMusic = false;
         }
 
         /// <summary>
@@ -706,26 +727,27 @@ namespace Tetris
             // Todo: I was able to rotate a tetromino out of matrix boundaries. Happend with I type and T type, meaning bbly all are fucked.
             // Todo; It was possible to rotate out of bottom with T type.
 
-            if (SkipLogicMain) return;
-            music.DisposeMusic(case_: 1);
+            if (SkipLogicMain)
+                return;
+
+            _music.DisposeMusic(music: Music.Type.Movement);
             PlayMusicAccordingToFilledGrid();
             RoundEnded();
             SetCollisionFlags();
-            RotateRight_UserEvent(canRotateRight, RotateRight);
-            RotateLeft_UserEvent(canRotateLeft, RotateLeft);
-            MoveRight_UserEvent(canMoveRight, MoveRight);
-            MoveLeft_UserEvent(canMoveLeft, MoveLeft);
+            RotateRight_UserEvent(_canRotateRight, RotateRight);
+            RotateLeft_UserEvent(_canRotateLeft, RotateLeft);
+            MoveRight_UserEvent(_canMoveRight, MoveRight);
+            MoveLeft_UserEvent(_canMoveLeft, MoveLeft);
             MoveDownFaster_UserEvent(activate: MoveDownFast);
-            toBeRemoved.Clear();
+            _toBeRemoved.Clear();
             ChoseNextTetromino();
-            PutTetrominoOnGrid(this.tetrominoCurrent.Indexes, tetrominoCurrent.Offset, putTetrominoOnGrid);
+            PutTetrominoOnGrid(this._tetrominoCurrent.Indexes, _tetrominoCurrent.Offset, _putTetrominoOnGrid);
             DefaultTetrominoMovement();
             redraw(Matrix);
             RemoveTetrominoFromGrid();
             RemoveCompleteRows();
             CheckIfContinueToNextLevel();
             SetTetrominoFlagsToFalse();
-            
         }
     }
 }

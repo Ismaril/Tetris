@@ -2,6 +2,11 @@
 {
     partial class Form1
     {
+
+        // Application window size
+        public const int WIDTH_OF_APPLICATION_WINDOW = 1920;
+        public const int HEIGHT_OF_APPLICATION_WINDOW = 1080;
+
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -32,7 +37,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(Consts.WIDTH_OF_APPLICATION_WINDOW, Consts.HEIGHT_OF_APPLICATION_WINDOW);
+            this.ClientSize = new System.Drawing.Size(WIDTH_OF_APPLICATION_WINDOW, HEIGHT_OF_APPLICATION_WINDOW);
             this.Name = "Tetris";
             this.Text = "Tetris";
             this.BackColor = (System.Drawing.Color)Consts.COLOR_BLACK;

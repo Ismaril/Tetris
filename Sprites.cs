@@ -6,6 +6,48 @@ namespace Tetris
     public class Sprites
     {
         // ------------------------------------------------------------------------------------------------
+        // CONSTANTS
+
+        public static readonly string SPRITES_PATH = @"../../Sprites/";
+        public const string WALLPAPER_INITIAL_SCREEN = @"..\..\Sprites\hrad1_adjusted_tetris.png";
+        public static readonly Image GRID_COLOR = Image.FromFile(SPRITES_PATH + "grid.png");
+        public static readonly Image OFFGRID_COLOR = Image.FromFile(SPRITES_PATH + "offgrid.png");
+
+        private readonly Image BLUE_WHITE = Image.FromFile(SPRITES_PATH + "blue_white.png");
+        private readonly Image BLUE = Image.FromFile(SPRITES_PATH + "blue.png");
+        private readonly Image TURQUOISE = Image.FromFile(SPRITES_PATH + "turquoise.png");
+        private readonly Image TURQUOISE_WHITE_BLUE = Image.FromFile(SPRITES_PATH + "turquoise_white_blue.png");
+        private readonly Image DARK_GREEN_WHITE = Image.FromFile(SPRITES_PATH + "dark_green_white.png");
+        private readonly Image DARK_GREEN = Image.FromFile(SPRITES_PATH + "dark_green.png");
+        private readonly Image LIGHT_GREEN = Image.FromFile(SPRITES_PATH + "light_green.png");
+        private readonly Image LIGHT_GREEN_WHITE_DARK_GREEN = Image.FromFile(SPRITES_PATH + "light_green_white_dark_green.png");
+        private readonly Image PURPLE_WHITE = Image.FromFile(SPRITES_PATH + "purple_white.png");
+        private readonly Image PURPLE = Image.FromFile(SPRITES_PATH + "purple.png");
+        private readonly Image PINK = Image.FromFile(SPRITES_PATH + "pink.png");
+        private readonly Image PINK_WHITE_PURPLE = Image.FromFile(SPRITES_PATH + "pink_white_purple.png");
+        private readonly Image GREEN = Image.FromFile(SPRITES_PATH + "green.png");
+        private readonly Image GREEN_WHITE_BLUE = Image.FromFile(SPRITES_PATH + "green_white_blue.png");
+        private readonly Image PASTEL_RED_WHITE = Image.FromFile(SPRITES_PATH + "pastel_red_white.png");
+        private readonly Image PASTEL_RED = Image.FromFile(SPRITES_PATH + "pastel_red.png");
+        private readonly Image PASTEL_GREEN = Image.FromFile(SPRITES_PATH + "pastel_green.png");
+        private readonly Image PASTEL_GREEN_WHITE_PASTEL_RED = Image.FromFile(SPRITES_PATH + "pastel_green_white_pastel_red.png");
+        private readonly Image PASTEL_GREEN_WHITE = Image.FromFile(SPRITES_PATH + "pastel_green_white.png");
+        private readonly Image LIGHT_BLUE = Image.FromFile(SPRITES_PATH + "light_blue.png");
+        private readonly Image LIGHT_BLUE_WHITE_PASTEL_GREEN = Image.FromFile(SPRITES_PATH + "light_blue_white_pastel_green.png");
+        private readonly Image RED_WHITE = Image.FromFile(SPRITES_PATH + "red_white.png");
+        private readonly Image RED = Image.FromFile(SPRITES_PATH + "red.png");
+        private readonly Image GRAY = Image.FromFile(SPRITES_PATH + "gray.png");
+        private readonly Image GRAY_WHITE_RED = Image.FromFile(SPRITES_PATH + "gray_white_red.png");
+        private readonly Image PURPLE_BLUE_WHITE = Image.FromFile(SPRITES_PATH + "purple_blue_white.png");
+        private readonly Image PURPLE_BLUE = Image.FromFile(SPRITES_PATH + "purple_blue.png");
+        private readonly Image DARK_RED = Image.FromFile(SPRITES_PATH + "dark_red.png");
+        private readonly Image DARK_RED_WHITE_PURPLE_BLUE = Image.FromFile(SPRITES_PATH + "dark_red_white_purple_blue.png");
+        private readonly Image RED_WHITE_BLUE = Image.FromFile(SPRITES_PATH + "red_white_blue.png");
+        private readonly Image ORANGE = Image.FromFile(SPRITES_PATH + "orange.png");
+        private readonly Image ORANGE_WHITE_RED = Image.FromFile(SPRITES_PATH + "orange_white_red.png");
+
+
+        // ------------------------------------------------------------------------------------------------
         // PROPERTIES
 
         /// <summary>
@@ -13,97 +55,97 @@ namespace Tetris
         /// Sublists are called based on which level is current player on. Based on that, 
         /// the color of tetromino blocks change.
         /// </summary>
-        public List<List<Image>> TetrominoSpriteCollection { get; } = new List<List<Image>>();
+        public List<List<Image>> TetrominoBlocks { get; } = new List<List<Image>>();
 
 
         // ------------------------------------------------------------------------------------------------
         // CONSTRUCTOR
 
         /// <summary>
-        /// During initialisation of this constructor, a list of lists of images is created.
+        /// During initialization of this constructor, a list of lists of images is created.
         /// Constructor without parameters.
         /// </summary>
         public Sprites()
         {
             // Create a list of lists of images
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.BLUE_WHITE,
-                Consts.BLUE,
-                Consts.TURQUOISE,
-                Consts.TURQUOISE_WHITE_BLUE
+                BLUE_WHITE,
+                BLUE,
+                TURQUOISE,
+                TURQUOISE_WHITE_BLUE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.DARK_GREEN_WHITE,
-                Consts.DARK_GREEN,
-                Consts.LIGHT_GREEN,
-                Consts.LIGHT_GREEN_WHITE_DARK_GREEN
+                DARK_GREEN_WHITE,
+                DARK_GREEN,
+                LIGHT_GREEN,
+                LIGHT_GREEN_WHITE_DARK_GREEN
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.PURPLE_WHITE,
-                Consts.PURPLE,
-                Consts.PINK,
-                Consts.PINK_WHITE_PURPLE
+                PURPLE_WHITE,
+                PURPLE,
+                PINK,
+                PINK_WHITE_PURPLE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.BLUE_WHITE,
-                Consts.BLUE,
-                Consts.GREEN,
-                Consts.GREEN_WHITE_BLUE
+                BLUE_WHITE,
+                BLUE,
+                GREEN,
+                GREEN_WHITE_BLUE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.PASTEL_RED_WHITE,
-                Consts.PASTEL_RED,
-                Consts.PASTEL_GREEN,
-                Consts.PASTEL_GREEN_WHITE_PASTEL_RED
+                PASTEL_RED_WHITE,
+                PASTEL_RED,
+                PASTEL_GREEN,
+                PASTEL_GREEN_WHITE_PASTEL_RED
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.PASTEL_GREEN_WHITE,
-                Consts.PASTEL_GREEN,
-                Consts.LIGHT_BLUE,
-                Consts.LIGHT_BLUE_WHITE_PASTEL_GREEN
+                PASTEL_GREEN_WHITE,
+                PASTEL_GREEN,
+                LIGHT_BLUE,
+                LIGHT_BLUE_WHITE_PASTEL_GREEN
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.RED_WHITE,
-                Consts.RED,
-                Consts.GRAY,
-                Consts.GRAY_WHITE_RED
+                RED_WHITE,
+                RED,
+                GRAY,
+                GRAY_WHITE_RED
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.PURPLE_BLUE_WHITE,
-                Consts.PURPLE_BLUE,
-                Consts.DARK_RED,
-                Consts.DARK_RED_WHITE_PURPLE_BLUE
+                PURPLE_BLUE_WHITE,
+                PURPLE_BLUE,
+                DARK_RED,
+                DARK_RED_WHITE_PURPLE_BLUE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.BLUE_WHITE,
-                Consts.BLUE,
-                Consts.RED,
-                Consts.RED_WHITE_BLUE
+                BLUE_WHITE,
+                BLUE,
+                RED,
+                RED_WHITE_BLUE
             });
 
-            TetrominoSpriteCollection.Add(new List<Image>
+            TetrominoBlocks.Add(new List<Image>
             {
-                Consts.RED_WHITE,
-                Consts.RED,
-                Consts.ORANGE,
-                Consts.ORANGE_WHITE_RED
+                RED_WHITE,
+                RED,
+                ORANGE,
+                ORANGE_WHITE_RED
             });
         }
     }
