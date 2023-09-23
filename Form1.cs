@@ -1,7 +1,5 @@
-﻿using NAudio.Wave;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -14,15 +12,11 @@ namespace Tetris
         // ------------------------------------------------------------------------------------------------
         // CONSTANTS
 
-        // Tick after how many milliseconds should the graphics update
-        private const int GUI_TICK = 16;
-
         // Picture box size and location (main game grid)
         private const byte PICTURE_BOX_SIZE = 40;
         private const byte PICTURE_BOX_LOCATION = PICTURE_BOX_SIZE + (PICTURE_BOX_SIZE / 10);
 
-
-        // Statistics label boxes size and location and text
+        // Statistics label boxes size and location
         private const int WIDTH_OF_STATISTICS_LABEL_BOX = 400;
         private const int HEIGHT_OF_STATISTICS_LABEL_BOX = 150;
         private const int X_STATISTICS_LABEL_BOX = 1228;
@@ -60,15 +54,21 @@ namespace Tetris
         private const string TEXT_PICTUREBOX = "pictureBox";
         private const string TEXT_PICTUREBOX_INITIAL_SCREEN = "pictureBoxInitialScreen";
 
+        // Limits
+        public const int MINIMUM_HIGH_SCORE_LIMIT = 10_000;
+        public const byte INITIAL_SCRREN_VISIBILITY_LIMIT = 100;
+
+
         // ------------------------------------------------------------------------------------------------
         // FIELDS
+        private PictureBox _pictureBox;
+        private List<(string, int, int)> _scoresList = new List<(string, int, int)>();
+        
         private readonly Logic _logic;
         private readonly Music _music = new Music();
         private readonly Timer _timer = new Timer();
-        private PictureBox _pictureBox;
         private readonly Sprites _sprites = new Sprites();
         private readonly List<Keys> _pressedKeys = new List<Keys>();
-        private List<(string, int, int)> _scoresList = new List<(string, int, int)>();
         private readonly Dictionary<int, (string, int, int)> _scores = new Dictionary<int, (string, int, int)>();
 
         private Label _labelBox;
@@ -87,7 +87,7 @@ namespace Tetris
         private string _nameAdjusted = "";
         private readonly string[] _names = { TEXT_BLANK_SPACE, TEXT_BLANK_SPACE, TEXT_BLANK_SPACE };
 
-        private byte _shitak;
+        private byte _endGameAnimationCounter;
         private byte _scoreScreenLabelboxIndex = 1;
         private byte _counterInitialScreen;
         private sbyte _levelSettingInitial;
@@ -101,7 +101,7 @@ namespace Tetris
 
         private bool _playMusic = true;
         private bool _scoreScreenVisible;
-        private bool _moveDownalreadypressed;
+        private bool _moveDownAlreadyPressed;
         private bool _alreadyPressedRotate;
         private bool _alreadyPressed;
         private bool _rotateRight;
@@ -185,8 +185,8 @@ namespace Tetris
 
                 // Disable the "fast movement down" of tetromino when next tetromino 
                 // appears on the screen???
-                if (_logic.CurrentRow < 1) _moveDownalreadypressed = true;
-                else if (_keyTimer % 2 == 0) _moveDownalreadypressed = false;
+                if (_logic.CurrentRow < 1) _moveDownAlreadyPressed = true;
+                else if (_keyTimer % 2 == 0) _moveDownAlreadyPressed = false;
 
                 if (_keyTimer % 5 == 0)
                 {
@@ -207,10 +207,10 @@ namespace Tetris
                     _keyTimer = 0;
                 }
 
-                if (_pressedKeys.Contains(Keys.Down) && !_moveDownalreadypressed)
+                if (_pressedKeys.Contains(Keys.Down) && !_moveDownAlreadyPressed)
                 {
                     _logic.MoveDownFast = true;
-                    _moveDownalreadypressed = true;
+                    _moveDownAlreadyPressed = true;
                 }
 
                 if (_rotateLeft && !_alreadyPressedRotate)
@@ -232,7 +232,7 @@ namespace Tetris
             // Score screen (Results of players high scores)
             else if (
                 _logic.RoundEndedFlag
-                && _logic.ScoreIncrementor >= Consts.MINIMUM_HIGH_SCORE_LIMIT
+                && _logic.PlayersScore >= MINIMUM_HIGH_SCORE_LIMIT
                 && _scoreScreenVisible
                 )
             {
@@ -381,7 +381,7 @@ namespace Tetris
                     if (_logic.RoundEndedFlag)
                     {
                         _logic.ResetAllFields();
-                        _shitak = 0;
+                        _endGameAnimationCounter = 0;
                     }
 
                     Controls.Clear();
@@ -395,21 +395,21 @@ namespace Tetris
             }
 
             // Score screen
-            else if (_logic.RoundEndedFlag && e.KeyCode == Keys.Enter && _logic.ScoreIncrementor >= 10_000)
+            else if (_logic.RoundEndedFlag && e.KeyCode == Keys.Enter && _logic.PlayersScore >= MINIMUM_HIGH_SCORE_LIMIT)
             {
-                if (_logic.ScoreIncrementor > _highScore)
+                if (_logic.PlayersScore > _highScore)
                 {
-                    _highScore = _logic.ScoreIncrementor;
+                    _highScore = _logic.PlayersScore;
                 }
-                _scores[_logic.ScoreIncrementor] = (
+                _scores[_logic.PlayersScore] = (
                     TEXT_BLANK_SPACE,
-                    _logic.ScoreIncrementor,
+                    _logic.PlayersScore,
                     _logic.CurrentLevel
                     );
                 _scoresList = _scores.Values.ToList();
                 _scoresList.Sort((x, y) => y.Item2.CompareTo(x.Item2));
 
-                if (_logic.ScoreIncrementor >= _scoresList[0].Item2)
+                if (_logic.PlayersScore >= _scoresList[0].Item2)
                 {
                     _scoreScreenLabelboxIndex = 1;
                     _names[2] = _names[1];
@@ -417,13 +417,13 @@ namespace Tetris
                     _names[0] = TEXT_BLANK_SPACE;
 
                 }
-                if (_logic.ScoreIncrementor < _scoresList[0].Item2)
+                if (_logic.PlayersScore < _scoresList[0].Item2)
                 {
                     _scoreScreenLabelboxIndex = 2;
                 }
                 try
                 {
-                    if (_logic.ScoreIncrementor < _scoresList[1].Item2)
+                    if (_logic.PlayersScore < _scoresList[1].Item2)
                     {
                         _scoreScreenLabelboxIndex = 3;
                     }
@@ -438,7 +438,7 @@ namespace Tetris
 
             // Reset cooresponding objects and return to settings screen because game ended and player
             // has not reached high score.
-            else if (_logic.RoundEndedFlag && e.KeyCode == Keys.Enter && _logic.ScoreIncrementor < 10_000)
+            else if (_logic.RoundEndedFlag && e.KeyCode == Keys.Enter && _logic.PlayersScore < 10_000)
             {
                 ResetObjects();
                 _settingsScreenDisplayed = false;
@@ -487,19 +487,19 @@ namespace Tetris
             // Redraw "next tetromino" matrix
             for (var i = 0; i < 16; i++)
             {
-                Controls[Consts.GRID + i].BackgroundImage = Sprites.OFFGRID_COLOR;
+                Controls[Consts.GRID_SURFACE_AREA + i].BackgroundImage = Sprites.OFFGRID_COLOR;
                 switch (_logic.TetrominoNext[i])
                 {
                     case 1:
-                        Controls[Consts.GRID + i].BackgroundImage 
+                        Controls[Consts.GRID_SURFACE_AREA + i].BackgroundImage 
                             = _sprites.TetrominoBlocks[GetCurrentLevel()][COLOR0];
                         break;
                     case 2:
-                        Controls[Consts.GRID + i].BackgroundImage 
+                        Controls[Consts.GRID_SURFACE_AREA + i].BackgroundImage 
                             = _sprites.TetrominoBlocks[GetCurrentLevel()][COLOR1];
                         break;
                     case 3:
-                        Controls[Consts.GRID + i].BackgroundImage 
+                        Controls[Consts.GRID_SURFACE_AREA + i].BackgroundImage 
                             = _sprites.TetrominoBlocks[GetCurrentLevel()][COLOR2];
                         break;
                 }
@@ -526,14 +526,14 @@ namespace Tetris
         /// </summary>
         private void GameEndedAnimation()
         {
-            if (!_logic.SkipLogicMain || _shitak == 200) return;
+            if (!_logic.SkipLogicMain || _endGameAnimationCounter == 200) return;
 
             for (var i = 0; i < 10; i++)
             {
-                Controls[i + 20 + _shitak].BackgroundImage 
+                Controls[i + 20 + _endGameAnimationCounter].BackgroundImage 
                     = _sprites.TetrominoBlocks[GetCurrentLevel()][COLOR3];
             }
-            _shitak += 10;
+            _endGameAnimationCounter += 10;
         }
 
         /// <summary>
@@ -599,9 +599,9 @@ namespace Tetris
         {
             // Create 2D matrix at GUI which will be the main playboard.
             byte counter = 0;
-            for (var i = 0; i < Consts.HEIGHT_OF_GRID; i++)
+            for (var i = 0; i < Consts.MAIN_GRID_HEIGHT; i++)
             {
-                for (var j = 0; j < Consts.WIDTH_OF_GRID; j++)
+                for (var j = 0; j < Consts.MAIN_GRID_WIDTH; j++)
                 {
                     _pictureBox = new PictureBox();
                     ((ISupportInitialize)(_pictureBox)).BeginInit();
@@ -887,7 +887,7 @@ namespace Tetris
 
             Controls[TEXT_TEXTBOX + TEXT_SCORE].Text =
                 $"{TEXT_SCORE}" +
-                $"\n{_logic.ScoreIncrementor}";
+                $"\n{_logic.PlayersScore}";
 
             Controls[TEXT_TEXTBOX + TEXT_LEVEL].Text =
                 $"{TEXT_LEVEL}" +
@@ -900,7 +900,7 @@ namespace Tetris
 
         private void CheckIfDisposeInitialScreen()
         {
-            if (_counterInitialScreen > Consts.INITIAL_SCRREN_VISIBILITY_LIMIT)
+            if (_counterInitialScreen > INITIAL_SCRREN_VISIBILITY_LIMIT)
             {
                 _handledInitialScreen = true;
                 Controls[TEXT_PICTUREBOX_INITIAL_SCREEN].Dispose();

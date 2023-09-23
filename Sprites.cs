@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-
+// DONE
 namespace Tetris
 {
     public class Sprites
@@ -9,7 +9,7 @@ namespace Tetris
         // CONSTANTS
 
         public static readonly string SPRITES_PATH = @"../../Sprites/";
-        public const string WALLPAPER_INITIAL_SCREEN = @"..\..\Sprites\hrad1_adjusted_tetris.png";
+        public const string WALLPAPER_INITIAL_SCREEN = @"..\..\Sprites\Praha.png";
         public static readonly Image GRID_COLOR = Image.FromFile(SPRITES_PATH + "grid.png");
         public static readonly Image OFFGRID_COLOR = Image.FromFile(SPRITES_PATH + "offgrid.png");
 
@@ -51,8 +51,8 @@ namespace Tetris
         // PROPERTIES
 
         /// <summary>
-        /// Collection of lists. Each sublist contains 4 different images of a tetromino single block. 
-        /// Sublists are called based on which level is current player on. Based on that, 
+        /// Each sublist contains 4 different images of a tetromino single block. 
+        /// Sub-lists are called based on which level is current player on. Based on that, 
         /// the color of tetromino blocks change.
         /// </summary>
         public List<List<Image>> TetrominoBlocks { get; } = new List<List<Image>>();
@@ -62,8 +62,7 @@ namespace Tetris
         // CONSTRUCTOR
 
         /// <summary>
-        /// During initialization of this constructor, a list of lists of images is created.
-        /// Constructor without parameters.
+        /// During initialization of this constructor, tetromino blocks sprites list is created.
         /// </summary>
         public Sprites()
         {

@@ -11,6 +11,7 @@ namespace Tetris
         [STAThread]
         static void Main()
         {
+            // Fyi: Main grid and main matrix in comments are the same thing in this project.
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

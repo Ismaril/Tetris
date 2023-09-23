@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using static Tetris.Consts;
-
+// DONE
 namespace Tetris
 {
     public class Tetromino
@@ -204,13 +203,12 @@ namespace Tetris
         // ------------------------------------------------------------------------------------------------
         // CONSTRUCTORS
         /// <summary>
-        /// Empty constructor
+        /// Empty constructor.
         /// </summary>
         public Tetromino() { }
 
         /// <summary>
         /// Constructor which takes in a list of rotations and a type of tetromino. 
-        /// This class is a template for a tetromino objects.
         /// </summary>
         /// <param name="rotation0"></param>
         /// <param name="rotation1"></param>
@@ -241,7 +239,6 @@ namespace Tetris
 
         /// <summary>
         /// Returns a number between 0 and 3 which represents the rotation of tetromino. 
-        /// Check the Consts.cs file for more info.
         /// </summary>
         public sbyte CurrentRotation { get; set; }
 
@@ -252,8 +249,7 @@ namespace Tetris
 
         /// <summary>
         /// Returns the offset of tetromino with regards to the matrix. 
-        /// With offset we specify where to start drawing the tetromino. 
-        /// Starting with the top left corner of the tetromino matrix.
+        /// With offset we specify where to start drawing the tetromino at main grid. 
         /// </summary>
         public byte Offset { get; set; }
 
@@ -292,8 +288,7 @@ namespace Tetris
         public void RotateRight()
         {
             CurrentRotation++;
-            if (CurrentRotation == 4)
-                CurrentRotation = 0;
+            CurrentRotation = ResetRotation(CurrentRotation);
             Indexes = Rotations[CurrentRotation];
         }
 
@@ -303,10 +298,27 @@ namespace Tetris
         public void RotateLeft()
         {
             CurrentRotation--;
-            if (CurrentRotation == -1)
-                CurrentRotation = 3;
+            CurrentRotation = ResetRotation(CurrentRotation);
             Indexes = Rotations[CurrentRotation];
 
+        }
+
+        /// <summary>
+        /// Helper method.
+        /// Adjust rotation if out of bounds.
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public static sbyte ResetRotation(sbyte rotation)
+        {
+            switch (rotation)
+            {
+                case 4:
+                    return 0;
+                case -1:
+                    return 3;
+            }
+            return rotation;
         }
 
         /// <summary>
