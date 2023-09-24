@@ -1,4 +1,6 @@
-﻿namespace Tetris
+﻿using System.Windows.Forms;
+
+namespace Tetris
 {
     partial class Form1
     {
@@ -32,6 +34,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+
+            // Enable double buffering and other optimizations
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.OptimizedDoubleBuffer
+                     | ControlStyles.AllPaintingInWmPaint
+                     | ControlStyles.UserPaint, true);
+
             // 
             // Form1 (Main frame)
             // 

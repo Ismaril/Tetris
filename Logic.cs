@@ -48,7 +48,6 @@ namespace Tetris
         private const byte MAX_NR_OF_TETROMINOS = 7;
         private const byte NOT_YET_CHOSEN_TETROMINO_INDEX = 255;
         private const byte FAST_MUSIC_INDEX = 89;
-        private const byte TETROMINO_GRID_WIDTH = 4;
         private const byte HIDDEN_UPPER_MAIN_GRID_INDEXES = 20;
         private const int SCORE_ONE_LINE = 40;
         private const int SCORE_TWO_LINES = 100;
@@ -238,7 +237,7 @@ namespace Tetris
 
             // Exclude indexes which will overlap with tetrominoCurrent
             // when tetrominoCurrent moves down.
-            for (byte i = 0; i < TETROMINO_GRID_WIDTH; i++)
+            for (byte i = 0; i < Tetromino.NUMBER_OF_SUBBLOCKS; i++)
                 if (!_toBeRemoved.Contains((byte)(_toBeRemoved[i] + Consts.MAIN_GRID_WIDTH)))
                     _collisionDetection.Add(_toBeRemoved[i]);
 
@@ -337,7 +336,7 @@ namespace Tetris
         /// <returns></returns>
         private static byte ComputeOffset(byte i, ref byte offsetColumn, ref byte offsetRow)
         {
-            if (offsetColumn % TETROMINO_GRID_WIDTH == 0 && i > 0)
+            if (offsetColumn % Tetromino.GRID_WIDTH == 0 && i > 0)
             {
                 offsetColumn = 0;
                 offsetRow += (byte)Consts.MAIN_GRID_WIDTH;

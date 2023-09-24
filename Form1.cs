@@ -55,8 +55,9 @@ namespace Tetris
         private const string TEXT_PICTUREBOX_INITIAL_SCREEN = "pictureBoxInitialScreen";
 
         // Limits
-        public const int MINIMUM_HIGH_SCORE_LIMIT = 10_000;
-        public const byte INITIAL_SCRREN_VISIBILITY_LIMIT = 100;
+        private const int MINIMUM_HIGH_SCORE_LIMIT = 10_000;
+        private const byte INITIAL_SCREEN_VISIBILITY_LIMIT = 100;
+        private const byte LIMIT_OF_CHARACTERS_IN_NAME = 6;
 
 
         // ------------------------------------------------------------------------------------------------
@@ -102,8 +103,8 @@ namespace Tetris
         private bool _playMusic = true;
         private bool _scoreScreenVisible;
         private bool _moveDownAlreadyPressed;
-        private bool _alreadyPressedRotate;
-        private bool _alreadyPressed;
+        private bool _rotateAlreadyPressed;
+        private bool _moveToSidesAlreadyPressed;
         private bool _rotateRight;
         private bool _rotateLeft;
         private bool _initialScreenDisplayed;
@@ -117,17 +118,11 @@ namespace Tetris
         // ------------------------------------------------------------------------------------------------
         // PROPERTIES
 
-
+        
         // ------------------------------------------------------------------------------------------------
         // CONSTRUCTOR
         public Form1()
         {
-            // Enable double buffering and other optimizations
-            DoubleBuffered = true;
-            SetStyle(ControlStyles.OptimizedDoubleBuffer 
-                | ControlStyles.AllPaintingInWmPaint 
-                | ControlStyles.UserPaint, true);
-
             InitializeComponent();
             _logic = new Logic(_music);
         }
@@ -140,12 +135,11 @@ namespace Tetris
             Cursor.Hide(); // Hide mouse
             FormBorderStyle = FormBorderStyle.None;  // Remove border of the window
             WindowState = FormWindowState.Maximized; // Full screen window mode
-
             _timer.Interval = (int)Consts.GUI_TICK; // How many milliseconds before next tick.
             _timer.Tick += TimerTick;  // What happens when timer ticks.
-            KeyDown += Form1_KeyArrowsDown;  // What happends when keyDown is pressed.
-            KeyUp += Form1_KeyArrowsUp;  // What happends when keyUp is pressed.
-            KeyPress += YourKeyPressEventHandler; // What happends when key is pressed.
+            KeyDown += KeyArrowsDown;
+            KeyUp += KeyArrowsUp;
+            KeyPress += ScoreScreenKeyPressEventHandler;
             KeyPreview = true;
             _timer.Start();
         }
@@ -179,52 +173,12 @@ namespace Tetris
             {
                 PlayMusic();
                 _logic.Main__(Grid_Updater);
-                UpdateLogicTimer();
-                UpdateKeyboardKeyTimer();
+                LogicTimer_Updater();
+                KeyboardKeyTimer_Updater();
                 StatisticsLabelBoxes_Updater();
-
-                // Disable the "fast movement down" of tetromino when next tetromino 
-                // appears on the screen???
-                if (_logic.CurrentRow < 1) _moveDownAlreadyPressed = true;
-                else if (_keyTimer % 2 == 0) _moveDownAlreadyPressed = false;
-
-                if (_keyTimer % 5 == 0)
-                {
-                    _alreadyPressed = false;
-                    _keyTimer = 0;
-                }
-
-                if (_pressedKeys.Contains(Keys.Right) && !_alreadyPressed)
-                {
-                    _logic.MoveRight = true;
-                    _alreadyPressed = true;
-                    _keyTimer = 0;
-                }
-                else if (_pressedKeys.Contains(Keys.Left) && !_alreadyPressed)
-                {
-                    _logic.MoveLeft = true;
-                    _alreadyPressed = true;
-                    _keyTimer = 0;
-                }
-
-                if (_pressedKeys.Contains(Keys.Down) && !_moveDownAlreadyPressed)
-                {
-                    _logic.MoveDownFast = true;
-                    _moveDownAlreadyPressed = true;
-                }
-
-                if (_rotateLeft && !_alreadyPressedRotate)
-                {
-                    _logic.RotateLeft = true;
-                    _alreadyPressedRotate = true;
-                    _rotateLeft = false;
-                }
-                else if (_rotateRight && !_alreadyPressedRotate)
-                {
-                    _logic.RotateRight = true;
-                    _alreadyPressedRotate = true;
-                    _rotateRight = false;
-                }
+                FastTetrominoMovement_Limiter();
+                MovementToSidesKeyPress_Limiter();
+                RotateKeyPress_Limiter();
                 GameEndedAnimation();
                 //music.GetPositionOfMainMusic();
             }
@@ -240,13 +194,82 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// For rotate keys (Z and X) to work properly, they have to be pressed and released in
+        /// order for them to work again.
+        /// </summary>
+        private void RotateKeyPress_Limiter()
+        {
+            if (_rotateLeft && !_rotateAlreadyPressed)
+            {
+                _logic.RotateLeft = true;
+                _rotateAlreadyPressed = true;
+                _rotateLeft = false;
+            }
+            else if (_rotateRight && !_rotateAlreadyPressed)
+            {
+                _logic.RotateRight = true;
+                _rotateAlreadyPressed = true;
+                _rotateRight = false;
+            }
+        }
 
         /// <summary>
-        /// 
+        /// Limit the speed of the keyboard input based on counter. Without this method
+        /// tetromino would move too fast to sides.
+        /// </summary>
+        private void MovementToSidesKeyPress_Limiter()
+        {
+            if (_keyTimer % 5 == 0)
+            {
+                _moveToSidesAlreadyPressed = false;
+                _keyTimer = 0;
+            }
+
+            if (_pressedKeys.Contains(Keys.Right) && !_moveToSidesAlreadyPressed)
+            {
+                _logic.MoveRight = true;
+                _moveToSidesAlreadyPressed = true;
+                _keyTimer = 0;
+            }
+            else if (_pressedKeys.Contains(Keys.Left) && !_moveToSidesAlreadyPressed)
+            {
+                _logic.MoveLeft = true;
+                _moveToSidesAlreadyPressed = true;
+                _keyTimer = 0;
+            }
+        }
+
+        /// <summary>
+        /// Disable the fast movement down of tetromino when next tetromino 
+        /// appears on the screen.
+        /// </summary>
+        private void FastTetrominoMovement_Limiter()
+        {
+            // Disable fast movement down when tetromino appears on the screen. Applies only
+            // when tetromino is at first row.
+            if (_logic.CurrentRow < 1)
+                _moveDownAlreadyPressed = true;
+
+            // Increased speed of tetromino movement down.
+            else if (_keyTimer % 2 == 0)
+                _moveDownAlreadyPressed = false;
+
+            // Fast movement allowed if conditions met
+            if (!_pressedKeys.Contains(Keys.Down) || _moveDownAlreadyPressed)
+                return;
+            _logic.MoveDownFast = true;
+            _moveDownAlreadyPressed = true;
+        }
+
+
+        /// <summary>
+        /// This method takes users input from keyboard and updates the corresponding labelboxes during
+        /// display of the score screen.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void YourKeyPressEventHandler(object sender, KeyPressEventArgs e)
+        private void ScoreScreenKeyPressEventHandler(object sender, KeyPressEventArgs e)
         {
             // Check if the pressed key is a valid character (not a control key)
             if (char.IsControl(e.KeyChar) || !_scoreScreenVisible)
@@ -256,8 +279,11 @@ namespace Tetris
             var pressedChar = e.KeyChar;
 
             _scoreScreenNameHolder += pressedChar;
-            if (_scoreScreenNameHolder.Length > 6)
-                _nameAdjusted = _scoreScreenNameHolder.Substring(startIndex: _scoreScreenNameHolder.Length - 6, 6);
+            if (_scoreScreenNameHolder.Length > LIMIT_OF_CHARACTERS_IN_NAME)
+                _nameAdjusted = _scoreScreenNameHolder.Substring(
+                    startIndex: _scoreScreenNameHolder.Length - LIMIT_OF_CHARACTERS_IN_NAME, 
+                    length: LIMIT_OF_CHARACTERS_IN_NAME
+                    );
 
             _names[_scoreScreenLabelboxIndex - 1] = _nameAdjusted;
             _music.SoundSettings();
@@ -268,11 +294,11 @@ namespace Tetris
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Form1_KeyArrowsUp(object sender, KeyEventArgs e)
+        private void KeyArrowsUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.X || e.KeyCode == Keys.Z)
             {
-                _alreadyPressedRotate = false;
+                _rotateAlreadyPressed = false;
                 return;
             }
 
@@ -285,25 +311,22 @@ namespace Tetris
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Form1_KeyArrowsDown(object sender, KeyEventArgs e)
+        private void KeyArrowsDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
                 case Keys.Z:
-                    _alreadyPressedRotate = true;
+                    _rotateAlreadyPressed = true;
                     _rotateLeft = true;
                     return;
                 case Keys.X:
-                    _alreadyPressedRotate = true;
+                    _rotateAlreadyPressed = true;
                     _rotateRight = true;
                     return;
                 default:
                 {
                     if (!_pressedKeys.Contains(e.KeyCode))
-                    {
                         _pressedKeys.Add(e.KeyCode);
-                    }
-
                     break;
                 }
             }
@@ -445,7 +468,8 @@ namespace Tetris
             }
 
             // Exit game
-            if (e.KeyCode == Keys.Escape) Application.Exit();
+            if (e.KeyCode == Keys.Escape)
+                Application.Exit();
 
         }
 
@@ -504,20 +528,6 @@ namespace Tetris
                         break;
                 }
             }
-
-            // Todo: move it to initialiser method?
-            // Labels have to be redrawn unfortunatelly here to avoid flickering when the
-            // appear for the first time on the screen.
-            // When was this done in the definition of label it flickered as sentence above.
-            Controls[256].ForeColor = COLOR_GRAY;
-            Controls[256].BackColor = COLOR_TRANSPARENT;
-            Controls[257].ForeColor = COLOR_GRAY;
-            Controls[257].BackColor = COLOR_TRANSPARENT;
-            Controls[258].ForeColor = COLOR_GRAY;
-            Controls[258].BackColor = COLOR_TRANSPARENT;
-            Controls[259].ForeColor = COLOR_GRAY;
-            Controls[259].BackColor = COLOR_TRANSPARENT;
-
         }
 
         /// <summary>
@@ -526,13 +536,12 @@ namespace Tetris
         /// </summary>
         private void GameEndedAnimation()
         {
-            if (!_logic.SkipLogicMain || _endGameAnimationCounter == 200) return;
+            if (!_logic.SkipLogicMain || _endGameAnimationCounter == 200)
+                return;
 
             for (var i = 0; i < 10; i++)
-            {
                 Controls[i + 20 + _endGameAnimationCounter].BackgroundImage 
                     = _sprites.TetrominoBlocks[GetCurrentLevel()][COLOR3];
-            }
             _endGameAnimationCounter += 10;
         }
 
@@ -553,6 +562,8 @@ namespace Tetris
                 WIDTH_OF_STATISTICS_LABEL_BOX, 
                 HEIGHT_OF_STATISTICS_LABEL_BOX
                 );
+            _labelTopScore.ForeColor = COLOR_GRAY;
+            _labelTopScore.BackColor = COLOR_TRANSPARENT;
             Controls.Add(_labelTopScore);
 
             // Score
@@ -564,6 +575,8 @@ namespace Tetris
                 WIDTH_OF_STATISTICS_LABEL_BOX, 
                 HEIGHT_OF_STATISTICS_LABEL_BOX
                 );
+            _labelScore.ForeColor = COLOR_GRAY;
+            _labelScore.BackColor = COLOR_TRANSPARENT;
             Controls.Add(_labelScore);
 
             // Level
@@ -575,6 +588,8 @@ namespace Tetris
                 WIDTH_OF_STATISTICS_LABEL_BOX,
                 HEIGHT_OF_STATISTICS_LABEL_BOX
                 );
+            _labelLevel.ForeColor = COLOR_GRAY;
+            _labelLevel.BackColor = COLOR_TRANSPARENT;
             Controls.Add(_labelLevel);
 
             // Lines Cleared
@@ -586,6 +601,8 @@ namespace Tetris
                 WIDTH_OF_STATISTICS_LABEL_BOX,
                 HEIGHT_OF_STATISTICS_LABEL_BOX
                 );
+            _labelLinesCleared.ForeColor = COLOR_GRAY;
+            _labelLinesCleared.BackColor = COLOR_TRANSPARENT;
             Controls.Add(_labelLinesCleared);
         }
 
@@ -621,9 +638,9 @@ namespace Tetris
             }
 
             // Create a GUI matrix which will display next tetromino.
-            for (byte i = 0; i < 4; i++)
+            for (byte i = 0; i < Tetromino.GRID_WIDTH; i++)
             {
-                for (byte j = 0; j < 4; j++)
+                for (byte j = 0; j < Tetromino.GRID_HEIGHT; j++)
                 {
                     _pictureBox = new PictureBox();
                     ((ISupportInitialize)(_pictureBox)).BeginInit();
@@ -763,7 +780,7 @@ namespace Tetris
             const int X_OFFSET = 20;
             for (byte i = 0; i < 4; i++)
             {
-                // Labelboxe - sequence of winners.
+                // Label-boxes - sequence of winners.
                 if (i > 0)
                 {
                     _labelBox = new Label();
@@ -778,7 +795,7 @@ namespace Tetris
                 }
 
                 // Todo: refactor these 3 blocks.
-                // Labelboxes - names of winners.
+                // Label-boxes - names of winners.
                 _labelBox = new Label();
                 if (i == 0) { _labelBox.Text = TEXT_NAME; }
                 try
@@ -796,7 +813,7 @@ namespace Tetris
                 _labelBox.BackColor = Consts.COLOR_BLACK;
                 Controls.Add(_labelBox);
 
-                // Labelboxes - scores of winners.
+                // Label-boxes - scores of winners.
                 _labelBox = new Label();
                 if (i == 0) { _labelBox.Text = TEXT_SCORE; }
                 try
@@ -813,7 +830,7 @@ namespace Tetris
                 _labelBox.BackColor = Consts.COLOR_BLACK;
                 Controls.Add(_labelBox);
 
-                // Labelboxes - levels of winners.
+                // Label-boxes - levels of winners.
                 _labelBox = new Label();
                 if (i == 0) { _labelBox.Text = TEXT_LEVEL_SHORT; }
                 try
@@ -858,13 +875,21 @@ namespace Tetris
         /// <returns></returns>
         private int GetCurrentLevel() => _logic.CurrentLevel % 10;
 
+        /// <summary>
+        /// Update the counter which is used later with other method to limit
+        /// the speed of tetromino movement to the sides.
+        /// </summary>
+        private void KeyboardKeyTimer_Updater() => _keyTimer += 1;
 
-        private void UpdateKeyboardKeyTimer() => _keyTimer += 1;
-
-
-        private void UpdateLogicTimer() => _logic.Timer += Consts.GUI_TICK;
+        /// <summary>
+        /// Update the logic clock/timer with each tick. Once the timer reaches a certain value,
+        /// logic of default tetromino movement down will be executed.
+        /// </summary>
+        private void LogicTimer_Updater() => _logic.Timer += Consts.GUI_TICK;
         
-
+        /// <summary>
+        /// If user wishes to play music, this method will play the music.
+        /// </summary>
         private void PlayMusic()
         {
             if (!_playMusic || _mainMusicStartedPlaying)
@@ -900,7 +925,7 @@ namespace Tetris
 
         private void CheckIfDisposeInitialScreen()
         {
-            if (_counterInitialScreen > INITIAL_SCRREN_VISIBILITY_LIMIT)
+            if (_counterInitialScreen > INITIAL_SCREEN_VISIBILITY_LIMIT)
             {
                 _handledInitialScreen = true;
                 Controls[TEXT_PICTUREBOX_INITIAL_SCREEN].Dispose();

@@ -5,6 +5,13 @@ namespace Tetris
     public class Tetromino
     {
         // ------------------------------------------------------------------------------------------------
+        // CONSTANS
+        public const byte GRID_WIDTH = 4;
+        public const byte GRID_HEIGHT = GRID_WIDTH;
+        public const byte NUMBER_OF_SUBBLOCKS = 4;
+
+
+        // ------------------------------------------------------------------------------------------------
         // FIELDS
         //  ____________ 
         // /__/__/__/__/ 
