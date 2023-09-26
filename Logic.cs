@@ -48,12 +48,12 @@ namespace Tetris
         private const byte MAX_NR_OF_TETROMINOS = 7;
         private const byte NOT_YET_CHOSEN_TETROMINO_INDEX = 255;
         private const byte FAST_MUSIC_INDEX = 89;
-        private const byte HIDDEN_UPPER_MAIN_GRID_INDEXES = 20;
         private const int SCORE_ONE_LINE = 40;
         private const int SCORE_TWO_LINES = 100;
         private const int SCORE_THREE_LINES = 300;
         private const int SCORE_FOUR_LINES = 1200;
         private readonly byte[] EMPTY_MAIN_GRID_ROW = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private const byte NUMBER_OF_LINES_TO_NEXT_LEVEL_LIMIT = 10;
 
 
         // ------------------------------------------------------------------------------------------------
@@ -213,7 +213,7 @@ namespace Tetris
 
             // With below code tetromino is not drawn outside of the matrix, when rotated during first
             // two rows at matrix.
-            for (var i = 0; i < HIDDEN_UPPER_MAIN_GRID_INDEXES; i++)
+            for (var i = 0; i < Consts.HIDDEN_UPPER_MAIN_GRID_INDEXES; i++)
                 Matrix[i] = 0;
         }
 
@@ -319,8 +319,9 @@ namespace Tetris
 
                 if ((tetrominoMatrixRotated[i] > 0 && Matrix[offset] > 0)
                     // Checks if tetromino would be out off left & right boundaries of main matrix.
-                    || (offsetRow % 10 == 8 || offsetRow % 10 == 7)
-                    || (_tetrominoCurrent.GetType_ == (byte)Tetromino.Type.I && offsetRow % 10 == 9))
+                    || (offsetRow % Consts.MAIN_GRID_WIDTH == 8 || offsetRow % Consts.MAIN_GRID_WIDTH == 7)
+                    || (_tetrominoCurrent.GetType_ == (byte)Tetromino.Type.I
+                        && offsetRow % Consts.MAIN_GRID_WIDTH == 9))
                     return false;
                 offsetColumn++;
             }
@@ -596,7 +597,7 @@ namespace Tetris
         /// </summary>
         private void CheckIfContinueToNextLevel()
         {
-            if (!(_linesNextLevel >= 10))
+            if (!(_linesNextLevel >= NUMBER_OF_LINES_TO_NEXT_LEVEL_LIMIT))
                 return;
 
             _linesNextLevel = 0;

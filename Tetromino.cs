@@ -8,6 +8,7 @@ namespace Tetris
         // CONSTANS
         public const byte GRID_WIDTH = 4;
         public const byte GRID_HEIGHT = GRID_WIDTH;
+        public const byte GRID_SURFACE_AREA = GRID_WIDTH * GRID_HEIGHT;
         public const byte NUMBER_OF_SUBBLOCKS = 4;
 
 
