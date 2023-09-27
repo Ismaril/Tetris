@@ -18,6 +18,7 @@ namespace Tetris
         public const int LAST_ROW = MAIN_GRID_HEIGHT - 5;
         public static readonly Color COLOR_BLACK = Color.Black;
         public const byte HIDDEN_UPPER_MAIN_GRID_INDEXES = 20;
-
+        public const string TEXT_BLANK_SPACE = "- - - - - - ";
+        public const string TEXT_BLANK_SPACE_SHORT = "- -";
     }
 }

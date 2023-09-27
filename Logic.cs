@@ -45,7 +45,7 @@ namespace Tetris
         };
 
         private const byte MIN_NR_OF_TETROMINOS = 0;
-        private const byte MAX_NR_OF_TETROMINOS = 7;
+        private const byte MAX_NR_OF_TETROMINOS = 1;
         private const byte NOT_YET_CHOSEN_TETROMINO_INDEX = 255;
         private const byte FAST_MUSIC_INDEX = 89;
         private const int SCORE_ONE_LINE = 40;
