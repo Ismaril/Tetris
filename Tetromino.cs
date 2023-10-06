@@ -4,7 +4,7 @@ namespace Tetris
 {
     public class Tetromino
     {
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTANS
         public const byte GRID_WIDTH = 4;
         public const byte GRID_HEIGHT = GRID_WIDTH;
@@ -12,7 +12,7 @@ namespace Tetris
         public const byte NUMBER_OF_SUBBLOCKS = 4;
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // FIELDS
         //  ____________ 
         // /__/__/__/__/ 
@@ -208,7 +208,7 @@ namespace Tetris
             new Tetromino(L_0, L_1, L_2, L_3, (byte)Type.L)
         };
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTRUCTORS
         /// <summary>
         /// Empty constructor.
@@ -238,7 +238,7 @@ namespace Tetris
         }
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // PROPERTIES
         /// <summary>
         /// 4x4 matrix of bytes which represents the shape of tetromino.
@@ -268,12 +268,13 @@ namespace Tetris
 
         /// <summary>
         /// Base rotation of tetromino. 
-        /// This is the starting rotation of tetromino when the tetromino is put to grid for the first time.
+        /// This is the starting rotation of tetromino when the tetromino is put to grid for the 
+        /// first time.
         /// </summary>
         public byte[] BaseRotation { get; }
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // METHODS
         /// <summary>
         /// Move tetromino at next row.

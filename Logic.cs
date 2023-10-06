@@ -6,7 +6,7 @@ namespace Tetris
 {
     public class Logic
     {
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTANTS
 
         // After how many multiples of GUI_TICK should the tetromino move down
@@ -45,7 +45,7 @@ namespace Tetris
         };
 
         private const byte MIN_NR_OF_TETROMINOS = 0;
-        private const byte MAX_NR_OF_TETROMINOS = 1;
+        private const byte MAX_NR_OF_TETROMINOS = 7;
         private const byte NOT_YET_CHOSEN_TETROMINO_INDEX = 255;
         private const byte FAST_MUSIC_INDEX = 89;
         private const int SCORE_ONE_LINE = 40;
@@ -56,7 +56,7 @@ namespace Tetris
         private const byte NUMBER_OF_LINES_TO_NEXT_LEVEL_LIMIT = 10;
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // FIELDS
         private Tetromino _tetrominoCurrent = new Tetromino();
 
@@ -77,7 +77,7 @@ namespace Tetris
         private bool _musicFastIsPlaying;
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTRUCTORS 
 
         /// <summary>
@@ -91,14 +91,14 @@ namespace Tetris
                 Matrix.Add(0);
         }
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // PROPERTIES
 
         /// <summary>
         /// Counter which is used to determine when to move tetrominoCurrent down. 
         /// It gets incremented by every GUI_TICK.
-        /// Once the timer equals or exceeds the movementTicksBasedOnLevel, the tetrominoCurrent can move
-        /// down.
+        /// Once the timer equals or exceeds the movementTicksBasedOnLevel, 
+        /// the tetrominoCurrent can move down.
         /// </summary>
         public int Timer { get; set; }
 
@@ -128,12 +128,14 @@ namespace Tetris
         public bool RotateLeft { get; set; }
 
         /// <summary>
-        /// Counter which holds the score of the player. It gets incremented by every finished row.
+        /// Counter which holds the score of the player. It gets incremented by every 
+        /// finished row.
         /// </summary>
         public int PlayersScore { get; set; }
 
         /// <summary>
-        /// 4x4 grid which holds the tetromino which will be used in the next round at main matrix. 
+        /// 4x4 grid which holds the tetromino which will be used in the next round at 
+        /// main matrix. 
         /// During current round, this array is used to display the next tetromino.
         /// </summary>
         public byte[] TetrominoNext { get; set; } = new byte[16];
@@ -181,13 +183,13 @@ namespace Tetris
 
         /// <summary>
         /// Boolean flag which controls if whole game logic should be skipped. 
-        /// It gets set to true when the game is paused and other parts of the program like settings,
-        /// or score screen are visible.
+        /// It gets set to true when the game is paused and other parts of the program
+        /// like settings, or score screen are visible.
         /// </summary>
         public bool SkipLogicMain { get; set; }
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // METHODS
 
         /// <summary>
@@ -211,8 +213,8 @@ namespace Tetris
                 offsetColumn++;
             }
 
-            // With below code tetromino is not drawn outside of the matrix, when rotated during first
-            // two rows at matrix.
+            // With below code tetromino is not drawn outside of the matrix,
+            // when rotated during first two rows at matrix.
             for (var i = 0; i < Consts.HIDDEN_UPPER_MAIN_GRID_INDEXES; i++)
                 Matrix[i] = 0;
         }
@@ -257,7 +259,9 @@ namespace Tetris
         /// Check if tetrominoCurrent has obstacle at next column.
         /// If yes, tetromino must not move to desired side.
         /// </summary>
-        /// <param name="checkRightside">If yes, check movement to right else check movement to left</param>
+        /// <param name="checkRightside">
+        /// If yes, check movement to right else check movement to left
+        /// </param>
         public bool TetrominoHasNotObstacleAtNextColumn(bool checkRightside)
         {
             if (_toBeRemoved.Count == 0)
@@ -284,9 +288,10 @@ namespace Tetris
             }
             catch(ArgumentOutOfRangeException)
             {
-                // User moved I-type tetromino on the most upper index to left boundary. This resulted to
-                // check index position which is negative. Therefore there is no need for boundary check
-                // meaning no action required, continue.
+                // User moved I-type tetromino on the most upper index to left boundary.
+                // This resulted to check index position which is negative.
+                // Therefore there is no need for boundary check meaning no action required,
+                // continue.
             }
             _collisionDetection.Clear();
             return true;
@@ -296,7 +301,9 @@ namespace Tetris
         /// Check whether tetrominoCurrent has obstacle at next rotation.
         /// This method is able to handle checking for both sides (left and right).
         /// </summary>
-        /// <param name="checkRightRotation">If yes, check right rotation else check left rotation</param>
+        /// <param name="checkRightRotation">
+        /// If yes, check right rotation else check left rotation
+        /// </param>
         /// <returns></returns>
         public bool TetrominoHasNotObstacleAtNextRotation(bool checkRightRotation)
         {
@@ -354,8 +361,10 @@ namespace Tetris
         private bool TetrominoIsAtBottom()
         {
             if (_tetrominoCurrent.GetType_ == (byte)Tetromino.Type.I)
-                return CurrentRow == Consts.LAST_ROW - _tetrominoCurrent.ComputeNrOfBottomPaddingRows() + 1;
-            return CurrentRow == Consts.LAST_ROW - _tetrominoCurrent.ComputeNrOfBottomPaddingRows();
+                return CurrentRow 
+                    == Consts.LAST_ROW - _tetrominoCurrent.ComputeNrOfBottomPaddingRows() + 1;
+            return CurrentRow 
+                == Consts.LAST_ROW - _tetrominoCurrent.ComputeNrOfBottomPaddingRows();
         }
 
         /// <summary>
@@ -374,8 +383,12 @@ namespace Tetris
         /// <summary>
         /// Moves tetromino to right if possible.
         /// </summary>
-        /// <param name="canMoveRight">Holds bool whether it is possible to move right.</param>
-        /// <param name="desiredRight">Holds bool whether player requested movement to right.</param>
+        /// <param name="canMoveRight">
+        /// Holds bool whether it is possible to move right.
+        /// </param>
+        /// <param name="desiredRight">
+        /// Holds bool whether player requested movement to right.
+        /// </param>
         public void MoveRight_UserEvent(bool canMoveRight, bool desiredRight)
         {
             // Make sure that tetromino does not move out of right boundary of matrix.
@@ -392,8 +405,12 @@ namespace Tetris
         /// <summary>
         /// Moves tetromino to left if possible.
         /// </summary>
-        /// <param name="canMoveLeft">Holds bool whether it is possible to move left.</param>
-        /// <param name="desiredLeft">Holds bool whether player requested movement to left.</param>
+        /// <param name="canMoveLeft">
+        /// Holds bool whether it is possible to move left.
+        /// </param>
+        /// <param name="desiredLeft">
+        /// Holds bool whether player requested movement to left.
+        /// </param>
         public void MoveLeft_UserEvent(bool canMoveLeft, bool desiredLeft)
         {
             // Make sure that tetromino does not move out of left boundary of matrix.
@@ -409,7 +426,8 @@ namespace Tetris
 
         /// <summary>
         /// Moves tetromino down faster by setting the timer equal to limit. 
-        /// By this the game logic does not have to wait for the timer to reach the limit incrementally.
+        /// By this the game logic does not have to wait for the timer to reach the limit
+        /// incrementally.
         /// </summary>
         /// <param name="activate"></param>
         private void MoveDownFaster_UserEvent(bool activate)
@@ -424,8 +442,12 @@ namespace Tetris
         /// <summary>
         /// Rotate tetromino to left if possible.
         /// </summary>
-        /// <param name="canRotateLeft">Holds bool whether it is possible to rotate left.</param>
-        /// <param name="desiredRotationLeft">Holds bool whether player requested rotation to left.</param>
+        /// <param name="canRotateLeft">
+        /// Holds bool whether it is possible to rotate left.
+        /// </param>
+        /// <param name="desiredRotationLeft">
+        /// Holds bool whether player requested rotation to left.
+        /// </param>
         public void RotateLeft_UserEvent(bool canRotateLeft, bool desiredRotationLeft)
         {
             if (!canRotateLeft || !desiredRotationLeft) 
@@ -438,8 +460,12 @@ namespace Tetris
         /// <summary>
         /// Rotate tetromino to right if possible.
         /// </summary>
-        /// <param name="canRotateRight">Holds bool whether it is possible to rotate right.</param>
-        /// <param name="desiredRotationRight">Holds bool whether player requested rotation to right.</param>
+        /// <param name="canRotateRight">
+        /// Holds bool whether it is possible to rotate right.
+        /// </param>
+        /// <param name="desiredRotationRight">
+        /// Holds bool whether player requested rotation to right.
+        /// </param>
         public void RotateRight_UserEvent(bool canRotateRight, bool desiredRotationRight)
         {
             if (!canRotateRight || !desiredRotationRight)
@@ -520,7 +546,10 @@ namespace Tetris
                 return;
 
             if (_tetrominoNextIndex == NOT_YET_CHOSEN_TETROMINO_INDEX)
-                _tetrominoCurrent = Tetromino.TETROMINOS[_random.Next(MIN_NR_OF_TETROMINOS, MAX_NR_OF_TETROMINOS)];
+                _tetrominoCurrent = Tetromino.TETROMINOS[_random.Next(
+                    MIN_NR_OF_TETROMINOS,
+                    MAX_NR_OF_TETROMINOS
+                    )];
             else
                 _tetrominoCurrent = Tetromino.TETROMINOS[_tetrominoNextIndex];
 
@@ -545,11 +574,13 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Removes completed rows from main matrix, meaning row which is fully filled with tetrominos.
+        /// Removes completed rows from main matrix, meaning row which is fully filled with 
+        /// tetrominos.
         /// </summary>
         public void RemoveCompleteRows()
         {
-            // Goes row by row through main matrix and checks if all indexes are filled with non zero values.
+            // Goes row by row through main matrix and checks if all indexes are filled with
+            // non zero values.
             for (byte i = 0; i < Consts.MAIN_GRID_HEIGHT; i++)
             {
                 Array.Copy(
@@ -645,7 +676,7 @@ namespace Tetris
             _canRotateLeft = false;
             _canRotateRight = false;
         }
-
+        
         /// <summary>
         /// Check for potential collisions of moving tetromino agains already placed 
         /// tetrominos and set flags accordingly.
@@ -689,17 +720,13 @@ namespace Tetris
             _tetrominoNextIndex = NOT_YET_CHOSEN_TETROMINO_INDEX;
             _linesNextLevel = 0;
         }
-
+        
         /// <summary>
         /// Main method which controls the game logic.
         /// </summary>
         /// <param name="redraw"></param>
         public void Main__(Action<List<byte>> redraw)
         {
-            // Todo: There is a merge of tetrominos when tetromino moves diagonally down. Happens both at slow and button down pressed.
-            // Todo: I was able to rotate a tetromino out of matrix boundaries. Happend with I type and T type, meaning bbly all are fucked.
-            // Todo; It was possible to rotate out of bottom with T type.
-
             if (SkipLogicMain)
                 return;
 
@@ -724,3 +751,7 @@ namespace Tetris
         }
     }
 }
+
+// Todo: There is a merge of tetrominos when tetromino moves diagonally down. Happens both at slow and button down pressed.
+// Todo: I was able to rotate a tetromino out of matrix boundaries. Happend with I type and T type, meaning bbly all are fucked.
+// Todo; It was possible to rotate out of bottom with T type.

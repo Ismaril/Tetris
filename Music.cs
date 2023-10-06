@@ -8,7 +8,7 @@ namespace Tetris
 {
     public class Music
     {
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTANTS
 
         private const string PATH = @"../../Music/";
@@ -30,7 +30,7 @@ namespace Tetris
 
         private const byte NUMBER_OF_OBJECTS_NOT_TO_DISPOSE = 6;
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // FIELDS
 
         private byte _currentMainMusicIndex;
@@ -51,7 +51,7 @@ namespace Tetris
         private List<WaveOutEvent> _toBeDisposedTetrisMasterWO = new List<WaveOutEvent>();
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // ENUM
         /// <summary>
         /// Groups of music based on their type.
@@ -63,19 +63,20 @@ namespace Tetris
             TetrisMaster
         }
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTRUCTOR
         /// <summary>
         /// Constructor
         /// </summary>
         public Music() { }
-        // In this class there have to be used 2 different libraries for playing music. One is NAudio and
-        // the other is System.Media. System.Media is unable to play mp3 files and two sounds at the same
-        // time, so I had to use NAudio. However, NAudio has to be managed by the programmer, which means
-        // that the programmer has to dispose objects that are no longer in use. System.Media does that
-        // automatically.
+        // In this class there have to be used 2 different libraries for playing music. One is
+        // NAudio and the other is System.Media. System.Media is unable to play mp3 files and two
+        // sounds at the same time, so I had to use NAudio. However, NAudio has to be managed by
+        // the programmer, which means that the programmer has to dispose objects that are no longer
+        // in use. System.Media does that automatically.
 
-        // ------------------------------------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------------------
         // PROPERTIES
 
         /// <summary>
@@ -84,12 +85,12 @@ namespace Tetris
         public bool MusicIsAllowed { get; set; } = true;
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // METHODS
 
-        // For some reason, the Classes AduioFileReader and WaveOutEvent have to be instantiated again and
-        // again with each call of below methods. Without that the music/sounds would just stop playing
-        // after one call of each method. I don't know why is that happening...
+        // For some reason, the Classes AduioFileReader and WaveOutEvent have to be instantiated
+        // again and again with each call of below methods. Without that the music/sounds would just
+        // stop playing after one call of each method. I don't know why is that happening...
 
         /// <summary>
         /// Play this music when the game is over and the player has high score.
@@ -265,8 +266,8 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Dispose only older objects. In the past I disposed objects that were still in use and that
-        /// crashed the program.
+        /// Dispose only older objects. In the past I disposed objects that were still in use and 
+        /// that crashed the program.
         /// </summary>
         private void DisposerAdvanced()
         {
@@ -284,8 +285,12 @@ namespace Tetris
 
             for (byte i = 0; i < NUMBER_OF_OBJECTS_NOT_TO_DISPOSE; i++)
             {
-                temp1.Add(_toBeDisposedMovementAF[_toBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE + i]);
-                temp2.Add(_toBeDisposedMovementWO[_toBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE + i]);
+                temp1.Add(_toBeDisposedMovementAF[
+                    _toBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE + i
+                    ]);
+                temp2.Add(_toBeDisposedMovementWO[
+                    _toBeDisposedMovementAF.Count - NUMBER_OF_OBJECTS_NOT_TO_DISPOSE + i
+                    ]);
             }
 
             _toBeDisposedMovementAF.Clear();

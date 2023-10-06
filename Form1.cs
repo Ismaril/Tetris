@@ -11,15 +11,17 @@ namespace Tetris
 {
     public partial class Form1 : Form
     {
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTANTS
 
         private const byte MAIN_GRID_WIDGET_SIZE = 40;
-        private const int MUSIC_SETTINGS_WIDGET_SIZE = 80;
-        private const int SETTINGS_SIZE = 60;
-        private const int WIDGET_GENERAL_SIZE = 90;
+        private const byte MUSIC_SETTINGS_WIDGET_SIZE = 80;
+        private const byte SETTINGS_SIZE = 60;
+        private const byte WIDGET_GENERAL_SIZE = 90;
 
         private const byte PICTURE_BOX_LOCATION = MAIN_GRID_WIDGET_SIZE + MAIN_GRID_WIDGET_SIZE / 10;
+        private const byte SETTINGS_LOCATION = SETTINGS_SIZE + SETTINGS_SIZE / 10;
+
         private const int STATISTICS_WIDTH = 400;
         private const int STATISTICS_HEIGHT = 150;
         private const int MUSIC_SETTING_WIDGET_WIDTH = 500;
@@ -63,10 +65,6 @@ namespace Tetris
         private const int Y_OFFSET_NEXT_TETROMINO = 440;
         private const int Y_OFFSET_SETTINGS = 200;
         
-
-        private const int SETTINGS_LOCATION = SETTINGS_SIZE + SETTINGS_SIZE / 10;
-
-
         private static readonly Color COLOR_GRAY = Color.FromArgb(red: 65, green: 65, blue: 65);
         private static readonly Color COLOR_RED = Color.FromArgb(248, 56, 0);
         private static readonly Color COLOR_TRANSPARENT = Color.Transparent;
@@ -87,7 +85,6 @@ namespace Tetris
         private const string TEXT_ON_SETTING = "ON";
         private const string TEXT_OFF_SETTING = "OFF";
         private const string TEXT_SCORE_SCREEN_CURSOR = "   < >";
-
         private const string TEXT_NAME = "NAME";
         private const string TEXT_TEXTBOX = "textBox";
         private const string TEXT_LABELBOX = "labelBox";
@@ -101,7 +98,7 @@ namespace Tetris
         private const byte NUMBER_OF_SCORES_SCREEN_ROWS = 4;
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // FIELDS
         private PictureBox _pictureBox;
         private readonly Logic _logic;
@@ -151,16 +148,16 @@ namespace Tetris
         private bool _logicEndedUserPressedEnter;
         private bool _handledInitialScreen;
 
-        private ScoreRow  First = new ScoreRow();
-        private ScoreRow  Second = new ScoreRow();
-        private ScoreRow  Third = new ScoreRow();
+        private ScoreRow  FirstScoreBoard = new ScoreRow();
+        private ScoreRow  SecondScoreBoard = new ScoreRow();
+        private ScoreRow  ThirdScoreBoard = new ScoreRow();
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // PROPERTIES
 
 
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // CONSTRUCTOR
         public Form1()
         {
@@ -168,8 +165,7 @@ namespace Tetris
             _logic = new Logic(_music);
         }
 
-
-        // ------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // METHODS
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -189,8 +185,8 @@ namespace Tetris
         /// This method is called based on the length of the Interval. 
         /// Currently this method will be called every 16 milliseconds that means 62.5x per second. 
         /// It is the main method of the game which handles every stage of the game, 
-        /// from the initial welcome sceen to the score screen at the end. It executes it's conditions
-        /// based on corresponding flags.
+        /// from the initial welcome sceen to the score screen at the end. It executes 
+        /// it's conditions based on corresponding flags.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -303,8 +299,8 @@ namespace Tetris
 
 
         /// <summary>
-        /// This method takes users input from keyboard and updates the corresponding labelboxes during
-        /// display of the score screen.
+        /// This method takes users input from keyboard and updates the corresponding 
+        /// labelboxes during display of the score screen.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -326,18 +322,17 @@ namespace Tetris
             switch (_scoreScreenLabelboxIndex)
             {
                 case 0:
-                    First.PlayerName = _nameAdjusted;
+                    FirstScoreBoard.PlayerName = _nameAdjusted;
                     break;
                 case 1:
-                    Second.PlayerName = _nameAdjusted;
+                    SecondScoreBoard.PlayerName = _nameAdjusted;
                     break;
                 case 2:
-                    Third.PlayerName = _nameAdjusted;
+                    ThirdScoreBoard.PlayerName = _nameAdjusted;
                     break;
                 case 255:
                     return;
             }
-            //_names[_scoreScreenLabelboxIndex] = _nameAdjusted;
             _music.SoundSettings();
         }
 
@@ -382,7 +377,7 @@ namespace Tetris
                 SetLevelDifficultyBasedOnKeypress(e);
                 ResetLevelSettingIfOutOfBounds();
                 Controls[_currentLevelSetting + 1].BackColor = COLOR_RED;
-                SetMusicOnOffBasedOnKeyPress(e);
+                EnableDisableMusicBasedOnKeyPress(e);
                 AdjustColorsOfMusicLabelBoxes();
                 _music.MusicIsAllowed = _playMusic;
 
@@ -396,15 +391,15 @@ namespace Tetris
                      && _logic.PlayersScore >= MINIMUM_HIGH_SCORE_LIMIT)
             {
                 SetTopScore();
-                SetNameLeadeboardBasedOnScoreLeaderboard();
+                SetScoreBoardBasedOnPlayersScore();
                 ResetObjects();
                 ScoreScreen_Initilaizer();
                 _scoreScreenVisible = true;
 
             }
 
-            // Reset cooresponding objects and return to settings screen because game ended and player
-            // has not reached high score.
+            // Reset cooresponding objects and return to settings screen because game ended
+            // and player has not reached high score.
             else if (_logic.RoundEndedFlag 
                      && e.KeyCode == Keys.Enter 
                      && _logic.PlayersScore < MINIMUM_HIGH_SCORE_LIMIT)
@@ -413,61 +408,57 @@ namespace Tetris
                 _settingsScreenDisplayed = false;
             }
 
-            ExitProgram(e);
+            // Exit game
+            if(e.KeyCode == Keys.Escape)
+                ExitProgram(e);
         }
 
-        private void SetNameLeadeboardBasedOnScoreLeaderboard()
+        /// <summary>
+        /// This method adjusts the score board based on the score of player.
+        /// In previous steps there is however check that player has to reach 
+        /// certain score in order for this function to take effect.
+        /// </summary>
+        private void SetScoreBoardBasedOnPlayersScore()
         {
-            //_scores[_logic.PlayersScore] = (TEXT_BLANK_SPACE, _logic.PlayersScore, _logic.CurrentLevel);
-            //_scoresList.Add(xxx);
-            //_scoresList.Sort((x, y) => y.Item2.CompareTo(x.Item2));
-
-            //var highestScore = _scoresList[0].Item2;
-            //var secondHighestScore = _scoresList.Count == 2 ? _scoresList[1].Item2 : 0;
-
-
-
-            if (_logic.PlayersScore >= First.Score)
+            if (_logic.PlayersScore >= FirstScoreBoard.Score)
             {
-                Third.Score = Second.Score;
-                Third.Level = Second.Level;
-                Third.PlayerName = Second.PlayerName;
+                ThirdScoreBoard.Score = SecondScoreBoard.Score;
+                ThirdScoreBoard.Level = SecondScoreBoard.Level;
+                ThirdScoreBoard.PlayerName = SecondScoreBoard.PlayerName;
 
-                Second.Score = First.Score;
-                Second.Level = First.Level;
-                Second.PlayerName = First.PlayerName;
+                SecondScoreBoard.Score = FirstScoreBoard.Score;
+                SecondScoreBoard.Level = FirstScoreBoard.Level;
+                SecondScoreBoard.PlayerName = FirstScoreBoard.PlayerName;
 
-                First.Score = _logic.PlayersScore;
-                First.Level = _logic.CurrentLevel.ToString();
-                First.PlayerName = TEXT_SCORE_SCREEN_CURSOR;
+                FirstScoreBoard.Score = _logic.PlayersScore;
+                FirstScoreBoard.Level = _logic.CurrentLevel.ToString();
+                FirstScoreBoard.PlayerName = TEXT_SCORE_SCREEN_CURSOR;
+
                 _scoreScreenLabelboxIndex = 0;
-                //_names[2] = _names[1];
-                //_names[1] = _names[0];
-                //_names[0] = TEXT_BLANK_SPACE;
             }
 
-            else if ( _logic.PlayersScore < First.Score && _logic.PlayersScore >= Second.Score)
+            else if ( _logic.PlayersScore < FirstScoreBoard.Score
+                && _logic.PlayersScore >= SecondScoreBoard.Score)
             {
-                Third.Score = Second.Score;
-                Third.Level = Second.Level;
-                Third.PlayerName = Second.PlayerName;
+                ThirdScoreBoard.Score = SecondScoreBoard.Score;
+                ThirdScoreBoard.Level = SecondScoreBoard.Level;
+                ThirdScoreBoard.PlayerName = SecondScoreBoard.PlayerName;
 
-                Second.Score = _logic.PlayersScore;
-                Second.Level = _logic.CurrentLevel.ToString();
-                Second.PlayerName = TEXT_SCORE_SCREEN_CURSOR;
+                SecondScoreBoard.Score = _logic.PlayersScore;
+                SecondScoreBoard.Level = _logic.CurrentLevel.ToString();
+                SecondScoreBoard.PlayerName = TEXT_SCORE_SCREEN_CURSOR;
+
                 _scoreScreenLabelboxIndex = 1;
-
-                //_names[2] = _names[1];
-                //_names[1] = TEXT_BLANK_SPACE;
             }
 
-            else if(_logic.PlayersScore < Second.Score && _logic.PlayersScore >= Third.Score)
+            else if(_logic.PlayersScore < SecondScoreBoard.Score
+                && _logic.PlayersScore >= ThirdScoreBoard.Score)
             {
-                Third.Score = _logic.PlayersScore;
-                Third.Level = _logic.CurrentLevel.ToString();
-                Third.PlayerName = TEXT_SCORE_SCREEN_CURSOR;
+                ThirdScoreBoard.Score = _logic.PlayersScore;
+                ThirdScoreBoard.Level = _logic.CurrentLevel.ToString();
+                ThirdScoreBoard.PlayerName = TEXT_SCORE_SCREEN_CURSOR;
+
                 _scoreScreenLabelboxIndex = 2;
-                //_names[2] = TEXT_BLANK_SPACE;
             }
             else
             {
@@ -475,12 +466,20 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Set new top score if players score is higher than previous top score. 
+        /// The top score is then displayed during gameplay at GUI, so that the player 
+        /// of next round knows what he has to beat.
+        /// </summary>
         private void SetTopScore()
         {
             if (_logic.PlayersScore > _topScore)
                 _topScore = _logic.PlayersScore;
         }
 
+        /// <summary>
+        /// Resets objects to their base values.
+        /// </summary>
         private void ResetObjectsAfterSettingsScreenEnded()
         {
             if (_logic.RoundEndedFlag)
@@ -498,12 +497,12 @@ namespace Tetris
             StatisticsLabelBoxes_Initializer();
         }
 
-        private static void ExitProgram(KeyEventArgs e)
-        {
-            // Exit game
-            if (e.KeyCode == Keys.Escape)
-                Application.Exit();
-        }
+        /// <summary>
+        /// Completely shuts down application.
+        /// </summary>
+        /// <param name="e"></param>
+        private static void ExitProgram(KeyEventArgs e) => Application.Exit();
+
 
         /// <summary>
         /// Adjust colors of music labelboxes based on whether music is on or off.
@@ -522,7 +521,11 @@ namespace Tetris
             }
         }
 
-        private void SetMusicOnOffBasedOnKeyPress(KeyEventArgs e)
+        /// <summary>
+        /// Based on key up / key down either enable or disable music.
+        /// </summary>
+        /// <param name="e"></param>
+        private void EnableDisableMusicBasedOnKeyPress(KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -537,6 +540,11 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// There are default setting of 30 levels.
+        /// Set the level back to 0 or 29 if the number gets incremented or decremented
+        /// out of the range.
+        /// </summary>
         private void ResetLevelSettingIfOutOfBounds()
         {
             switch (_currentLevelSetting)
@@ -550,6 +558,10 @@ namespace Tetris
             }
         }
 
+        /// <summary>
+        /// Based on left / right arrow keypress adjust level (difficulty)
+        /// </summary>
+        /// <param name="e"></param>
         private void SetLevelDifficultyBasedOnKeypress(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -619,8 +631,8 @@ namespace Tetris
                 }
             }
 
-            // GRID = Compute control offset because widgets (Controls) in the "next tetromino" matrix were
-            // created after the main game matrix.
+            // GRID = Compute control offset because widgets (Controls) in the "next
+            // tetromino" matrix were created after the main game matrix.
 
             // Redraw "next tetromino" matrix
             for (var i = 0; i < Tetromino.GRID_SURFACE_AREA; i++)
@@ -650,7 +662,8 @@ namespace Tetris
         /// </summary>
         private void GameEndedAnimation()
         {
-            if (!_logic.SkipLogicMain || _endGameAnimationCounter == END_GAME_ANIMATION_COUNTER_LIMIT)
+            if (!_logic.SkipLogicMain
+                || _endGameAnimationCounter == END_GAME_ANIMATION_COUNTER_LIMIT)
                 return;
 
             for (var i = 0; i < Consts.MAIN_GRID_WIDTH; i++)
@@ -743,7 +756,10 @@ namespace Tetris
                         y:i * PICTURE_BOX_LOCATION
                         );
                     _pictureBox.Name = $"{TEXT_PICTUREBOX}{counter}";
-                    _pictureBox.Size = new Size(width:MAIN_GRID_WIDGET_SIZE, height:MAIN_GRID_WIDGET_SIZE);
+                    _pictureBox.Size = new Size(
+                        width:MAIN_GRID_WIDGET_SIZE,
+                        height:MAIN_GRID_WIDGET_SIZE
+                        );
                     _pictureBox.TabIndex = 0;
                     _pictureBox.TabStop = false;
                     Controls.Add(_pictureBox);
@@ -764,7 +780,10 @@ namespace Tetris
                         y: Y_OFFSET_NEXT_TETROMINO + i * PICTURE_BOX_LOCATION
                         );
                     _pictureBox.Name = $"{TEXT_PICTUREBOX}{counter}";
-                    _pictureBox.Size = new Size(width: MAIN_GRID_WIDGET_SIZE, height: MAIN_GRID_WIDGET_SIZE);
+                    _pictureBox.Size = new Size(
+                        width: MAIN_GRID_WIDGET_SIZE, 
+                        height: MAIN_GRID_WIDGET_SIZE
+                        );
                     _pictureBox.TabIndex = 0;
                     _pictureBox.TabStop = false;
                     Controls.Add(_pictureBox);
@@ -773,8 +792,6 @@ namespace Tetris
                 }
             }
         }
-
-
 
         /// <summary>
         /// This method displays the setting options. 
@@ -788,7 +805,10 @@ namespace Tetris
             _labelLevelSetting.Font = new Font(familyName:FONT_BAUHAUS, emSize:FONT_SIZE_BIG);
             _labelLevelSetting.Location = new Point(x: X_LEVEL_SETTINGS, y: Y_LEVEL_SETTINGS);
             _labelLevelSetting.Name = TEXT_LABELBOX + TEXT_LEVEL_SETTING;
-            _labelLevelSetting.Size = new Size(width: LEVEL_SETTINGS_WIDTH, height: WIDGET_GENERAL_SIZE);
+            _labelLevelSetting.Size = new Size(
+                width: LEVEL_SETTINGS_WIDTH, 
+                height: WIDGET_GENERAL_SIZE
+                );
             _labelLevelSetting.ForeColor = COLOR_GRAY;
             _labelLevelSetting.BackColor = Consts.COLOR_BLACK;
             Controls.Add(_labelLevelSetting);
@@ -820,7 +840,10 @@ namespace Tetris
             _labelMusicSetting.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
             _labelMusicSetting.Location = new Point(x:X_MUSIC_SETTING_DESCR, y:Y_MUSIC_SETTING);
             _labelMusicSetting.Name = TEXT_LABELBOX + TEXT_MUSIC_SETTING;
-            _labelMusicSetting.Size = new Size(width:MUSIC_SETTING_WIDGET_WIDTH, height:WIDGET_GENERAL_SIZE);
+            _labelMusicSetting.Size = new Size(
+                width:MUSIC_SETTING_WIDGET_WIDTH, 
+                height:WIDGET_GENERAL_SIZE
+                );
             _labelMusicSetting.ForeColor = COLOR_GRAY;
             _labelMusicSetting.BackColor = Consts.COLOR_BLACK;
             Controls.Add(_labelMusicSetting);
@@ -831,7 +854,10 @@ namespace Tetris
             _labelMusicOn.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_SMALL);
             _labelMusicOn.Location = new Point(x: X_MUSIC_SETTING, y: Y_MUSIC_ON);
             _labelMusicOn.Name = TEXT_LABELBOX + TEXT_ON_SETTING;
-            _labelMusicOn.Size = new Size(width: MUSIC_SETTINGS_WIDGET_SIZE, height: MUSIC_SETTINGS_WIDGET_SIZE);
+            _labelMusicOn.Size = new Size(
+                width: MUSIC_SETTINGS_WIDGET_SIZE,
+                height: MUSIC_SETTINGS_WIDGET_SIZE
+                );
             _labelMusicOn.ForeColor = Consts.COLOR_BLACK;
             _labelMusicOn.BackColor = COLOR_RED;
             Controls.Add(_labelMusicOn);
@@ -841,7 +867,10 @@ namespace Tetris
             _labelMusicOff.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_SMALL);
             _labelMusicOff.Location = new Point(x: X_MUSIC_SETTING, y: Y_MUSIC_OFF);
             _labelMusicOff.Name = TEXT_LABELBOX + TEXT_OFF_SETTING;
-            _labelMusicOff.Size = new Size(width: MUSIC_SETTINGS_WIDGET_SIZE, height: MUSIC_SETTINGS_WIDGET_SIZE);
+            _labelMusicOff.Size = new Size(
+                width: MUSIC_SETTINGS_WIDGET_SIZE,
+                height: MUSIC_SETTINGS_WIDGET_SIZE
+                );
             _labelMusicOff.ForeColor = Consts.COLOR_BLACK;
             _labelMusicOff.BackColor = COLOR_GRAY;
             Controls.Add(_labelMusicOff);
@@ -850,8 +879,8 @@ namespace Tetris
         }
 
         /// <summary>
-        /// This method is called when the game starts and displayes the initial screen with the 
-        /// Prague pixel wallpaper.
+        /// This method is called when the game starts and displayes the initial 
+        /// screen with the Prague pixel wallpaper.
         /// </summary>
         public void WelcomeScreen_Initialiser()
         {
@@ -876,29 +905,48 @@ namespace Tetris
 
         /// <summary>
         /// This method is called when the game ends and the score screen is displayed. 
-        /// All widgets in this method are initialised only once and then only updated in the loop.
+        /// All widgets in this method are initialised only once and then only updated 
+        /// in the loop.
         /// </summary>
         public void ScoreScreen_Initilaizer()
         {
             _scoreScreenGratulationTitle.Text = TEXT_CONGRATULATIONS;
-            _scoreScreenGratulationTitle.Font = new Font(familyName:FONT_BAUHAUS, emSize:FONT_SIZE_BIG);
-            _scoreScreenGratulationTitle.Location = new Point(x: X_SCORESCREEN, y: Y_SCORESCREEN);
+            _scoreScreenGratulationTitle.Font = new Font(
+                familyName:FONT_BAUHAUS, 
+                emSize:FONT_SIZE_BIG
+                );
+            _scoreScreenGratulationTitle.Location = new Point(
+                x: X_SCORESCREEN, 
+                y: Y_SCORESCREEN
+                );
             _scoreScreenGratulationTitle.Name = TEXT_LABELBOX + TEXT_CONGRATULATIONS;
-            _scoreScreenGratulationTitle.Size = new Size(width: SCORESCREEN_WIDTH, height: WIDGET_GENERAL_SIZE);
+            _scoreScreenGratulationTitle.Size = new Size(
+                width: SCORESCREEN_WIDTH, 
+                height: WIDGET_GENERAL_SIZE
+                );
             _scoreScreenGratulationTitle.ForeColor = COLOR_RED;
             _scoreScreenGratulationTitle.BackColor = Consts.COLOR_BLACK;
             Controls.Add(_scoreScreenGratulationTitle);
 
             _scoreScreenTetrisMaster.Text = $"{TEXT_TETRIS_MASTER}\n{TEXT_ENTER_YOUR_NAME}";
-            _scoreScreenTetrisMaster.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
-            _scoreScreenTetrisMaster.Location = new Point(x: X_TETRIS_MASTER, y: Y_TETRIS_MASTER);
+            _scoreScreenTetrisMaster.Font = new Font(
+                familyName: FONT_BAUHAUS, 
+                emSize: FONT_SIZE_BIG
+                );
+            _scoreScreenTetrisMaster.Location = new Point(
+                x: X_TETRIS_MASTER, 
+                y: Y_TETRIS_MASTER
+                );
             _scoreScreenTetrisMaster.Name = TEXT_LABELBOX + TEXT_TETRIS_MASTER;
-            _scoreScreenTetrisMaster.Size = new Size(width: TETRIS_MASTER_WIDTH, height: TETRIS_MASTER_HEIGHT);
+            _scoreScreenTetrisMaster.Size = new Size(
+                width: TETRIS_MASTER_WIDTH, 
+                height: TETRIS_MASTER_HEIGHT
+                );
             _scoreScreenTetrisMaster.ForeColor = COLOR_GRAY;
             _scoreScreenTetrisMaster.BackColor = Consts.COLOR_BLACK;
             Controls.Add(_scoreScreenTetrisMaster);
 
-            // This loop creates 4 rows. First row is only description of the rows.
+            // This loop creates 4 rows. FirstScoreBoard row is only description of the rows.
             // Other 3 rows are intended to be filled with with players data.
             byte counter = 0;
             var yOffset = 0;
@@ -910,9 +958,15 @@ namespace Tetris
                     _labelBox = new Label();
                     _labelBox.Text = $"{counter}";
                     _labelBox.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
-                    _labelBox.Location = new Point(x: X_WINNERS_SEQUENCE + X_OFFSET_LABELBOX_SCORESCREEN, y: Y_SCORE_SCREEN + yOffset);
+                    _labelBox.Location = new Point(
+                        x: X_WINNERS_SEQUENCE + X_OFFSET_LABELBOX_SCORESCREEN, 
+                        y: Y_SCORE_SCREEN + yOffset
+                        );
                     _labelBox.Name = $"labelBoxRow{i}";
-                    _labelBox.Size = new Size(width: WIDGET_GENERAL_SIZE, height: WIDGET_GENERAL_SIZE);
+                    _labelBox.Size = new Size(
+                        width: WIDGET_GENERAL_SIZE, 
+                        height: WIDGET_GENERAL_SIZE
+                        );
                     _labelBox.ForeColor = COLOR_GRAY;
                     _labelBox.BackColor = Consts.COLOR_BLACK;
                     Controls.Add(_labelBox);
@@ -927,19 +981,25 @@ namespace Tetris
                         _labelBox.Text = TEXT_NAME;
                         break;
                     case 1:
-                        _labelBox.Text = First.PlayerName;
+                        _labelBox.Text = FirstScoreBoard.PlayerName;
                         break;
                     case 2:
-                        _labelBox.Text = Second.PlayerName;
+                        _labelBox.Text = SecondScoreBoard.PlayerName;
                         break;
                     case 3:
-                        _labelBox.Text = Third.PlayerName;
+                        _labelBox.Text = ThirdScoreBoard.PlayerName;
                         break;
                 }
                 _labelBox.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
-                _labelBox.Location = new Point(x: X_WINNERS_NAME + X_OFFSET_LABELBOX_SCORESCREEN, y: Y_SCORE_SCREEN + yOffset);
+                _labelBox.Location = new Point(
+                    x: X_WINNERS_NAME + X_OFFSET_LABELBOX_SCORESCREEN,
+                    y: Y_SCORE_SCREEN + yOffset
+                    );
                 _labelBox.Name = $"{TEXT_LABELBOX}{TEXT_NAME}{i}";
-                _labelBox.Size = new Size(width: WINNERS_NAME_WIDTH, height: WIDGET_GENERAL_SIZE);
+                _labelBox.Size = new Size(
+                    width: WINNERS_NAME_WIDTH, 
+                    height: WIDGET_GENERAL_SIZE
+                    );
                 _labelBox.ForeColor = COLOR_GRAY;
                 _labelBox.BackColor = Consts.COLOR_BLACK;
                 Controls.Add(_labelBox);
@@ -952,17 +1012,23 @@ namespace Tetris
                         _labelBox.Text = TEXT_SCORE;
                         break;
                     case 1:
-                        _labelBox.Text = First.Score > 0 ? First.Score.ToString() : Consts.TEXT_BLANK_SPACE ;
+                        _labelBox.Text = FirstScoreBoard.Score > 0 
+                            ? FirstScoreBoard.Score.ToString() : Consts.TEXT_BLANK_SPACE ;
                         break;
                     case 2:
-                        _labelBox.Text = Second.Score > 0 ? Second.Score.ToString() : Consts.TEXT_BLANK_SPACE;
+                        _labelBox.Text = SecondScoreBoard.Score > 0 
+                            ? SecondScoreBoard.Score.ToString() : Consts.TEXT_BLANK_SPACE;
                         break;
                     case 3:
-                        _labelBox.Text = Third.Score > 0 ? Third.Score.ToString() : Consts.TEXT_BLANK_SPACE;
+                        _labelBox.Text = ThirdScoreBoard.Score > 0 
+                            ? ThirdScoreBoard.Score.ToString() : Consts.TEXT_BLANK_SPACE;
                         break;
                 }
                 _labelBox.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
-                _labelBox.Location = new Point(x: X_WINNERS_SCORE + X_OFFSET_LABELBOX_SCORESCREEN, y: Y_SCORE_SCREEN + yOffset);
+                _labelBox.Location = new Point(
+                    x: X_WINNERS_SCORE + X_OFFSET_LABELBOX_SCORESCREEN,
+                    y: Y_SCORE_SCREEN + yOffset
+                    );
                 _labelBox.Name = $"{TEXT_LABELBOX}{TEXT_SCORE}{i}";
                 _labelBox.Size = new Size(width: WINNERS_SCORE_WIDTH, height: WIDGET_GENERAL_SIZE);
                 _labelBox.ForeColor = COLOR_GRAY;
@@ -977,17 +1043,20 @@ namespace Tetris
                         _labelBox.Text = TEXT_LEVEL_SHORT;
                         break;
                     case 1:
-                        _labelBox.Text = First.Level;
+                        _labelBox.Text = FirstScoreBoard.Level;
                         break;
                     case 2:
-                        _labelBox.Text = Second.Level;
+                        _labelBox.Text = SecondScoreBoard.Level;
                         break;
                     case 3:
-                        _labelBox.Text = Third.Level;
+                        _labelBox.Text = ThirdScoreBoard.Level;
                         break;
                 }
                 _labelBox.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
-                _labelBox.Location = new Point(x: X_WINNERS_LVL + X_OFFSET_LABELBOX_SCORESCREEN, y:Y_SCORE_SCREEN + yOffset);
+                _labelBox.Location = new Point(
+                    x: X_WINNERS_LVL + X_OFFSET_LABELBOX_SCORESCREEN,
+                    y:Y_SCORE_SCREEN + yOffset
+                    );
                 _labelBox.Name = $"{TEXT_LABELBOX}{TEXT_LEVEL_SHORT}{i}";
                 _labelBox.Size = new Size(width: WINNERS_LVL_WIDTH, height: WIDGET_GENERAL_SIZE);
                 _labelBox.ForeColor = COLOR_GRAY;
@@ -1002,15 +1071,14 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Assigns a name to corresponding control labelbox.
+        /// Updates names to corresponding control labelboxes.
         /// </summary>
         public void ScoreScreen_Updater()
         {
-            Controls[$"{TEXT_LABELBOX}{TEXT_NAME}{1}"].Text = First.PlayerName;
-            Controls[$"{TEXT_LABELBOX}{TEXT_NAME}{2}"].Text = Second.PlayerName;
-            Controls[$"{TEXT_LABELBOX}{TEXT_NAME}{3}"].Text = Third.PlayerName;
+            Controls[$"{TEXT_LABELBOX}{TEXT_NAME}{1}"].Text = FirstScoreBoard.PlayerName;
+            Controls[$"{TEXT_LABELBOX}{TEXT_NAME}{2}"].Text = SecondScoreBoard.PlayerName;
+            Controls[$"{TEXT_LABELBOX}{TEXT_NAME}{3}"].Text = ThirdScoreBoard.PlayerName;
         }
-
 
         /// <summary>
         /// Resets the level setting to zero.
@@ -1071,6 +1139,10 @@ namespace Tetris
                 $"\n{_logic.TotalNumberOfClearedLines}";
         }
 
+        /// <summary>
+        /// This function checks whether to end and dispose initial screen wallpaper
+        /// after certain time has passed.
+        /// </summary>
         private void CheckIfDisposeInitialScreen()
         {
             if (_counterInitialScreen > INITIAL_SCREEN_VISIBILITY_LIMIT)
@@ -1082,7 +1154,9 @@ namespace Tetris
             _counterInitialScreen++;
         }
 
-
+        /// <summary>
+        /// Reset objects to their base value.
+        /// </summary>
         private void ResetObjectsAfterScoreScreenEnded()
         {
             ResetObjects();
@@ -1093,7 +1167,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Resets objects to the state so that it is possible to move to next screen.
+        /// Resets objects to their base value.
         /// </summary>
         private void ResetObjects()
         {
@@ -1105,15 +1179,3 @@ namespace Tetris
         }
     }
 }
-
-/*
- * Enable condition ScoreScreenInitilaizer if Enter and logic.gameended. and score is bigger than 10000
- * Clear all controls.
- * If bool scorescreen, execute the ScoreScreenInitilaizer in TickMethod.
- * Create controls of ScoreScreenInitilaizer.
- * Play bacground music scorescreen and let sfx play with each keystroke.
- * Check for keyboard user input and update the labelbox, condition for 6 characters max.
- * Add there option do lete with backspace or delete keyword.
- * If enter, stop checking for user input and change the color of name labelbox, assign the highscore to some genereal class.
- * 
- */
