@@ -15,8 +15,8 @@ These bugs are occasional. Might not happen at all if a person does not to destr
 - There is a merge of tetrominos when tetromino moves diagonally down. Happens both at slow and fast tetromino movement (↓ pressed).
 - Rotation of tetromino out of side and bottom boundaries.
 
-![Image](readme\Praha.png)
-![Image](readme\Settings.JPG)
-![Image](readme\InGame1.JPG)
-![Image](readme\InGame2.JPG)
-![Image](readme\Score.JPG)
+![Image](Praha.png)
+![Image](Settings.JPG)
+![Image](InGame1.JPG)
+![Image](InGame2.JPG)
+![Image](Score.JPG)
