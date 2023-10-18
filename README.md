@@ -20,9 +20,9 @@ with his name.
 Game then continues again from settings menu.
 
 ## Controls:
-← ↑ ↓ →   - Navigation__
-X Z       - Rotation__
-Enter     - Confirm__
+← ↑ ↓ →   - Navigation<br />
+X Z       - Rotation<br />
+Enter     - Confirm<br />
 Esc       - Exit application
 
 ## Status of the project:
