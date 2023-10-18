@@ -15,7 +15,7 @@ Ideally, player wants to score Tetrises - 4 lines cleared at the same time.
 Interactive sounds, when moving tetrominos around, are also included in the game.
 
 If the player reaches high-score limit of 10_000 points, his achievement is recoreded at score screen and player can sign the record
-with his name.
+with his name. Victory music is played.
 
 Game then continues again from settings menu.
 

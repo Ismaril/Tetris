@@ -1,10 +1,7 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Text;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace Tetris
@@ -23,15 +20,15 @@ namespace Tetris
         private const byte SETTINGS_LOCATION = SETTINGS_SIZE + SETTINGS_SIZE / 10;
 
         private const int STATISTICS_WIDTH = 400;
-        private const int STATISTICS_HEIGHT = 150;
-        private const int MUSIC_SETTING_WIDGET_WIDTH = 500;
+        private const int WINNERS_LVL_WIDTH = 150;
         private const int SCORESCREEN_WIDTH = 650;
         private const int TETRIS_MASTER_WIDTH = 800;
-        private const int TETRIS_MASTER_HEIGHT = 160;
         private const int LEVEL_SETTINGS_WIDTH = 300;
         private const int WINNERS_NAME_WIDTH = 270;
         private const int WINNERS_SCORE_WIDTH = 280;
-        private const int WINNERS_LVL_WIDTH = 150;
+        private const int MUSIC_SETTING_WIDGET_WIDTH = 500;
+        private const int TETRIS_MASTER_HEIGHT = 160;
+        private const int STATISTICS_HEIGHT = 150;
 
         private const int X_STATISTICS = 1228;
         private const int X_MUSIC_SETTING = 920;
@@ -93,10 +90,14 @@ namespace Tetris
 
         private const int MINIMUM_HIGH_SCORE_LIMIT = 10_000;
         private const byte INITIAL_SCREEN_VISIBILITY_LIMIT = 100;
-        private const byte LIMIT_OF_CHARACTERS_IN_NAME = 6;
+        private const byte CHARACTERS_IN_NAME_LIMIT = 6;
         private const byte END_GAME_ANIMATION_COUNTER_LIMIT = 200;
-        private const byte NUMBER_OF_SCORES_SCREEN_ROWS = 4;
 
+        private const byte NUMBER_OF_SCORES_SCREEN_ROWS = 4;
+        private const int COLOR0 = 0;
+        private const int COLOR1 = 1;
+        private const int COLOR2 = 2;
+        private const int COLOR3 = 3;
 
         // -----------------------------------------------------------------------------------------
         // FIELDS
@@ -129,20 +130,16 @@ namespace Tetris
 
         private int _keyTimer;
         private int _topScore;
-        private const int COLOR0 = 0;       
-        private const int COLOR1 = 1;
-        private const int COLOR2 = 2;
-        private const int COLOR3 = 3;
 
         private bool _playMusic = true;
-        private bool _scoreScreenVisible;
+        private bool _scoreScreenDisplayed;
+        private bool _initialScreenDisplayed;
+        private bool _settingsScreenDisplayed;
         private bool _moveDownAlreadyPressed;
         private bool _rotateAlreadyPressed;
         private bool _moveToSidesAlreadyPressed;
         private bool _rotateRight;
         private bool _rotateLeft;
-        private bool _initialScreenDisplayed;
-        private bool _settingsScreenDisplayed;
         private bool _playGame;
         private bool _mainMusicStartedPlaying;
         private bool _logicEndedUserPressedEnter;
@@ -185,7 +182,7 @@ namespace Tetris
         /// This method is called based on the length of the Interval. 
         /// Currently this method will be called every 16 milliseconds that means 62.5x per second. 
         /// It is the main method of the game which handles every stage of the game, 
-        /// from the initial welcome sceen to the score screen at the end. It executes 
+        /// from the initial welcome screen to the score screen at the end. It executes 
         /// it's conditions based on corresponding flags.
         /// </summary>
         /// <param name="sender"></param>
@@ -195,7 +192,7 @@ namespace Tetris
             // Initial welcome screen (Prague pixel wallpaper)
             if (!_handledInitialScreen)
             {
-                WelcomeScreen_Initialiser();
+                WelcomeScreen_Initializer();
                 CheckIfDisposeInitialScreen();
             }
 
@@ -217,13 +214,12 @@ namespace Tetris
                 MovementToSidesKeyPress_Limiter();
                 RotateKeyPress_Limiter();
                 GameEndedAnimation();
-                //music.GetPositionOfMainMusic();
             }
 
             // Score screen (Results of players high scores)
             else if (_logic.RoundEndedFlag
                      && _logic.PlayersScore >= MINIMUM_HIGH_SCORE_LIMIT
-                     && _scoreScreenVisible)
+                     && _scoreScreenDisplayed)
             {
                 ScoreScreen_Updater();
             }
@@ -300,24 +296,24 @@ namespace Tetris
 
         /// <summary>
         /// This method takes users input from keyboard and updates the corresponding 
-        /// labelboxes during display of the score screen.
+        /// label-boxes during display of the score screen.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ScoreScreenKeyPressEventHandler(object sender, KeyPressEventArgs e)
         {
             // Check if the pressed key is a valid character (not a control key)
-            if (char.IsControl(e.KeyChar) || !_scoreScreenVisible)
+            if (char.IsControl(e.KeyChar) || !_scoreScreenDisplayed)
                 return;
 
             // Convert the pressed key to its ASCII character representation
             var pressedChar = e.KeyChar;
 
             _scoreScreenNameHolder += pressedChar;
-            if (_scoreScreenNameHolder.Length > LIMIT_OF_CHARACTERS_IN_NAME)
+            if (_scoreScreenNameHolder.Length > CHARACTERS_IN_NAME_LIMIT)
                 _nameAdjusted = _scoreScreenNameHolder.Substring(
-                    startIndex: _scoreScreenNameHolder.Length - LIMIT_OF_CHARACTERS_IN_NAME, 
-                    length: LIMIT_OF_CHARACTERS_IN_NAME
+                    startIndex: _scoreScreenNameHolder.Length - CHARACTERS_IN_NAME_LIMIT, 
+                    length: CHARACTERS_IN_NAME_LIMIT
                     ).ToUpper();
             switch (_scoreScreenLabelboxIndex)
             {
@@ -354,7 +350,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// This method speciifies what happens when the user presses a keyboard key.
+        /// This method specifies what happens when the user presses a keyboard key.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -362,16 +358,24 @@ namespace Tetris
         {
             SetCorrespondingFlagsBasedOnPressedKeyboardKey(e);
 
-            // If player presses enter after he is finished with scorescreen,
+            // If player presses enter after he is finished with score-screen,
             // corresponding objects will be reseted.
-            if (_scoreScreenVisible && e.KeyCode == Keys.Enter)
+            if (_scoreScreenDisplayed && e.KeyCode == Keys.Enter)
             {
                 ResetObjectsAfterScoreScreenEnded();
             }
 
             // Settings screen
-            else if ((_settingsScreenDisplayed && !_playGame && !_scoreScreenVisible) 
-                || (!_settingsScreenDisplayed && _logicEndedUserPressedEnter))
+            else if (
+                (!_playGame
+                 && _settingsScreenDisplayed
+                 && !_scoreScreenDisplayed) 
+
+                || 
+                
+                (!_settingsScreenDisplayed 
+                 && _logicEndedUserPressedEnter)
+                )
             {
                 Controls[_currentLevelSetting + 1].BackColor = COLOR_GRAY;
                 SetLevelDifficultyBasedOnKeypress(e);
@@ -393,12 +397,12 @@ namespace Tetris
                 SetTopScore();
                 SetScoreBoardBasedOnPlayersScore();
                 ResetObjects();
-                ScoreScreen_Initilaizer();
-                _scoreScreenVisible = true;
+                ScoreScreen_Initializer();
+                _scoreScreenDisplayed = true;
 
             }
 
-            // Reset cooresponding objects and return to settings screen because game ended
+            // Reset corresponding objects and return to settings screen because game ended
             // and player has not reached high score.
             else if (_logic.RoundEndedFlag 
                      && e.KeyCode == Keys.Enter 
@@ -414,12 +418,12 @@ namespace Tetris
         }
 
         /// <summary>
-        /// This method adjusts the score board based on the score of player.
-        /// In previous steps there is however check that player has to reach 
-        /// certain score in order for this function to take effect.
+        /// This method adjusts the score-board based on the score of player.
+        /// This function will be called only if the player has reached high score.
         /// </summary>
         private void SetScoreBoardBasedOnPlayersScore()
         {
+            // If players score is higher than the first score on the score-board
             if (_logic.PlayersScore >= FirstScoreBoard.Score)
             {
                 ThirdScoreBoard.Score = SecondScoreBoard.Score;
@@ -437,6 +441,7 @@ namespace Tetris
                 _scoreScreenLabelboxIndex = 0;
             }
 
+            // If players score is higher than the second score on the score-board
             else if ( _logic.PlayersScore < FirstScoreBoard.Score
                 && _logic.PlayersScore >= SecondScoreBoard.Score)
             {
@@ -451,6 +456,7 @@ namespace Tetris
                 _scoreScreenLabelboxIndex = 1;
             }
 
+            // If players score is higher than the third score on the score-board
             else if(_logic.PlayersScore < SecondScoreBoard.Score
                 && _logic.PlayersScore >= ThirdScoreBoard.Score)
             {
@@ -505,7 +511,7 @@ namespace Tetris
 
 
         /// <summary>
-        /// Adjust colors of music labelboxes based on whether music is on or off.
+        /// Adjust colors of music label-boxes based on whether music is on or off.
         /// </summary>
         private void AdjustColorsOfMusicLabelBoxes()
         {
@@ -522,7 +528,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Based on key up / key down either enable or disable music.
+        /// Based on key-up / key-down, either enable or disable music.
         /// </summary>
         /// <param name="e"></param>
         private void EnableDisableMusicBasedOnKeyPress(KeyEventArgs e)
@@ -630,11 +636,9 @@ namespace Tetris
                         break;
                 }
             }
-
-            // GRID = Compute control offset because widgets (Controls) in the "next
-            // tetromino" matrix were created after the main game matrix.
-
-            // Redraw "next tetromino" matrix
+            
+            // Redraw "next tetromino" matrix.
+            // Index in Controls is offseted because there are other controls before.
             for (var i = 0; i < Tetromino.GRID_SURFACE_AREA; i++)
             {
                 Controls[Consts.GRID_SURFACE_AREA + i].BackgroundImage = Sprites.OFFGRID_COLOR;
@@ -667,20 +671,20 @@ namespace Tetris
                 return;
 
             for (var i = 0; i < Consts.MAIN_GRID_WIDTH; i++)
-                Controls[i + Consts.HIDDEN_UPPER_MAIN_GRID_INDEXES + _endGameAnimationCounter].BackgroundImage 
+                Controls[i + Consts.HIDDEN_UPPER_MAIN_GRID_INDEXES
+                           + _endGameAnimationCounter].BackgroundImage 
                     = _sprites.TetrominoBlocks[GetCurrentLevel()][COLOR3];
             _endGameAnimationCounter += Consts.MAIN_GRID_WIDTH;
         }
 
         /// <summary>
-        /// This method creates labelboxes which will hold information about the 
-        /// game statistics during gameplay.
-        /// These labelboxes are created only once and then must be updated in the 
+        /// This method creates label-boxes which will hold information about the 
+        /// game statistics during game-play.
+        /// These label-boxes are created only once and then must be updated in the 
         /// loop by different method.
         /// </summary>
         private void StatisticsLabelBoxes_Initializer()
         {
-
             // Top Score
             _labelTopScore.Text = $"{TEXT_TOP_SCORE}\n0";
             _labelTopScore.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_BIG);
@@ -742,7 +746,7 @@ namespace Tetris
         /// </summary>
         public void Grid_Initializer()
         {
-            // Create 2D matrix at GUI which will be the main playboard.
+            // Create 2D matrix at GUI which will be the main play-board.
             byte counter = 0;
             for (var i = 0; i < Consts.MAIN_GRID_HEIGHT; i++)
             {
@@ -795,12 +799,12 @@ namespace Tetris
 
         /// <summary>
         /// This method displays the setting options. 
-        /// It is called only once and then labelboxes should be updated in the loop by 
+        /// It is called only once and then label-boxes should be updated in the loop by 
         /// different method.
         /// </summary>
         public void SettingsScreen_Initializer()
         {
-            // Level settings labelbox.
+            // Level settings label-box.
             _labelLevelSetting.Text = TEXT_LEVEL_SETTING;
             _labelLevelSetting.Font = new Font(familyName:FONT_BAUHAUS, emSize:FONT_SIZE_BIG);
             _labelLevelSetting.Location = new Point(x: X_LEVEL_SETTINGS, y: Y_LEVEL_SETTINGS);
@@ -813,7 +817,7 @@ namespace Tetris
             _labelLevelSetting.BackColor = Consts.COLOR_BLACK;
             Controls.Add(_labelLevelSetting);
 
-            // This loop creates 30 labelboxes which will display level options, each label
+            // This loop creates 30 label-boxes which will display level options, each label
             // represented by level number.
             byte counter = 0;
             for (var i = 0; i < 3; i++)
@@ -849,7 +853,7 @@ namespace Tetris
             Controls.Add(_labelMusicSetting);
 
 
-            // Music ON labelbox
+            // Music ON label-box
             _labelMusicOn.Text = TEXT_ON_SETTING;
             _labelMusicOn.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_SMALL);
             _labelMusicOn.Location = new Point(x: X_MUSIC_SETTING, y: Y_MUSIC_ON);
@@ -862,7 +866,7 @@ namespace Tetris
             _labelMusicOn.BackColor = COLOR_RED;
             Controls.Add(_labelMusicOn);
 
-            // Music OFF labelbox
+            // Music OFF label-box
             _labelMusicOff.Text = TEXT_OFF_SETTING;
             _labelMusicOff.Font = new Font(familyName: FONT_BAUHAUS, emSize: FONT_SIZE_SMALL);
             _labelMusicOff.Location = new Point(x: X_MUSIC_SETTING, y: Y_MUSIC_OFF);
@@ -879,10 +883,10 @@ namespace Tetris
         }
 
         /// <summary>
-        /// This method is called when the game starts and displayes the initial 
+        /// This method is called when the game starts and displays the initial 
         /// screen with the Prague pixel wallpaper.
         /// </summary>
-        public void WelcomeScreen_Initialiser()
+        public void WelcomeScreen_Initializer()
         {
             if (_initialScreenDisplayed)
                 return;
@@ -905,10 +909,10 @@ namespace Tetris
 
         /// <summary>
         /// This method is called when the game ends and the score screen is displayed. 
-        /// All widgets in this method are initialised only once and then only updated 
+        /// All widgets in this method are initialized only once and then only updated 
         /// in the loop.
         /// </summary>
-        public void ScoreScreen_Initilaizer()
+        public void ScoreScreen_Initializer()
         {
             _scoreScreenGratulationTitle.Text = TEXT_CONGRATULATIONS;
             _scoreScreenGratulationTitle.Font = new Font(
@@ -972,7 +976,6 @@ namespace Tetris
                     Controls.Add(_labelBox);
                 }
 
-                // Todo: refactor these 3 blocks.
                 // Label-boxes - names of winners.
                 _labelBox = new Label();
                 switch (i)
@@ -1071,7 +1074,7 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Updates names to corresponding control labelboxes.
+        /// Updates names to corresponding control label-boxes.
         /// </summary>
         public void ScoreScreen_Updater()
         {
@@ -1118,25 +1121,25 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Update statistics during gamplay. (Label boxes on the right side of the screen)
+        /// Update statistics during game-play. (Label boxes on the right side of the screen)
         /// </summary>
         private void StatisticsLabelBoxes_Updater()
         {
             Controls[TEXT_TEXTBOX + TEXT_TOP_SCORE].Text =
-                $"{TEXT_TOP_SCORE}" +
-                $"\n{_topScore}";
+                TEXT_TOP_SCORE
+                + $"\n{_topScore}";
 
             Controls[TEXT_TEXTBOX + TEXT_SCORE].Text =
-                $"{TEXT_SCORE}" +
-                $"\n{_logic.PlayersScore}";
+                TEXT_SCORE
+                + $"\n{_logic.PlayersScore}";
 
             Controls[TEXT_TEXTBOX + TEXT_LEVEL].Text =
-                $"{TEXT_LEVEL}" +
-                $"\n{_logic.CurrentLevel}";
+                TEXT_LEVEL 
+                + $"\n{_logic.CurrentLevel}";
 
             Controls[TEXT_TEXTBOX + TEXT_LINES_CLEARED].Text =
-                $"{TEXT_LINES_CLEARED}" +
-                $"\n{_logic.TotalNumberOfClearedLines}";
+                TEXT_LINES_CLEARED 
+                + $"\n{_logic.TotalNumberOfClearedLines}";
         }
 
         /// <summary>
@@ -1161,7 +1164,7 @@ namespace Tetris
         {
             ResetObjects();
             _settingsScreenDisplayed = false;
-            _scoreScreenVisible = false;
+            _scoreScreenDisplayed = false;
             _music.DisposeMusic(music: Music.Type.TetrisMaster);
             _scoreScreenNameHolder = Consts.TEXT_BLANK_SPACE;
         }

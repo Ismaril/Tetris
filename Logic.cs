@@ -70,10 +70,6 @@ namespace Tetris
         private byte _linesNextLevel; // has to be 10 in order to continue to next level
         private byte _tetrominoNextIndex = NOT_YET_CHOSEN_TETROMINO_INDEX;
         private bool _sendNextPiece = true;
-        private bool _canMoveRight;
-        private bool _canMoveLeft;
-        private bool _canRotateRight;
-        private bool _canRotateLeft;
         private bool _musicFastIsPlaying;
 
 
@@ -383,19 +379,19 @@ namespace Tetris
         /// <summary>
         /// Moves tetromino to right if possible.
         /// </summary>
-        /// <param name="canMoveRight">
-        /// Holds bool whether it is possible to move right.
-        /// </param>
         /// <param name="desiredRight">
         /// Holds bool whether player requested movement to right.
         /// </param>
-        public void MoveRight_UserEvent(bool canMoveRight, bool desiredRight)
+        public void MoveRight_UserEvent(bool desiredRight)
         {
             // Make sure that tetromino does not move out of right boundary of matrix.
             if (_toBeRemoved.Any(item => item % Consts.MAIN_GRID_WIDTH == 9))
                 return;
 
-            if (!canMoveRight || !desiredRight)
+            if (!desiredRight)
+                return;
+
+            if(!TetrominoHasNotObstacleAtNextColumn(checkRightside: true))
                 return;
 
             _tetrominoCurrent.MoveRight();
@@ -405,19 +401,19 @@ namespace Tetris
         /// <summary>
         /// Moves tetromino to left if possible.
         /// </summary>
-        /// <param name="canMoveLeft">
-        /// Holds bool whether it is possible to move left.
-        /// </param>
         /// <param name="desiredLeft">
         /// Holds bool whether player requested movement to left.
         /// </param>
-        public void MoveLeft_UserEvent(bool canMoveLeft, bool desiredLeft)
+        public void MoveLeft_UserEvent(bool desiredLeft)
         {
             // Make sure that tetromino does not move out of left boundary of matrix.
             if (_toBeRemoved.Any(t => t % Consts.MAIN_GRID_WIDTH == 0))
                 return;
 
-            if (!canMoveLeft || !desiredLeft)
+            if (!desiredLeft)
+                return;
+
+            if (!TetrominoHasNotObstacleAtNextColumn(checkRightside: false))
                 return;
 
             _tetrominoCurrent.MoveLeft();
@@ -442,15 +438,15 @@ namespace Tetris
         /// <summary>
         /// Rotate tetromino to left if possible.
         /// </summary>
-        /// <param name="canRotateLeft">
-        /// Holds bool whether it is possible to rotate left.
-        /// </param>
         /// <param name="desiredRotationLeft">
         /// Holds bool whether player requested rotation to left.
         /// </param>
-        public void RotateLeft_UserEvent(bool canRotateLeft, bool desiredRotationLeft)
+        public void RotateLeft_UserEvent(bool desiredRotationLeft)
         {
-            if (!canRotateLeft || !desiredRotationLeft) 
+            if (!desiredRotationLeft) 
+                return;
+
+            if(!TetrominoHasNotObstacleAtNextRotation(checkRightRotation: false))
                 return;
 
             _tetrominoCurrent.RotateLeft();
@@ -460,15 +456,15 @@ namespace Tetris
         /// <summary>
         /// Rotate tetromino to right if possible.
         /// </summary>
-        /// <param name="canRotateRight">
-        /// Holds bool whether it is possible to rotate right.
-        /// </param>
         /// <param name="desiredRotationRight">
         /// Holds bool whether player requested rotation to right.
         /// </param>
-        public void RotateRight_UserEvent(bool canRotateRight, bool desiredRotationRight)
+        public void RotateRight_UserEvent(bool desiredRotationRight)
         {
-            if (!canRotateRight || !desiredRotationRight)
+            if (!desiredRotationRight)
+                return;
+
+            if(!TetrominoHasNotObstacleAtNextRotation(checkRightRotation: true))
                 return;
 
             _tetrominoCurrent.RotateRight();
@@ -476,7 +472,8 @@ namespace Tetris
         }
 
         /// <summary>
-        /// Default movement of tetrominoCurrent. It tryes to move tetrominoCurrent down by one row.
+        /// Default movement of tetrominoCurrent.
+        /// It tries to move tetrominoCurrent down by one row.
         /// </summary>
         private void DefaultTetrominoMovement()
         {
@@ -508,7 +505,7 @@ namespace Tetris
         {
             if (!PlayMusic) return;
 
-            // This variable just count how many indxes at the top of matrix are filled with zero
+            // This variable just count how many indexes at the top of matrix are filled with zero
             // values.
             byte checkEmptySpaces = 0;
 
@@ -665,28 +662,12 @@ namespace Tetris
         /// <summary>
         /// Set desired, move, rotate flags to false.
         /// </summary>
-        private void SetTetrominoFlagsToFalse()
+        private void SetTetrominoFlagsFalse()
         {
             MoveLeft = false;
             MoveRight = false;
             RotateLeft = false;
             RotateRight = false;
-            _canMoveLeft = false;
-            _canMoveRight = false;
-            _canRotateLeft = false;
-            _canRotateRight = false;
-        }
-        
-        /// <summary>
-        /// Check for potential collisions of moving tetromino agains already placed 
-        /// tetrominos and set flags accordingly.
-        /// </summary>
-        private void SetCollisionFlags()
-        {
-            _canMoveRight = TetrominoHasNotObstacleAtNextColumn(checkRightside: true);
-            _canMoveLeft = TetrominoHasNotObstacleAtNextColumn(checkRightside: false);
-            _canRotateRight = TetrominoHasNotObstacleAtNextRotation(checkRightRotation: true);
-            _canRotateLeft = TetrominoHasNotObstacleAtNextRotation(checkRightRotation: false);
         }
 
         /// <summary>
@@ -702,18 +683,9 @@ namespace Tetris
             SkipLogicMain = false;
             RoundEndedFlag = false;
             _musicFastIsPlaying = false;
-
-            MoveLeft = false;
-            MoveRight = false;
-            RotateLeft = false;
-            RotateRight = false;
+            SetTetrominoFlagsFalse();
             MoveDownFast = false;
-            _canMoveLeft = false;
-            _canMoveRight = false;
-            _canRotateLeft = false;
-            _canRotateRight = false;
             _sendNextPiece = true;
-
             Timer = 0;
             CurrentRow = 0;
             PlayersScore = 0;
@@ -733,11 +705,10 @@ namespace Tetris
             _music.DisposeMusic(music: Music.Type.Movement);
             PlayMusicAccordingToFilledGrid();
             RoundEnded();
-            SetCollisionFlags();
-            RotateRight_UserEvent(_canRotateRight, RotateRight);
-            RotateLeft_UserEvent(_canRotateLeft, RotateLeft);
-            MoveRight_UserEvent(_canMoveRight, MoveRight);
-            MoveLeft_UserEvent(_canMoveLeft, MoveLeft);
+            RotateRight_UserEvent(RotateRight);
+            RotateLeft_UserEvent(RotateLeft);
+            MoveRight_UserEvent(MoveRight);
+            MoveLeft_UserEvent(MoveLeft);
             MoveDownFaster_UserEvent(activate: MoveDownFast);
             _toBeRemoved.Clear();
             ChoseNextTetromino();
@@ -747,11 +718,7 @@ namespace Tetris
             RemoveTetrominoFromGrid();
             RemoveCompleteRows();
             CheckIfContinueToNextLevel();
-            SetTetrominoFlagsToFalse();
+            SetTetrominoFlagsFalse();
         }
     }
 }
-
-// Todo: There is a merge of tetrominos when tetromino moves diagonally down. Happens both at slow and button down pressed.
-// Todo: I was able to rotate a tetromino out of matrix boundaries. Happend with I type and T type, meaning bbly all are fucked.
-// Todo; It was possible to rotate out of bottom with T type.

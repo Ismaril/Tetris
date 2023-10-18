@@ -5,7 +5,7 @@ namespace Tetris
     public class Tetromino
     {
         // -----------------------------------------------------------------------------------------
-        // CONSTANS
+        // CONSTANTS
         public const byte GRID_WIDTH = 4;
         public const byte GRID_HEIGHT = GRID_WIDTH;
         public const byte GRID_SURFACE_AREA = GRID_WIDTH * GRID_HEIGHT;
@@ -218,10 +218,10 @@ namespace Tetris
         /// <summary>
         /// Constructor which takes in a list of rotations and a type of tetromino. 
         /// </summary>
-        /// <param name="rotation0"></param>
-        /// <param name="rotation1"></param>
-        /// <param name="rotation2"></param>
-        /// <param name="rotation3"></param>
+        /// <param name="rotation0">Base rotation of tetromino matrix.</param>
+        /// <param name="rotation1">Base rotation of tetromino matrix 1x rotated right.</param>
+        /// <param name="rotation2">Base rotation of tetromino matrix 2x rotated right.</param>
+        /// <param name="rotation3">Base rotation of tetromino matrix 3x rotated right.</param>
         /// <param name="type"> Type of tetromino </param>
         public Tetromino(
             byte[] rotation0,
@@ -316,7 +316,7 @@ namespace Tetris
         /// Helper method.
         /// Adjust rotation if out of bounds.
         /// </summary>
-        /// <param name="rotation"></param>
+        /// <param name="rotation">Current tetromino grid rotation state.</param>
         /// <returns></returns>
         public static sbyte ResetRotation(sbyte rotation)
         {

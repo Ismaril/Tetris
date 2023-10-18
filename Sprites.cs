@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-// DONE
+
 namespace Tetris
 {
     public class Sprites
@@ -67,6 +67,8 @@ namespace Tetris
         public Sprites()
         {
             // Create a list of lists of images
+
+            // Level 0 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 BLUE_WHITE,
@@ -75,6 +77,7 @@ namespace Tetris
                 TURQUOISE_WHITE_BLUE
             });
 
+            // Level 1 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 DARK_GREEN_WHITE,
@@ -83,6 +86,7 @@ namespace Tetris
                 LIGHT_GREEN_WHITE_DARK_GREEN
             });
 
+            // Level 2 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 PURPLE_WHITE,
@@ -91,6 +95,7 @@ namespace Tetris
                 PINK_WHITE_PURPLE
             });
 
+            // Level 3 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 BLUE_WHITE,
@@ -99,6 +104,7 @@ namespace Tetris
                 GREEN_WHITE_BLUE
             });
 
+            // Level 4 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 PASTEL_RED_WHITE,
@@ -107,6 +113,7 @@ namespace Tetris
                 PASTEL_GREEN_WHITE_PASTEL_RED
             });
 
+            // Level 5 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 PASTEL_GREEN_WHITE,
@@ -115,6 +122,7 @@ namespace Tetris
                 LIGHT_BLUE_WHITE_PASTEL_GREEN
             });
 
+            // Level 6 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 RED_WHITE,
@@ -123,6 +131,7 @@ namespace Tetris
                 GRAY_WHITE_RED
             });
 
+            // Level 7 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 PURPLE_BLUE_WHITE,
@@ -131,6 +140,7 @@ namespace Tetris
                 DARK_RED_WHITE_PURPLE_BLUE
             });
 
+            // Level 8 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 BLUE_WHITE,
@@ -139,6 +149,7 @@ namespace Tetris
                 RED_WHITE_BLUE
             });
 
+            // Level 9 colors
             TetrominoBlocks.Add(new List<Image>
             {
                 RED_WHITE,

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Media;
-// DONE (Repeating background music not implemented)
+
 namespace Tetris
 {
     public class Music
@@ -209,7 +209,7 @@ namespace Tetris
 
             // 1st music length 63556920
             // 2sn music length 63551992
-            // 3rd music length
+            // 3rd music length TBD
 
             if (!MusicIsAllowed)
                 return;
