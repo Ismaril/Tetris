@@ -8,7 +8,7 @@ Project has initial pixel art welcome screen made out from real Prague photo. Th
 
 At settings screen, player has an option to choose at which level he wants to start. The higher the level, the more score you get for cleared
 lines but also the higher the difficulty.
-There is also possibility to turn ON or OFF background music. There are 3 original NES tetris soundtracks.
+There is also possibility to turn ON or OFF background music. There are 4 original NES tetris soundtracks.
 
 During gameplay player's goal is to get high-score by clearing lines. The more lines are cleared at the same time, the higher reward.
 Ideally, player wants to score Tetrises - 4 lines cleared at the same time.
@@ -35,7 +35,7 @@ These bugs are occasional. Might not happen at all if a person does not try to d
 - Rotation of tetromino out of side and bottom boundaries.
 
 ## Images:
-![Image](Praha.png)
+![Image](Praha.jpg)
 ![Image](Settings.JPG)
 ![Image](InGame1.JPG)
 ![Image](Score.JPG)
