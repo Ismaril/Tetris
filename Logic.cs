@@ -689,6 +689,7 @@ namespace Tetris
             Timer = 0;
             CurrentRow = 0;
             PlayersScore = 0;
+            TotalNumberOfClearedLines = 0;
             _tetrominoNextIndex = NOT_YET_CHOSEN_TETROMINO_INDEX;
             _linesNextLevel = 0;
         }
